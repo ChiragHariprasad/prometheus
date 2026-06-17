@@ -1,0 +1,64 @@
+groups:
+  - name: prometheus-platform
+    interval: 30s
+    rules:
+      - alert: HighErrorRate
+        expr: |
+          sum(rate(http_requests_total{status=~"5.."}[5m]))
+          /
+          sum(rate(http_requests_total[5m]))
+          > 0.05
+        for: 5m
+        labels:
+          severity: critical
+          team: platform
+        annotations:
+          summary: 'High error rate on {{ $labels.service }}'
+          description: 'Error rate is {{ $value | humanizePercentage }} for the last 5 minutes (threshold: 5%).'
+
+      - alert: HighLatency
+        expr: |
+          histogram_quantile(0.99,
+            sum(rate(http_request_duration_seconds_bucket[5m])) by (le, service)
+          ) > 2
+        for: 5m
+        labels:
+          severity: warning
+          team: platform
+        annotations:
+          summary: 'High p99 latency on {{ $labels.service }}'
+          description: 'p99 latency is {{ $value | humanizeDuration }} for the last 5 minutes (threshold: 2s).'
+
+      - alert: TwinStaleness
+        expr: |
+          time() - max(twin_last_update_timestamp_seconds) by (twin_id)
+          > 3600
+        for: 5m
+        labels:
+          severity: warning
+          team: twins
+        annotations:
+          summary: 'Twin {{ $labels.twin_id }} has not been updated'
+          description: 'No update received for twin {{ $labels.twin_id }} in {{ $value | humanizeDuration }} (threshold: 1h).'
+
+      - alert: KafkaConsumerLag
+        expr: |
+          kafka_consumer_lag > 1000
+        for: 5m
+        labels:
+          severity: critical
+          team: platform
+        annotations:
+          summary: 'High consumer lag for {{ $labels.consumer_group }} on topic {{ $labels.topic }}'
+          description: 'Consumer group {{ $labels.consumer_group }} lag is {{ $value }} on partition {{ $labels.partition }} (threshold: 1000).'
+
+      - alert: ServiceDown
+        expr: |
+          up == 0
+        for: 1m
+        labels:
+          severity: critical
+          team: platform
+        annotations:
+          summary: 'Service {{ $labels.job }} is down'
+          description: 'Instance {{ $labels.instance }} has been unreachable for more than 1 minute.'

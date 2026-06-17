@@ -1,0 +1,279 @@
+import uuid
+from datetime import datetime, timezone, timedelta
+from typing import Any
+
+from sqlalchemy import select, func, and_
+from sqlalchemy.ext.asyncio import AsyncSession
+
+from app.core.config import settings
+from app.core.exceptions import ValidationException, NotFoundException
+from app.core.kafka import KafkaClient
+from app.core.logging import logger
+from app.core.redis import RedisClient
+from app.models.customer import Customer, CustomerSession
+from app.models.event import Event as CustomerEvent
+from app.models.twin import CustomerTwin
+from app.schemas.event import EventCreate, EventResponse
+from app.repositories.customer_repository import CustomerRepository
+
+
+class EventService:
+    def __init__(self, session: AsyncSession, kafka: KafkaClient | None = None, redis: RedisClient | None = None):
+        self.session = session
+        self.kafka = kafka
+        self.redis = redis
+        self.repo = CustomerRepository(session)
+
+    async def ingest_event(self, organization_id: uuid.UUID, event_data: EventCreate | dict, customer_id: uuid.UUID | None = None) -> EventResponse:
+        if isinstance(event_data, dict):
+            event_type = event_data.get("event_type", "")
+            event_name = event_data.get("event_name", "")
+            event_properties = event_data.get("event_properties", {})
+            channel = event_data.get("channel")
+            source = event_data.get("source")
+            device_type = event_data.get("device_type")
+            device_os = event_data.get("device_os")
+            browser = event_data.get("browser")
+            ip_address = event_data.get("ip_address")
+            user_agent = event_data.get("user_agent")
+            referrer = event_data.get("referrer")
+            url = event_data.get("url")
+            geolocation = event_data.get("geolocation")
+            campaign_id = event_data.get("campaign_id")
+            value = event_data.get("value")
+            currency = event_data.get("currency")
+            event_timestamp = event_data.get("event_timestamp")
+            context = event_data.get("context", {})
+        else:
+            event_type = event_data.event_type
+            event_name = event_data.event_name
+            event_properties = event_data.event_properties
+            channel = event_data.channel
+            source = event_data.source
+            device_type = event_data.device_type
+            device_os = event_data.device_os
+            browser = event_data.browser
+            ip_address = event_data.ip_address
+            user_agent = event_data.user_agent
+            referrer = event_data.referrer
+            url = event_data.url
+            geolocation = event_data.geolocation
+            campaign_id = event_data.campaign_id
+            value = event_data.value
+            currency = event_data.currency
+            event_timestamp = event_data.event_timestamp
+            context = event_data.context
+
+        if not event_type or not event_name:
+            raise ValidationException("event_type and event_name are required")
+
+        if not customer_id:
+            customer_id = await self._resolve_customer(organization_id, event_properties, context)
+
+        if not event_timestamp:
+            event_timestamp = datetime.now(timezone.utc)
+
+        event = CustomerEvent(
+            organization_id=organization_id,
+            customer_id=customer_id,
+            event_type=event_type,
+            event_name=event_name,
+            event_properties=event_properties or {},
+            context=context or {},
+            channel=channel,
+            source=source,
+            device_type=device_type,
+            device_os=device_os,
+            browser=browser,
+            ip_address=ip_address,
+            user_agent=user_agent,
+            referrer=referrer,
+            url=url,
+            geolocation=geolocation,
+            campaign_id=uuid.UUID(campaign_id) if campaign_id and isinstance(campaign_id, str) else campaign_id,
+            value=value,
+            currency=currency,
+            processed=False,
+            event_timestamp=event_timestamp,
+        )
+        self.session.add(event)
+        await self.session.flush()
+        await self.session.refresh(event)
+
+        if customer_id:
+            await self._update_customer_last_seen(customer_id, organization_id, event_timestamp)
+
+        await self._produce_to_kafka(organization_id, event)
+        await self.process_event(organization_id, event)
+
+        logger.info("Event ingested", extra={
+            "event_id": str(event.id), "event_type": event_type, "org_id": str(organization_id),
+        })
+
+        return EventResponse(
+            id=event.id,
+            organization_id=event.organization_id,
+            customer_id=event.customer_id,
+            session_id=event.session_id,
+            event_type=event.event_type,
+            event_name=event.event_name,
+            event_properties=event.event_properties or {},
+            context=event.context or {},
+            channel=event.channel,
+            source=event.source,
+            device_type=event.device_type,
+            device_os=event.device_os,
+            browser=event.browser,
+            ip_address=event.ip_address,
+            user_agent=event.user_agent,
+            referrer=event.referrer,
+            url=event.url,
+            geolocation=event.geolocation,
+            campaign_id=str(event.campaign_id) if event.campaign_id else None,
+            value=event.value,
+            currency=event.currency,
+            processed=event.processed,
+            event_timestamp=event.event_timestamp,
+            ingested_at=event.ingested_at,
+        )
+
+    async def ingest_batch(self, organization_id: uuid.UUID, events: list[EventCreate | dict]) -> int:
+        count = 0
+        for ev_data in events:
+            try:
+                await self.ingest_event(organization_id, ev_data)
+                count += 1
+            except Exception as e:
+                logger.error("Failed to ingest batch event", extra={"error": str(e), "org_id": str(organization_id)})
+        return count
+
+    async def process_event(self, organization_id: uuid.UUID, event: CustomerEvent) -> None:
+        try:
+            if event.processed:
+                return
+
+            from app.services.twin_service import TwinService
+            twin_service = TwinService(self.session, self.redis)
+
+            if event.customer_id:
+                try:
+                    await twin_service.update_twin_from_event(organization_id, event.customer_id, event)
+                except Exception as e:
+                    logger.warning("Twin update failed", extra={"error": str(e), "event_id": str(event.id)})
+
+            if event.event_type == "purchase" and event.campaign_id:
+                from app.models.campaign import CampaignTarget
+                update_stmt = (
+                    select(CampaignTarget)
+                    .where(
+                        CampaignTarget.campaign_id == event.campaign_id,
+                        CampaignTarget.customer_id == event.customer_id,
+                        CampaignTarget.organization_id == organization_id,
+                    )
+                )
+                result = await self.session.execute(update_stmt)
+                target = result.scalar_one_or_none()
+                if target:
+                    target.converted_at = event.event_timestamp
+                    target.revenue = (target.revenue or 0) + (event.value or 0)
+                    target.status = "converted"
+
+            event.processed = True
+            await self.session.flush()
+
+        except Exception as e:
+            logger.error("Event processing failed", extra={
+                "error": str(e), "event_id": str(event.id),
+                "org_id": str(organization_id),
+            })
+
+    async def get_event_summary(self, organization_id: uuid.UUID, date_from: datetime, date_to: datetime) -> dict:
+        stmt = (
+            select(
+                CustomerEvent.event_type,
+                func.count().label("count"),
+                func.sum(CustomerEvent.value).label("total_value"),
+            )
+            .where(
+                CustomerEvent.organization_id == organization_id,
+                CustomerEvent.event_timestamp >= date_from,
+                CustomerEvent.event_timestamp <= date_to,
+            )
+            .group_by(CustomerEvent.event_type)
+        )
+        result = await self.session.execute(stmt)
+        rows = result.all()
+
+        total_events = sum(r.count for r in rows)
+        total_value = sum(r.total_value or 0 for r in rows)
+        unique_customers_stmt = (
+            select(func.count(func.distinct(CustomerEvent.customer_id)))
+            .where(
+                CustomerEvent.organization_id == organization_id,
+                CustomerEvent.event_timestamp >= date_from,
+                CustomerEvent.event_timestamp <= date_to,
+            )
+        )
+        unique_result = await self.session.execute(unique_customers_stmt)
+        unique_customers = unique_result.scalar() or 0
+
+        return {
+            "date_from": date_from.isoformat(),
+            "date_to": date_to.isoformat(),
+            "total_events": total_events,
+            "total_value": round(float(total_value), 2),
+            "unique_customers": unique_customers,
+            "events_by_type": [
+                {
+                    "event_type": r.event_type,
+                    "count": r.count,
+                    "total_value": round(float(r.total_value or 0), 2),
+                }
+                for r in rows
+            ],
+        }
+
+    async def _resolve_customer(self, organization_id: uuid.UUID, event_properties: dict, context: dict) -> uuid.UUID | None:
+        email = event_properties.get("email") or context.get("email")
+        external_id = event_properties.get("external_id") or context.get("external_id")
+
+        if email:
+            customers = await self.repo.search_by_email(email, organization_id, exact=True)
+            if customers:
+                return customers[0].id
+        if external_id:
+            customer = await self.repo.search_by_external_id(external_id, organization_id)
+            if customer:
+                return customer.id
+        return None
+
+    async def _update_customer_last_seen(self, customer_id: uuid.UUID, organization_id: uuid.UUID, timestamp: datetime) -> None:
+        customer = await self.repo.get(customer_id, organization_id)
+        if customer:
+            if not customer.first_seen_at or timestamp < customer.first_seen_at:
+                customer.first_seen_at = timestamp
+            if not customer.last_seen_at or timestamp > customer.last_seen_at:
+                customer.last_seen_at = timestamp
+            await self.session.flush()
+
+    async def _produce_to_kafka(self, organization_id: uuid.UUID, event: CustomerEvent) -> None:
+        if not self.kafka:
+            return
+        try:
+            message = {
+                "event_id": str(event.id),
+                "organization_id": str(organization_id),
+                "customer_id": str(event.customer_id) if event.customer_id else None,
+                "event_type": event.event_type,
+                "event_name": event.event_name,
+                "event_properties": event.event_properties,
+                "channel": event.channel,
+                "source": event.source,
+                "value": event.value,
+                "currency": event.currency,
+                "event_timestamp": event.event_timestamp.isoformat() if event.event_timestamp else None,
+                "ingested_at": event.ingested_at.isoformat() if event.ingested_at else None,
+            }
+            await self.kafka.produce("twin.cx.events.raw", message, key=str(organization_id))
+        except Exception as e:
+            logger.warning("Failed to produce event to Kafka", extra={"error": str(e), "event_id": str(event.id)})

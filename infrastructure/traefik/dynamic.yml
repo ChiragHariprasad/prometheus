@@ -1,0 +1,94 @@
+http:
+  routers:
+    backend:
+      rule: "Host(`api.prometheus.io`) && PathPrefix(`/api/v1`)"
+      service: backend
+      middlewares:
+        - ratelimit
+        - cors
+        - security
+      tls:
+        certResolver: letsencrypt
+
+    frontend:
+      rule: "Host(`app.prometheus.io`)"
+      service: frontend
+      middlewares:
+        - security
+      tls:
+        certResolver: letsencrypt
+
+    dashboard:
+      rule: "Host(`monitor.prometheus.io`)"
+      service: dashboard
+      middlewares:
+        - authelia
+      tls:
+        certResolver: letsencrypt
+
+  services:
+    backend:
+      loadBalancer:
+        servers:
+          - url: "http://backend:8000"
+        healthCheck:
+          path: /health
+          interval: 30s
+          timeout: 5s
+
+    frontend:
+      loadBalancer:
+        servers:
+          - url: "http://frontend:3000"
+        healthCheck:
+          path: /api/health
+          interval: 30s
+          timeout: 5s
+
+    dashboard:
+      loadBalancer:
+        servers:
+          - url: "http://traefik:8080"
+
+  middlewares:
+    ratelimit:
+      rateLimit:
+        average: 100
+        burst: 200
+        period: 1m
+        sourceCriterion:
+          ipStrategy:
+            depth: 1
+
+    cors:
+      headers:
+        accessControlAllowOriginList:
+          - "https://app.prometheus.io"
+          - "https://*.prometheus.io"
+        accessControlAllowMethods:
+          - GET
+          - POST
+          - PUT
+          - PATCH
+          - DELETE
+          - OPTIONS
+        accessControlAllowHeaders:
+          - Authorization
+          - Content-Type
+          - X-Request-ID
+        accessControlAllowCredentials: true
+        accessControlMaxAge: 86400
+
+    security:
+      headers:
+        frameDeny: true
+        sslRedirect: true
+        browserXssFilter: true
+        contentTypeNosniff: true
+        forceSTSHeader: true
+        stsIncludeSubdomains: true
+        stsPreload: true
+        stsSeconds: 31536000
+        customFrameOptionsValue: "SAMEORIGIN"
+        referrerPolicy: "strict-origin-when-cross-origin"
+        permissionsPolicy: "camera=(), microphone=(), geolocation=()"

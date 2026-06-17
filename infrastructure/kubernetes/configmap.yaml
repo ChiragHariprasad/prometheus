@@ -1,0 +1,110 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: prometheus-config
+  namespace: default
+  labels:
+    app: prometheus
+    environment: production
+data:
+  APP_ENV: "production"
+  APP_NAME: "PROMETHEUS"
+  APP_PORT: "8000"
+
+  LOG_LEVEL: "info"
+  LOG_FORMAT: "json"
+
+  DB_HOST: "production-prometheus-aurora.cluster-xxxxxxxxxxxx.us-east-1.rds.amazonaws.com"
+  DB_PORT: "5432"
+  DB_NAME: "prometheus"
+  DB_SCHEMA: "public"
+  DB_SSL_MODE: "require"
+  DB_MAX_POOL_SIZE: "20"
+  DB_MIN_POOL_SIZE: "5"
+  DB_CONNECTION_TIMEOUT: "30"
+  DB_IDLE_TIMEOUT: "600000"
+  DB_MAX_LIFETIME: "1800000"
+  DB_STATEMENT_TIMEOUT: "30000"
+  DB_LOCK_TIMEOUT: "5000"
+
+  REDIS_HOST: "production-prometheus-redis.xxxxxxxxxx.0001.use1.cache.amazonaws.com"
+  REDIS_PORT: "6379"
+  REDIS_DB: "0"
+  REDIS_TIMEOUT: "5000"
+  REDIS_MAX_CONNECTIONS: "50"
+  REDIS_RETRY_DELAY: "200"
+  REDIS_RETRY_MAX_DELAY: "5000"
+
+  KAFKA_BOOTSTRAP_SERVERS: "b-1.production-prometheus-kafka.xxxxxxxxxx.c6.kafka.us-east-1.amazonaws.com:9094,b-2.production-prometheus-kafka.xxxxxxxxxx.c6.kafka.us-east-1.amazonaws.com:9094,b-3.production-prometheus-kafka.xxxxxxxxxx.c6.kafka.us-east-1.amazonaws.com:9094"
+  KAFKA_SECURITY_PROTOCOL: "SASL_SSL"
+  KAFKA_SASL_MECHANISM: "AWS_MSK_IAM"
+  KAFKA_SESSION_TIMEOUT: "30000"
+  KAFKA_HEARTBEAT_INTERVAL: "3000"
+  KAFKA_AUTO_OFFSET_RESET: "latest"
+  KAFKA_ENABLE_AUTO_COMMIT: "false"
+  KAFKA_MAX_POLL_RECORDS: "500"
+  KAFKA_FETCH_MAX_BYTES: "52428800"
+  KAFKA_MAX_PARTITION_FETCH_BYTES: "1048576"
+
+  KAFKA_TOPIC_EVENTS: "prometheus-events"
+  KAFKA_TOPIC_SNAPSHOTS: "prometheus-snapshots"
+  KAFKA_TOPIC_MODEL_UPDATES: "prometheus-model-updates"
+  KAFKA_TOPIC_PREDICTIONS: "prometheus-predictions"
+  KAFKA_TOPIC_ALERTS: "prometheus-alerts"
+  KAFKA_CONSUMER_GROUP_BACKEND: "prometheus-backend-group"
+  KAFKA_CONSUMER_GROUP_ML: "prometheus-ml-group"
+  KAFKA_NUM_PARTITIONS: "6"
+  KAFKA_REPLICATION_FACTOR: "3"
+
+  S3_BUCKET_SNAPSHOTS: "production-prometheus-twin-snapshots"
+  S3_BUCKET_EVENTS: "production-prometheus-event-archive"
+  S3_BUCKET_MODELS: "production-prometheus-model-artifacts"
+  S3_BUCKET_EXPORTS: "production-prometheus-exports"
+  S3_REGION: "us-east-1"
+  S3_ACL: "bucket-owner-full-control"
+  S3_ENCRYPTION: "AES256"
+
+  ML_MODEL_PATH: "/models"
+  ML_BATCH_SIZE: "32"
+  ML_MAX_SEQUENCE_LENGTH: "512"
+  ML_DEVICE: "cuda"
+  ML_PREDICTION_TIMEOUT: "30000"
+  ML_DRIFT_THRESHOLD: "0.05"
+  ML_RETRAINING_INTERVAL: "86400000"
+  ML_CONFIDENCE_THRESHOLD: "0.8"
+
+  API_RATE_LIMIT: "100"
+  API_RATE_LIMIT_WINDOW: "60000"
+  API_REQUEST_TIMEOUT: "30000"
+  API_MAX_PAGE_SIZE: "100"
+  API_DEFAULT_PAGE_SIZE: "20"
+  API_CORS_ORIGINS: "https://app.prometheus.io"
+  API_VERSION: "v1"
+
+  CACHE_TTL_DEFAULT: "300"
+  CACHE_TTL_USER: "60"
+  CACHE_TTL_TWIN: "300"
+  CACHE_TTL_PREDICTION: "30"
+  CACHE_TTL_METRICS: "10"
+
+  WORKER_CONCURRENCY: "10"
+  WORKER_MAX_RETRIES: "3"
+  WORKER_RETRY_DELAY: "5000"
+  WORKER_QUEUE_MAX_SIZE: "1000"
+
+  MONITORING_ENABLED: "true"
+  MONITORING_INTERVAL: "15000"
+  MONITORING_EXPORT_PATH: "/metrics"
+  TRACING_ENABLED: "true"
+  TRACING_SAMPLE_RATE: "0.1"
+
+  TWIN_MAX_SNAPSHOT_SIZE: "104857600"
+  TWIN_EVENT_RETENTION_DAYS: "90"
+  TWIN_SNAPSHOT_RETENTION_COUNT: "50"
+  TWIN_MAX_CHILDREN: "100"
+  TWIN_SYNC_INTERVAL: "5000"
+
+  NOTIFICATION_EMAIL_FROM: "noreply@prometheus.io"
+  NOTIFICATION_SMS_PROVIDER: "twilio"
+  NOTIFICATION_WEBHOOK_TIMEOUT: "10000"
+  NOTIFICATION_MAX_RETRIES: "3"

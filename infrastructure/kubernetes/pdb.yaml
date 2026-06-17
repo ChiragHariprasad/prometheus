@@ -1,0 +1,29 @@
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: prometheus-backend-pdb
+  namespace: default
+  labels:
+    app: prometheus-backend
+    component: backend
+    environment: production
+spec:
+  minAvailable: 2
+  selector:
+    matchLabels:
+      app: prometheus-backend
+---
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: prometheus-frontend-pdb
+  namespace: default
+  labels:
+    app: prometheus-frontend
+    component: frontend
+    environment: production
+spec:
+  minAvailable: 2
+  selector:
+    matchLabels:
+      app: prometheus-frontend

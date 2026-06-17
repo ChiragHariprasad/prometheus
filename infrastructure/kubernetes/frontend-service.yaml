@@ -1,0 +1,25 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: prometheus-frontend
+  namespace: default
+  labels:
+    app: prometheus-frontend
+    component: frontend
+    environment: production
+  annotations:
+    alb.ingress.kubernetes.io/healthcheck-path: /
+    alb.ingress.kubernetes.io/healthcheck-interval-seconds: "30"
+    alb.ingress.kubernetes.io/healthcheck-timeout-seconds: "5"
+    alb.ingress.kubernetes.io/healthy-threshold-count: "2"
+    alb.ingress.kubernetes.io/unhealthy-threshold-count: "3"
+spec:
+  type: ClusterIP
+  ports:
+    - name: http
+      port: 3000
+      targetPort: 3000
+      protocol: TCP
+  selector:
+    app: prometheus-frontend
+  sessionAffinity: None

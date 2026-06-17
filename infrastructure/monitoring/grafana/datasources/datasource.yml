@@ -1,0 +1,120 @@
+apiVersion: 1
+
+deleteDatasources:
+  - name: Prometheus
+    orgId: 1
+  - name: Loki
+    orgId: 1
+  - name: Tempo
+    orgId: 1
+
+datasources:
+  - name: Prometheus
+    type: prometheus
+    access: proxy
+    orgId: 1
+    uid: prometheus
+    url: http://prometheus-server.monitoring.svc.cluster.local:9090
+    user: ""
+    database: ""
+    basicAuth: false
+    basicAuthUser: ""
+    basicAuthPassword: ""
+    withCredentials: false
+    isDefault: true
+    jsonData:
+      httpMethod: POST
+      keepCookies: []
+      manageAlerts: true
+      prometheusType: Prometheus
+      prometheusVersion: 2.50.0
+      timeInterval: 15s
+      queryTimeout: 60s
+      httpHeaderName1: ""
+    secureJsonFields:
+      httpHeaderValue1: false
+    editable: true
+    version: 3
+
+  - name: Prometheus (Docker Compose)
+    type: prometheus
+    access: proxy
+    orgId: 1
+    uid: prometheus-docker
+    url: http://prometheus:9090
+    user: ""
+    database: ""
+    basicAuth: false
+    basicAuthUser: ""
+    basicAuthPassword: ""
+    withCredentials: false
+    isDefault: false
+    jsonData:
+      httpMethod: POST
+      keepCookies: []
+      manageAlerts: true
+      prometheusType: Prometheus
+      prometheusVersion: 2.50.0
+      timeInterval: 15s
+      queryTimeout: 60s
+    editable: true
+    version: 1
+
+  - name: Loki
+    type: loki
+    access: proxy
+    orgId: 1
+    uid: loki
+    url: http://loki.monitoring.svc.cluster.local:3100
+    user: ""
+    database: ""
+    basicAuth: false
+    basicAuthUser: ""
+    basicAuthPassword: ""
+    withCredentials: false
+    isDefault: false
+    jsonData:
+      maxLines: 1000
+      derivedFields:
+        - datasourceUid: tempo
+          matcherRegex: trace_id=(\w+)
+          name: traceID
+          url: $${__value.raw}
+    editable: true
+    version: 2
+
+  - name: Tempo
+    type: tempo
+    access: proxy
+    orgId: 1
+    uid: tempo
+    url: http://tempo.monitoring.svc.cluster.local:3200
+    user: ""
+    database: ""
+    basicAuth: false
+    basicAuthUser: ""
+    basicAuthPassword: ""
+    withCredentials: false
+    isDefault: false
+    jsonData:
+      httpMethod: GET
+      serviceMap:
+        datasourceUid: prometheus
+      tracesToLogsV2:
+        datasourceUid: loki
+        tags:
+          - key: service.name
+            value: service
+          - key: service.namespace
+            value: namespace
+        filterByTraceID: false
+        spanStartTimeShift: -1h
+        spanEndTimeShift: 1h
+      nodeGraph:
+        enabled: true
+      search:
+        hide: false
+      lokiSearch:
+        datasourceUid: loki
+    editable: true
+    version: 2

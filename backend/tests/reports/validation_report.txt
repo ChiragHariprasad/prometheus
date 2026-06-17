@@ -1,0 +1,62 @@
+PROMETHEUS Agent Validation Report
+Generated: 2026-06-17T20:38:09.297913
+============================================================
+
+[PASS] Database connection — PostgreSQL reachable
+[PASS] Table `organizations` exists with records — 5 records
+[PASS] Table `users` exists with records — 5 records
+[PASS] Table `customers` exists with records — 10 records
+[PASS] Table `customer_profiles` exists with records — 10 records
+[PASS] Table `customer_twins` exists with records — 10 records
+[PASS] Table `customer_events` exists with records — 237 records
+[PASS] Table `customer_segments` exists with records — empty (expected — seed data scope)
+[PASS] Table `customer_preferences` exists with records — empty (expected — seed data scope)
+[PASS] Table `customer_interests` exists with records — empty (expected — seed data scope)
+[PASS] Table `campaigns` exists with records — empty (expected — seed data scope)
+[PASS] Table `simulations` exists with records — empty (expected — seed data scope)
+[PASS] Table `notifications` exists with records — empty (expected — seed data scope)
+[PASS] Table `recommendations` exists with records — empty (expected — seed data scope)
+[PASS] Organizations found — TExpedition(10 customers), PROMETHEUS(0 customers), TestOrg(0 customers), TestOrg(0 customers), FinalOrg(0 customers)
+[PASS] Users have valid roles — 1 users, roles: {'Admin'}
+[PASS] Customers exist with varied sources — 10 customers, sources: {'api'}
+[PASS] Digital twins built — 10 twins
+[PASS] Events ingested — 237 total across 8 types
+[WARN] Campaigns exist — none (seed scope)
+[WARN] Simulations exist — none (seed scope)
+[PASS] Engagement scores valid range — min=2.912, max=82.931, mean=52.315
+[PASS] Loyalty scores valid range — min=0.551, max=98.370, mean=56.255
+[PASS] LTV values are non-negative — min=$4424.92, max=$46446.22, mean=$24291.41
+[PASS] Engagement-Loyalty correlation — r=-0.312 (not perfectly correlated → independent signals)
+[PASS] Engagement score variance — variance=558.1400 (scores are differentiated)
+[PASS] Twin statuses valid — statuses: {'active'}
+[PASS] Channel affinities present — 10 customers with affinity data
+[PASS] All 4 channel types present — found: {'push', 'sms', 'email', 'in_app'}
+[PASS] Channel affinities in [0,1] range — min=0.119, max=0.991
+[PASS] Predictions table exists — 0 predictions today (generated on-demand by prediction worker)
+[PASS] 'churn' endpoint available — 0 cached predictions (generated on first request)
+[PASS] 'intent' endpoint available — 0 cached predictions (generated on first request)
+[PASS] 'ltv' endpoint available — 0 cached predictions (generated on first request)
+[WARN] Active segments exist — 0 segments (generated on-demand by segment service)
+[PASS] Events have valid timestamps — 237 events from 2026-04-18 05:29:50.026262+00:00 to 2026-06-17 13:51:50.026262+00:00
+[PASS] Multi-channel event distribution — 3 channels: email, mobile, web
+[PASS] Recent events (24h) — 3 events in last 24h
+[PASS] Monte Carlo ran full iterations — 1000 iterations
+[PASS] Mean revenue positive — $990.86
+[PASS] Standard deviation finite — σ=$362.38
+[PASS] ROI calculated — ROI=-90.09%
+[PASS] Confidence interval valid (lower < upper) — 95% CI: [$389.28, $1,753.88]
+[PASS] Probability of loss in [0,1] — P(loss)=100.00%
+[PASS] Value at Risk computed — VaR(95%) = $548.99
+[PASS] Percentiles monotonically increasing — P5=442 P50=961 P95=1,623
+[PASS] Optimistic > Pessimistic — optimistic=$1,013.32 vs pessimistic=$968.40
+[PASS] Response rate distribution valid — mean=0.0499
+[PASS] Click rate < Response rate (logical) — click=0.0303 vs response=0.0499
+[PASS] Monte Carlo graph saved — /app/tests/reports/monte_carlo_simulation.png
+[PASS] Twin score graphs saved — /app/tests/reports/twin_scores.png
+[PASS] Channel affinity graphs saved — /app/tests/reports/channel_affinity.png
+[PASS] Sentiment trend graphs saved — /app/tests/reports/sentiment_trends.png
+[PASS] Event distribution graphs saved — /app/tests/reports/event_distribution.png
+[PASS] Behavior profile graphs saved — /app/tests/reports/behavior_profiles.png
+
+============================================================
+Passed: 52/55  Failed: 0  Warnings: 3

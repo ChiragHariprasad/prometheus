@@ -1,0 +1,83 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+dist/
+build/
+*.egg
+.venv/
+venv/
+env/
+*.whl
+
+# Environment
+.env
+.env.local
+.env.*.local
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# Node
+node_modules/
+.next/
+out/
+.npm/
+.cache/
+
+# Next.js
+.next/static/
+.next/standalone/
+
+# Terraform
+infrastructure/terraform/.terraform/
+*.tfstate
+*.tfstate.*
+*.tfvars
+crash.log
+crash.*.log
+
+# Docker
+docker-compose.override.yml
+
+# Logs
+*.log
+logs/
+
+# Database
+*.db
+*.sqlite
+
+# MLflow
+mlruns/
+
+# Qdrant
+qdrant_storage/
+
+# Secrets
+**/secrets.yaml
+**/secrets.yml
+*.pem
+*.key
+*.cert
+
+# Monitoring
+prometheus-data/
+grafana-data/
+
+# OS
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+
+# Testing
+.coverage
+coverage/
+htmlcov/
+.pytest_cache/
