@@ -1,5 +1,7 @@
 # PROMETHEUS — Linux Run Instructions (Bash)
 
+[![GitHub](https://img.shields.io/badge/GitHub-ChiragHariprasad/prometheus-blue?style=flat&logo=github)](https://github.com/ChiragHariprasad/prometheus)
+
 Step-by-step instructions to set up, configure, and run the complete PROMETHEUS platform on **Linux/macOS**.
 
 ---

@@ -3,11 +3,11 @@ from datetime import datetime, timezone
 from sqlalchemy import String, Text, Integer, Float, Boolean, DateTime, Numeric, ForeignKey, Enum as SAEnum, func
 from sqlalchemy.dialects.postgresql import UUID, JSONB, ARRAY
 from sqlalchemy.orm import Mapped, mapped_column
-from app.models.base import Base, UUIDMixin
+from app.models.base import Base, UUIDMixin, TimestampMixin
 import enum
 
 
-class Campaign(Base, UUIDMixin):
+class Campaign(Base, UUIDMixin, TimestampMixin):
     __tablename__ = "campaigns"
 
     organization_id: Mapped[uuid.UUID] = mapped_column(

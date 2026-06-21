@@ -9,8 +9,9 @@ export interface LoginRequest {
 export interface RegisterRequest {
   email: string;
   password: string;
-  name: string;
-  organization?: string;
+  first_name: string;
+  last_name: string;
+  organization_name: string;
 }
 
 export interface AuthResponse {
@@ -103,14 +104,10 @@ export interface Campaign {
   type: "email" | "sms" | "push" | "in_app";
   goal: string;
   status: "draft" | "active" | "paused" | "completed" | "cancelled";
-  segment_ids: string[];
+  segment_ids?: string[];
+  segments?: string[];
   content: Record<string, unknown>;
-  schedule: {
-    start: string;
-    end?: string;
-    frequency?: string;
-    timezone: string;
-  };
+  schedule: Record<string, unknown>;
   ab_test?: {
     enabled: boolean;
     variants: Array<{
@@ -120,7 +117,8 @@ export interface Campaign {
     }>;
     winning_metric: string;
   };
-  metrics: {
+  ab_test_config?: Record<string, unknown>;
+  metrics?: {
     sent: number;
     delivered: number;
     opened: number;
@@ -135,12 +133,13 @@ export interface Campaign {
 
 export interface CampaignCreate {
   name: string;
-  type: Campaign["type"];
+  type: string;
+  channel: string;
   goal: string;
-  segment_ids: string[];
+  segments: string[];
   content: Record<string, unknown>;
-  schedule: Campaign["schedule"];
-  ab_test?: Campaign["ab_test"];
+  schedule: Record<string, unknown>;
+  ab_test_config?: Record<string, unknown>;
 }
 
 export interface Simulation {
@@ -437,7 +436,7 @@ class ApiClient {
 
   async createCampaign(data: CampaignCreate): Promise<Campaign> {
     const response = await api.post("/campaigns", data);
-    return response.data;
+    return response.data.data ?? response.data;
   }
 
   async updateCampaign(
@@ -595,8 +594,13 @@ class ApiClient {
     end_date?: string;
     granularity?: string;
   }): Promise<{
-    data: Array<{ date: string; revenue: number; cost: number; profit: number }>;
-    total: { revenue: number; cost: number; profit: number };
+    revenue_trend: Array<{ period: string; revenue: number; transactions: number; unique_customers: number; avg_order_value: number }>;
+    total_revenue: number;
+    recurring_revenue: number;
+    average_order_value: number | null;
+    revenue_by_channel: Record<string, unknown>;
+    period: string;
+    currency: string;
   }> {
     const response = await api.get("/analytics/revenue", { params });
     return response.data;
@@ -607,8 +611,11 @@ class ApiClient {
     end_date?: string;
     granularity?: string;
   }): Promise<{
-    data: Array<{ date: string; engagement: number; retention: number; satisfaction: number }>;
-    average: { engagement: number; retention: number; satisfaction: number };
+    trend: Array<{ date: string; events: number; active_users: number; events_per_user: number }>;
+    overall_score: number | null;
+    by_channel: Record<string, unknown>;
+    by_segment: Record<string, unknown>;
+    period: string;
   }> {
     const response = await api.get("/analytics/engagement", { params });
     return response.data;
@@ -618,11 +625,13 @@ class ApiClient {
     start_date?: string;
     end_date?: string;
   }): Promise<{
-    churn_rate: number;
+    churn_rate: number | null;
     churned_customers: number;
-    at_risk: number;
-    by_segment: Array<{ segment: string; churn_rate: number }>;
-    trend: Array<{ date: string; churn_rate: number }>;
+    at_risk_customers: number;
+    churn_by_segment: Array<{ segment_id: string; segment_name: string; total_customers: number; at_risk: number; churn_rate: number }>;
+    churn_reasons: Array<Record<string, unknown>>;
+    retention_rate: number | null;
+    period: string;
   }> {
     const response = await api.get("/analytics/churn", { params });
     return response.data;
@@ -631,7 +640,7 @@ class ApiClient {
   // Segments
   async listSegments(): Promise<Segment[]> {
     const response = await api.get("/segments");
-    return response.data;
+    return response.data.data ?? response.data;
   }
 
   async getSegment(id: string): Promise<Segment> {

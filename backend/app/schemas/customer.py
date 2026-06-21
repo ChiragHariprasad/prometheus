@@ -145,6 +145,13 @@ class CustomerSegmentResponse(BaseModel):
 
 
 class CustomerListResponse(CustomerResponse):
+    name: str | None = None
+    engagement_score: float = 0.0
+    loyalty_score: float = 0.0
+    churn_risk: str = "low"
+    ltv: float = 0.0
+    last_activity: datetime | None = None
+    segments: list[str] = []
     twin_summary: dict[str, Any] | None = None
 
     model_config = ConfigDict(from_attributes=True)

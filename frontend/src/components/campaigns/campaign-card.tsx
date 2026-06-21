@@ -61,15 +61,15 @@ export function CampaignCard({ campaign, onClick }: CampaignCardProps) {
         <div className="space-y-3">
           <div className="flex items-center justify-between text-sm">
             <span className="text-muted-foreground">
-              {format(new Date(campaign.schedule.start), "MMM d, yyyy")}
+              {campaign.schedule?.start ? format(new Date(campaign.schedule.start as string), "MMM d, yyyy") : "—"}
             </span>
             <span className="text-muted-foreground">
-              {formatDistanceToNow(new Date(campaign.created_at), {
+              {campaign.created_at ? formatDistanceToNow(new Date(campaign.created_at), {
                 addSuffix: true,
-              })}
+              }) : "—"}
             </span>
           </div>
-          {campaign.metrics.sent > 0 && (
+          {campaign.metrics && campaign.metrics.sent > 0 && (
             <div className="grid grid-cols-4 gap-2 pt-2 border-t">
               <div className="flex flex-col items-center">
                 <span className="text-lg font-bold">

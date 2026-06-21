@@ -12,7 +12,7 @@ from app.services.segment_service import SegmentService
 router = APIRouter(dependencies=[Depends(get_current_user)])
 
 
-@router.get("/", response_model=PaginatedResponse[CustomerSegmentResponse])
+@router.get("", response_model=PaginatedResponse[CustomerSegmentResponse])
 async def list_segments(
     session: AsyncSession = Depends(get_session),
     org_id: str = Depends(get_current_organization),
@@ -39,17 +39,18 @@ async def list_segments(
 
     total_pages = (total + page_size - 1) // page_size if total > 0 else 0
     return PaginatedResponse(
-        items=[CustomerSegmentResponse.model_validate(s) for s in segments],
+        data=[CustomerSegmentResponse.model_validate(s) for s in segments],
         total=total,
         page=page,
         page_size=page_size,
+        limit=page_size,
         total_pages=total_pages,
         has_next=page < total_pages,
         has_prev=page > 1,
     )
 
 
-@router.post("/", response_model=APIResponse[CustomerSegmentResponse])
+@router.post("", response_model=APIResponse[CustomerSegmentResponse])
 async def create_segment(
     payload: dict,
     session: AsyncSession = Depends(get_session),
@@ -176,10 +177,11 @@ async def get_segment_customers(
 
     total_pages = (total + page_size - 1) // page_size if total > 0 else 0
     return PaginatedResponse(
-        items=[CustomerResponse.model_validate(c) for c in customers],
+        data=[CustomerResponse.model_validate(c) for c in customers],
         total=total,
         page=page,
         page_size=page_size,
+        limit=page_size,
         total_pages=total_pages,
         has_next=page < total_pages,
         has_prev=page > 1,

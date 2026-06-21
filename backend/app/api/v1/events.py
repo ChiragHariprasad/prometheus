@@ -21,7 +21,7 @@ from app.services.event_service import EventService
 router = APIRouter(dependencies=[Depends(get_current_user)])
 
 
-@router.post("/", response_model=APIResponse[EventResponse])
+@router.post("", response_model=APIResponse[EventResponse])
 async def create_event(
     payload: EventCreate,
     session: AsyncSession = Depends(get_session),
@@ -98,10 +98,11 @@ async def list_events(
 
     total_pages = (total + page_size - 1) // page_size if total > 0 else 0
     return PaginatedResponse(
-        items=[EventResponse.model_validate(e) for e in events],
+        data=[EventResponse.model_validate(e) for e in events],
         total=total,
         page=page,
         page_size=page_size,
+        limit=page_size,
         total_pages=total_pages,
         has_next=page < total_pages,
         has_prev=page > 1,

@@ -3,10 +3,10 @@ from datetime import datetime, timezone
 from sqlalchemy import String, Text, Integer, Float, Boolean, DateTime, BigInteger, ForeignKey, func, Enum as SAEnum
 from sqlalchemy.dialects.postgresql import UUID, JSONB, ARRAY
 from sqlalchemy.orm import Mapped, mapped_column
-from app.models.base import Base, UUIDMixin
+from app.models.base import Base, UUIDMixin, TimestampMixin
 
 
-class Simulation(Base, UUIDMixin):
+class Simulation(Base, UUIDMixin, TimestampMixin):
     __tablename__ = "simulations"
 
     organization_id: Mapped[uuid.UUID] = mapped_column(
@@ -55,6 +55,9 @@ class SimulationRun(Base, UUIDMixin):
     memory_usage_bytes: Mapped[int | None] = mapped_column(BigInteger)
     error_message: Mapped[str | None] = mapped_column(Text)
     logs: Mapped[list[str] | None] = mapped_column(ARRAY(String))
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), server_default=func.now(), nullable=False
+    )
 
 
 class SimulationResult(Base, UUIDMixin):
@@ -78,3 +81,6 @@ class SimulationResult(Base, UUIDMixin):
     expected_outcomes: Mapped[dict | None] = mapped_column(JSONB)
     risk_assessment: Mapped[dict | None] = mapped_column(JSONB)
     recommendations: Mapped[list[str] | None] = mapped_column(ARRAY(String))
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), server_default=func.now(), nullable=False
+    )

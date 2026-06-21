@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends, Query, HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select, func
-from datetime import date
+from datetime import date, datetime, timezone
 from app.core.database import get_session
 from app.schemas.analytics import (
     DashboardResponse,
@@ -60,12 +60,14 @@ async def get_segment_analytics(
 async def get_revenue_analytics(
     session: AsyncSession = Depends(get_session),
     org_id: str = Depends(get_current_organization),
-    period: str = Query("monthly"),
+    granularity: str = Query("monthly"),
     start_date: date | None = Query(None),
     end_date: date | None = Query(None),
 ):
     service = AnalyticsService(session)
-    revenue = await service.get_revenue(org_id, period, start_date, end_date)
+    date_from = datetime.combine(start_date, datetime.min.time()) if start_date else datetime(2020, 1, 1)
+    date_to = datetime.combine(end_date, datetime.max.time()) if end_date else datetime.now(timezone.utc)
+    revenue = await service.get_revenue_analytics(org_id, date_from, date_to, granularity)
     return RevenueAnalyticsResponse.model_validate(revenue)
 
 
@@ -73,26 +75,44 @@ async def get_revenue_analytics(
 async def get_engagement_trends(
     session: AsyncSession = Depends(get_session),
     org_id: str = Depends(get_current_organization),
-    period: str = Query("weekly"),
+    granularity: str = Query("day"),
     start_date: date | None = Query(None),
     end_date: date | None = Query(None),
 ):
     service = AnalyticsService(session)
-    trends = await service.get_engagement(org_id, period, start_date, end_date)
-    return EngagementTrendResponse.model_validate(trends)
+    date_from = datetime.combine(start_date, datetime.min.time()) if start_date else datetime(2020, 1, 1)
+    date_to = datetime.combine(end_date, datetime.max.time()) if end_date else datetime.now(timezone.utc)
+    trends = await service.get_engagement_trend(org_id, date_from, date_to)
+    return EngagementTrendResponse(
+        overall_score=None,
+        trend=trends,
+        by_channel={},
+        by_segment={},
+        period=granularity,
+    )
 
 
 @router.get("/churn", response_model=ChurnAnalyticsResponse)
 async def get_churn_analytics(
     session: AsyncSession = Depends(get_session),
     org_id: str = Depends(get_current_organization),
-    period: str = Query("monthly"),
+    granularity: str = Query("monthly"),
     start_date: date | None = Query(None),
     end_date: date | None = Query(None),
 ):
     service = AnalyticsService(session)
-    churn = await service.get_churn(org_id, period, start_date, end_date)
-    return ChurnAnalyticsResponse.model_validate(churn)
+    date_from = datetime.combine(start_date, datetime.min.time()) if start_date else datetime(2020, 1, 1)
+    date_to = datetime.combine(end_date, datetime.max.time()) if end_date else datetime.now(timezone.utc)
+    churn = await service.get_churn_analytics(org_id, date_from, date_to)
+    return ChurnAnalyticsResponse(
+        churn_rate=churn.get("churn_rate"),
+        churned_customers=churn.get("churned_customers", 0),
+        at_risk_customers=churn.get("at_risk_customers", 0),
+        churn_by_segment=churn.get("churn_by_segment", []),
+        churn_reasons=churn.get("churn_reasons", []),
+        retention_rate=churn.get("retention_rate"),
+        period=granularity,
+    )
 
 
 @router.get("/campaigns", response_model=list[CampaignPerformanceResponse])

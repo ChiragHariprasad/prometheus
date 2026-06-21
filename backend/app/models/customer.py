@@ -165,7 +165,7 @@ class CustomerEmbedding(Base, UUIDMixin):
 
 
 
-class CustomerSegment(Base, UUIDMixin):
+class CustomerSegment(Base, UUIDMixin, TimestampMixin):
     __tablename__ = "customer_segments"
 
     organization_id: Mapped[uuid.UUID] = mapped_column(
@@ -188,7 +188,7 @@ class CustomerSegment(Base, UUIDMixin):
     )
 
 
-class CustomerSegmentMapping(Base, UUIDMixin):
+class CustomerSegmentMapping(Base):
     __tablename__ = "customer_segment_mapping"
 
     customer_id: Mapped[uuid.UUID] = mapped_column(

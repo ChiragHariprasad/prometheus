@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { useSimulations } from "@/hooks/use-query";
+import { useSimulations, useRunSimulation } from "@/hooks/use-query";
 import { SimulationControls } from "@/components/simulation/simulation-controls";
 import { SimulationResults } from "@/components/simulation/simulation-results";
 import { ForecastChart } from "@/components/simulation/forecast-chart";
@@ -9,12 +9,13 @@ import { useSimulation } from "@/hooks/use-query";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { FlaskConical, History, Plus } from "lucide-react";
+import { FlaskConical, History, Plus, Play } from "lucide-react";
 import { format } from "date-fns";
 
 export default function SimulationLabPage() {
   const [selectedSimulationId, setSelectedSimulationId] = useState<string | null>(null);
   const [showNewPanel, setShowNewPanel] = useState(true);
+  const runSimulation = useRunSimulation();
 
   const { data: simulationsData } = useSimulations();
   const { data: simulation } = useSimulation(selectedSimulationId || "");
@@ -105,9 +106,32 @@ export default function SimulationLabPage() {
                     Status: {simulation.status}
                   </p>
                 </div>
-                <Badge variant="secondary">
-                  {(simulation.config.confidence_level * 100).toFixed(0)}% confidence
-                </Badge>
+                <div className="flex items-center gap-2">
+                  {simulation.status === "draft" && (
+                    <>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => setShowNewPanel(true)}
+                      >
+                        Edit
+                      </Button>
+                      <Button
+                        size="sm"
+                        onClick={async () => {
+                          await runSimulation.mutateAsync(selectedSimulationId);
+                        }}
+                        disabled={runSimulation.isPending}
+                      >
+                        <Play className="mr-2 h-4 w-4" />
+                        {runSimulation.isPending ? "Running..." : "Run Simulation"}
+                      </Button>
+                    </>
+                  )}
+                  <Badge variant="secondary">
+                    {(simulation.config.confidence_level * 100).toFixed(0)}% confidence
+                  </Badge>
+                </div>
               </div>
 
               {simulation.status === "running" ? (
@@ -121,11 +145,21 @@ export default function SimulationLabPage() {
                     </div>
                   </CardContent>
                 </Card>
-              ) : (
+              ) : simulation.status === "completed" || simulation.status === "failed" ? (
                 <>
                   <SimulationResults simulation={simulation} />
                   <ForecastChart simulation={simulation} />
                 </>
+              ) : (
+                <Card>
+                  <CardContent className="flex items-center justify-center py-12">
+                    <p className="text-muted-foreground">
+                      {simulation.status === "draft"
+                        ? "This simulation is a draft. Click 'Run Simulation' to execute it."
+                        : "No results available yet."}
+                    </p>
+                  </CardContent>
+                </Card>
               )}
             </>
           ) : (

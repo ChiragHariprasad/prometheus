@@ -3,10 +3,10 @@ from datetime import datetime, timezone
 from sqlalchemy import String, Text, Integer, Float, Boolean, DateTime, ForeignKey, func
 from sqlalchemy.dialects.postgresql import UUID, JSONB
 from sqlalchemy.orm import Mapped, mapped_column
-from app.models.base import Base, UUIDMixin
+from app.models.base import Base, UUIDMixin, TimestampMixin
 
 
-class Recommendation(Base, UUIDMixin):
+class Recommendation(Base, UUIDMixin, TimestampMixin):
     __tablename__ = "recommendations"
 
     customer_id: Mapped[uuid.UUID] = mapped_column(

@@ -131,20 +131,55 @@ export default function TwinsPage() {
             </div>
           )}
 
-          {compareMode && compareCustomerId && compareTwin && (
-            <div className="border-t pt-6">
-              <h3 className="text-lg font-semibold mb-4">Comparison</h3>
-              <div className="grid md:grid-cols-2 gap-6">
-                <div>
-                  <h4 className="text-sm font-medium mb-2">Primary</h4>
-                  {twin && <TwinVisualization twin={twin} />}
-                </div>
-                <div>
-                  <h4 className="text-sm font-medium mb-2">Comparison</h4>
-                  <TwinVisualization twin={compareTwin} />
+          {compareMode && (
+            compareCustomerId && compareTwin ? (
+              <div className="border-t pt-6">
+                <h3 className="text-lg font-semibold mb-4">Comparison</h3>
+                <div className="grid md:grid-cols-2 gap-6">
+                  <div>
+                    <h4 className="text-sm font-medium mb-2">Primary</h4>
+                    {twin && <TwinVisualization twin={twin} />}
+                  </div>
+                  <div>
+                    <div className="flex items-center justify-between mb-2">
+                      <h4 className="text-sm font-medium">Comparison</h4>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => setCompareCustomerId(null)}
+                      >
+                        Change
+                      </Button>
+                    </div>
+                    <TwinVisualization twin={compareTwin} />
+                  </div>
                 </div>
               </div>
-            </div>
+            ) : (
+              <Card>
+                <CardHeader>
+                  <CardTitle className="text-sm font-medium">
+                    Select Comparison Customer
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="max-h-[400px] overflow-y-auto space-y-1">
+                  {customersData?.data?.filter(c => c.id !== selectedCustomerId).map((customer) => (
+                    <button
+                      key={customer.id}
+                      onClick={() => setCompareCustomerId(customer.id)}
+                      className={cn(
+                        "w-full text-left rounded-lg p-3 transition-colors hover:bg-muted"
+                      )}
+                    >
+                      <p className="text-sm font-medium">{customer.name}</p>
+                      <p className="text-xs text-muted-foreground truncate">
+                        {customer.email}
+                      </p>
+                    </button>
+                  ))}
+                </CardContent>
+              </Card>
+            )
           )}
         </div>
       </div>

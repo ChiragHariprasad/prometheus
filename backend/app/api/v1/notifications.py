@@ -16,7 +16,7 @@ from app.services.notification_service import NotificationService
 router = APIRouter(dependencies=[Depends(get_current_user)])
 
 
-@router.get("/", response_model=PaginatedResponse[NotificationResponse])
+@router.get("", response_model=PaginatedResponse[NotificationResponse])
 async def list_notifications(
     session: AsyncSession = Depends(get_session),
     org_id: str = Depends(get_current_organization),
@@ -49,17 +49,18 @@ async def list_notifications(
 
     total_pages = (total + page_size - 1) // page_size if total > 0 else 0
     return PaginatedResponse(
-        items=[NotificationResponse.model_validate(n) for n in notifications],
+        data=[NotificationResponse.model_validate(n) for n in notifications],
         total=total,
         page=page,
         page_size=page_size,
+        limit=page_size,
         total_pages=total_pages,
         has_next=page < total_pages,
         has_prev=page > 1,
     )
 
 
-@router.post("/", response_model=APIResponse)
+@router.post("", response_model=APIResponse)
 async def send_notification(
     payload: NotificationSendRequest,
     session: AsyncSession = Depends(get_session),

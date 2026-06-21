@@ -94,46 +94,51 @@ export default function CampaignDetailPage() {
     ),
   };
 
+  const s = (campaign.schedule || {}) as Record<string, string>;
+  const segIds = Array.isArray(campaign.segments) ? campaign.segments : [];
+  const at = campaign.ab_test_config as Record<string, unknown> | undefined;
+  const m = campaign.metrics || { sent: 0, delivered: 0, opened: 0, clicked: 0, converted: 0, revenue: 0, roi: 0 };
+
   const metrics = [
     {
       label: "Sent",
-      value: campaign.metrics.sent.toLocaleString(),
+      value: m.sent.toLocaleString(),
       icon: Send,
       color: "text-blue-600",
     },
     {
       label: "Open Rate",
-      value: campaign.metrics.sent
-        ? `${((campaign.metrics.opened / campaign.metrics.sent) * 100).toFixed(1)}%`
+      value: m.sent
+        ? `${((m.opened / m.sent) * 100).toFixed(1)}%`
         : "—",
       icon: Eye,
       color: "text-green-600",
     },
     {
       label: "Click Rate",
-      value: campaign.metrics.delivered
-        ? `${((campaign.metrics.clicked / campaign.metrics.delivered) * 100).toFixed(1)}%`
+      value: m.delivered
+        ? `${((m.clicked / m.delivered) * 100).toFixed(1)}%`
         : "—",
       icon: MousePointerClick,
       color: "text-purple-600",
     },
     {
       label: "Conversion",
-      value: campaign.metrics.sent
-        ? `${((campaign.metrics.converted / campaign.metrics.sent) * 100).toFixed(1)}%`
+      value: m.sent
+        ? `${((m.converted / m.sent) * 100).toFixed(1)}%`
         : "—",
       icon: TrendingUp,
       color: "text-amber-600",
     },
     {
       label: "Revenue",
-      value: `$${campaign.metrics.revenue.toLocaleString()}`,
+      value: `$${m.revenue.toLocaleString()}`,
       icon: DollarSign,
       color: "text-emerald-600",
     },
     {
       label: "ROI",
-      value: `${(campaign.metrics.roi * 100).toFixed(0)}%`,
+      value: `${(m.roi * 100).toFixed(0)}%`,
       icon: BarChart3,
       color: "text-rose-600",
     },
@@ -193,20 +198,20 @@ export default function CampaignDetailPage() {
             <div className="flex justify-between">
               <span className="text-muted-foreground">Start</span>
               <span>
-                {format(new Date(campaign.schedule.start), "MMM d, yyyy HH:mm")}
+                {s.start ? format(new Date(s.start), "MMM d, yyyy HH:mm") : "—"}
               </span>
             </div>
-            {campaign.schedule.end && (
+            {s.end && (
               <div className="flex justify-between">
                 <span className="text-muted-foreground">End</span>
                 <span>
-                  {format(new Date(campaign.schedule.end), "MMM d, yyyy HH:mm")}
+                  {format(new Date(s.end), "MMM d, yyyy HH:mm")}
                 </span>
               </div>
             )}
             <div className="flex justify-between">
               <span className="text-muted-foreground">Segments</span>
-              <span>{campaign.segment_ids.length}</span>
+              <span>{segIds.length}</span>
             </div>
           </CardContent>
         </Card>
@@ -221,17 +226,17 @@ export default function CampaignDetailPage() {
             <div className="flex items-center gap-2 text-sm">
               <Clock className="h-4 w-4 text-muted-foreground" />
               <span>
-                {format(new Date(campaign.schedule.start), "EEEE, MMMM d, yyyy 'at' HH:mm")}
+                {s.start ? format(new Date(s.start), "EEEE, MMMM d, yyyy 'at' HH:mm") : "—"}
               </span>
             </div>
             <div className="flex items-center gap-2 text-sm">
               <Clock className="h-4 w-4 text-muted-foreground" />
-              <span>Timezone: {campaign.schedule.timezone}</span>
+              <span>Timezone: {s.timezone || "—"}</span>
             </div>
-            {campaign.schedule.frequency && (
+            {s.frequency && (
               <div className="flex items-center gap-2 text-sm">
                 <Clock className="h-4 w-4 text-muted-foreground" />
-                <span>Frequency: {campaign.schedule.frequency}</span>
+                <span>Frequency: {s.frequency}</span>
               </div>
             )}
           </CardContent>
@@ -260,7 +265,7 @@ export default function CampaignDetailPage() {
         </CardContent>
       </Card>
 
-      {campaign.ab_test?.enabled && (
+      {!!(at?.enabled) && (
         <Card>
           <CardHeader>
             <CardTitle className="text-sm font-medium">
@@ -269,19 +274,19 @@ export default function CampaignDetailPage() {
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
-              {campaign.ab_test.variants.map((variant) => (
+              {((at?.variants as Record<string, unknown>[]) || []).map((variant: Record<string, unknown>) => (
                 <div
-                  key={variant.name}
+                  key={variant.name as string}
                   className="rounded-lg border p-4"
                 >
                   <div className="flex items-center justify-between mb-2">
-                    <span className="font-medium">{variant.name}</span>
+                    <span className="font-medium">{variant.name as string}</span>
                     <Badge variant="secondary">
-                      {variant.traffic_percentage}% traffic
+                      {variant.traffic_percentage as string}% traffic
                     </Badge>
                   </div>
                   <p className="text-sm text-muted-foreground">
-                    Subject: {variant.content.subject as string}
+                    Subject: {(variant.content as Record<string, unknown>)?.subject as string}
                   </p>
                 </div>
               ))}

@@ -74,7 +74,7 @@ class ChurnAnalyticsResponse(BaseModel):
     churn_rate: float | None = None
     churned_customers: int = 0
     at_risk_customers: int = 0
-    churn_by_segment: dict[str, Any] = {}
+    churn_by_segment: list[dict[str, Any]] = []
     churn_reasons: list[dict[str, Any]] = []
     retention_rate: float | None = None
     period: str = "monthly"

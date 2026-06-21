@@ -9,3 +9,4 @@ from app.api.v1 import recommendations
 from app.api.v1 import notifications
 from app.api.v1 import analytics
 from app.api.v1 import segments
+from app.api.v1 import admin

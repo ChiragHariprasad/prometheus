@@ -6,6 +6,17 @@ from pydantic import BaseModel, ConfigDict
 
 
 class TwinSummary(BaseModel):
+    total_twins: int = 0
+    avg_engagement: float = 0.0
+    avg_loyalty: float = 0.0
+    avg_sentiment: float = 0.0
+    churn_risk_distribution: dict[str, int] = {"low": 0, "medium": 0, "high": 0}
+    top_interests: list[dict[str, Any]] = []
+
+    model_config = ConfigDict(from_attributes=True)
+
+
+class PerCustomerTwinSummary(BaseModel):
     engagement_score: float | None = None
     loyalty_score: float | None = None
     lifetime_value: float | None = None

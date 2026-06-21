@@ -126,7 +126,7 @@ export default function CustomerDetailPage() {
           </CardHeader>
           <CardContent>
             <p className="text-2xl font-bold">
-              ${customer.ltv.toLocaleString()}
+              ${(customer.ltv || 0).toLocaleString()}
             </p>
           </CardContent>
         </Card>
@@ -139,7 +139,7 @@ export default function CustomerDetailPage() {
           </CardHeader>
           <CardContent>
             <p className="text-2xl font-bold">
-              {format(new Date(customer.last_activity), "MMM d")}
+              {customer.last_activity ? format(new Date(customer.last_activity), "MMM d") : "—"}
             </p>
           </CardContent>
         </Card>
@@ -188,7 +188,7 @@ export default function CustomerDetailPage() {
                   <Calendar className="h-4 w-4 text-muted-foreground" />
                   <span>
                     Customer since{" "}
-                    {format(new Date(customer.created_at), "MMM d, yyyy")}
+                    {customer.created_at ? format(new Date(customer.created_at), "MMM d, yyyy") : "—"}
                   </span>
                 </div>
               </CardContent>

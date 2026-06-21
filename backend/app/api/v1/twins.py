@@ -1,3 +1,5 @@
+import uuid
+from typing import Any
 from fastapi import APIRouter, Depends, Query, HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
@@ -18,7 +20,70 @@ from app.services.twin_service import TwinService
 router = APIRouter(dependencies=[Depends(get_current_user)])
 
 
-@router.get("/{customer_id}/twin", response_model=CustomerTwinResponse)
+@router.get("/summary", response_model=TwinSummary)
+async def get_twin_summary(
+    session: AsyncSession = Depends(get_session),
+    org_id: str = Depends(get_current_organization),
+):
+    service = TwinService(session)
+    summary = await service.get_org_summary(org_id)
+    if not summary:
+        raise NotFoundException("Twin summary not available")
+    return TwinSummary.model_validate(summary)
+
+
+def _build_twin_response(twin: CustomerTwin) -> dict[str, Any]:
+    ig = twin.interest_graph or {}
+    ca = twin.channel_affinity or {}
+    ri = twin.risk_indicators or {}
+    st = twin.sentiment_trend or []
+
+    interests = []
+    for node in (ig.get("nodes") or ig.get("interests") or ig.get("categories") or []):
+        if isinstance(node, dict):
+            interests.append({
+                "name": node.get("name") or node.get("topic", ""),
+                "weight": node.get("weight", 0.0) or node.get("score", 0.0),
+            })
+
+    if not interests:
+        interests = [{"name": k, "weight": v} for k, v in (ig.items() if isinstance(ig, dict) else {}.items())
+                     if k not in ("nodes", "dominant_category", "interest_diversity", "total_interactions")]
+
+    channel_affinity = {}
+    if isinstance(ca, dict):
+        for k, v in ca.items():
+            channel_affinity[k] = float(v) if v is not None else 0.0
+
+    sentiment_trend = []
+    for i, s in enumerate(st):
+        if isinstance(s, dict):
+            sentiment_trend.append({
+                "date": s.get("date", ""),
+                "score": float(s.get("score", 0) or 0),
+            })
+        elif isinstance(s, (int, float)):
+            sentiment_trend.append({
+                "date": f"day-{i}",
+                "score": float(s),
+            })
+
+    return {
+        "id": str(twin.customer_id),
+        "customer_id": str(twin.customer_id),
+        "engagement_score": float(twin.engagement_score or 0),
+        "loyalty_score": float(twin.loyalty_score or 0),
+        "sentiment_score": float((ri.get("current_sentiment") if isinstance(ri, dict) else 0) or 0),
+        "churn_probability": float((ri.get("churn_probability") if isinstance(ri, dict) else 0) or 0),
+        "interests": interests,
+        "channel_affinity": channel_affinity,
+        "sentiment_trend": sentiment_trend,
+        "last_rebuilt": (twin.built_at.isoformat() if twin.built_at else ""),
+        "created_at": (twin.updated_at.isoformat() if twin.updated_at else ""),
+    }
+
+
+@router.get("/{customer_id}")
 async def get_customer_twin(
     customer_id: str,
     session: AsyncSession = Depends(get_session),
@@ -36,10 +101,10 @@ async def get_customer_twin(
     if not twin:
         raise NotFoundException("Twin not found for this customer")
 
-    return CustomerTwinResponse.model_validate(twin)
+    return _build_twin_response(twin)
 
 
-@router.post("/{customer_id}/twin/rebuild", response_model=APIResponse)
+@router.post("/{customer_id}/rebuild", response_model=APIResponse)
 async def rebuild_twin(
     customer_id: str,
     session: AsyncSession = Depends(get_session),
@@ -52,22 +117,7 @@ async def rebuild_twin(
     return APIResponse(message="Twin rebuild triggered successfully")
 
 
-@router.get("/{customer_id}/twin/summary", response_model=TwinSummary)
-async def get_twin_summary(
-    customer_id: str,
-    session: AsyncSession = Depends(get_session),
-    org_id: str = Depends(get_current_organization),
-):
-    await _verify_customer_org(customer_id, org_id, session)
-
-    service = TwinService(session)
-    summary = await service.get_summary(customer_id, org_id)
-    if not summary:
-        raise NotFoundException("Twin summary not available")
-    return TwinSummary.model_validate(summary)
-
-
-@router.get("/{customer_id}/twin/history", response_model=list[TwinSnapshotResponse])
+@router.get("/{customer_id}/history", response_model=list[TwinSnapshotResponse])
 async def get_twin_history(
     customer_id: str,
     session: AsyncSession = Depends(get_session),
@@ -144,6 +194,10 @@ async def _verify_customer_org(
     org_id: str,
     session: AsyncSession,
 ):
+    try:
+        uuid.UUID(customer_id)
+    except ValueError:
+        raise NotFoundException("Customer")
     result = await session.execute(
         select(Customer).where(
             Customer.id == customer_id,

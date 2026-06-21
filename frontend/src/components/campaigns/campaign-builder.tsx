@@ -49,7 +49,7 @@ export function CampaignBuilder() {
     goal: "",
     segment_ids: [] as string[],
     content: { subject: "", body: "" },
-    schedule: { start: "", timezone: Intl.DateTimeFormat().resolvedOptions().timeZone },
+    schedule: { start: new Date().toISOString().slice(0, 16), timezone: Intl.DateTimeFormat().resolvedOptions().timeZone },
     ab_test: { enabled: false, variants: [] as { name: string; content: { subject: string; body: string }; traffic_percentage: number }[], winning_metric: "open_rate" },
   });
 
@@ -76,14 +76,15 @@ export function CampaignBuilder() {
     const campaignData = {
       name: form.name,
       type: form.type,
+      channel: form.type,
       goal: form.goal,
-      segment_ids: form.segment_ids,
+      segments: form.segment_ids,
       content: form.content,
       schedule: {
         start: new Date(form.schedule.start).toISOString(),
         timezone: form.schedule.timezone,
       },
-      ab_test: form.ab_test.enabled ? form.ab_test : undefined,
+      ab_test_config: form.ab_test.enabled ? form.ab_test : undefined,
     };
 
     try {

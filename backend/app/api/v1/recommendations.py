@@ -16,7 +16,7 @@ from app.services.recommendation_service import RecommendationService
 router = APIRouter(dependencies=[Depends(get_current_user)])
 
 
-@router.get("/", response_model=PaginatedResponse[RecommendationResponse])
+@router.get("", response_model=PaginatedResponse[RecommendationResponse])
 async def list_recommendations(
     session: AsyncSession = Depends(get_session),
     org_id: str = Depends(get_current_organization),
@@ -49,10 +49,11 @@ async def list_recommendations(
 
     total_pages = (total + page_size - 1) // page_size if total > 0 else 0
     return PaginatedResponse(
-        items=[RecommendationResponse.model_validate(r) for r in recommendations],
+        data=[RecommendationResponse.model_validate(r) for r in recommendations],
         total=total,
         page=page,
         page_size=page_size,
+        limit=page_size,
         total_pages=total_pages,
         has_next=page < total_pages,
         has_prev=page > 1,

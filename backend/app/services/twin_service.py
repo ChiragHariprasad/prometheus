@@ -15,7 +15,7 @@ from app.models.event import Event as CustomerEvent
 from app.models.twin import CustomerTwin
 from app.repositories.customer_repository import CustomerRepository
 from app.schemas.twin import (
-    CustomerTwinResponse, TwinSummary,
+    CustomerTwinResponse, TwinSummary, PerCustomerTwinSummary,
     BehaviorProfileResponse, InterestGraphResponse,
     ChannelAffinityResponse, RiskIndicatorsResponse,
     IntentForecastResponse,
@@ -122,7 +122,7 @@ class TwinService:
 
         await self.session.flush()
 
-    async def get_twin_summary(self, organization_id: uuid.UUID, customer_id: uuid.UUID) -> TwinSummary:
+    async def get_twin_summary(self, organization_id: uuid.UUID, customer_id: uuid.UUID) -> PerCustomerTwinSummary:
         twin_stmt = select(CustomerTwin).where(
             CustomerTwin.customer_id == customer_id,
             CustomerTwin.organization_id == organization_id,
@@ -134,10 +134,10 @@ class TwinService:
             customer = await self.repo.get(customer_id, organization_id)
             if not customer:
                 raise NotFoundException("Customer", str(customer_id))
-            return TwinSummary()
+            return PerCustomerTwinSummary()
 
         risk = twin.risk_indicators or {}
-        return TwinSummary(
+        return PerCustomerTwinSummary(
             engagement_score=twin.engagement_score,
             loyalty_score=twin.loyalty_score,
             lifetime_value=twin.lifetime_value,
@@ -152,6 +152,23 @@ class TwinService:
             last_event_at=twin.last_event_at,
             last_prediction_at=twin.last_prediction_at,
             status=twin.status,
+        )
+
+    async def get_org_summary(self, organization_id: uuid.UUID) -> TwinSummary | None:
+        stmt = select(
+            func.count(CustomerTwin.id),
+            func.avg(CustomerTwin.engagement_score),
+            func.avg(CustomerTwin.loyalty_score),
+        ).where(CustomerTwin.organization_id == organization_id)
+        result = await self.session.execute(stmt)
+        row = result.one_or_none()
+        if not row or row[0] == 0:
+            return None
+        total, avg_eng, avg_loy = row
+        return TwinSummary(
+            total_twins=int(total),
+            avg_engagement=round(float(avg_eng or 0), 2),
+            avg_loyalty=round(float(avg_loy or 0), 2),
         )
 
     async def compute_engagement_score(self, customer_id: uuid.UUID, organization_id: uuid.UUID) -> float:

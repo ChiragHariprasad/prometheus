@@ -55,7 +55,7 @@ class TwinSnapshot(Base, UUIDMixin, TimestampMixin):
     valid_until: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
 
 
-class Prediction(Base, UUIDMixin):
+class Prediction(Base, UUIDMixin, TimestampMixin):
     __tablename__ = "customer_predictions"
 
     customer_id: Mapped[uuid.UUID] = mapped_column(

@@ -19,7 +19,7 @@ from app.services.campaign_service import CampaignService
 router = APIRouter(dependencies=[Depends(get_current_user)])
 
 
-@router.get("/", response_model=PaginatedResponse[CampaignListResponse])
+@router.get("", response_model=PaginatedResponse[CampaignListResponse])
 async def list_campaigns(
     session: AsyncSession = Depends(get_session),
     org_id: str = Depends(get_current_organization),
@@ -47,19 +47,48 @@ async def list_campaigns(
     result = await session.execute(query)
     campaigns = result.scalars().all()
 
+    campaign_ids = [c.id for c in campaigns]
+    results_map = {}
+    if campaign_ids:
+        from app.models.campaign import CampaignResult
+        r_stmt = select(CampaignResult).where(
+            CampaignResult.campaign_id.in_(campaign_ids),
+            CampaignResult.organization_id == org_id,
+        )
+        r_result = await session.execute(r_stmt)
+        for cr in r_result.scalars().all():
+            results_map[str(cr.campaign_id)] = cr
+
+    data = []
+    for c in campaigns:
+        c_dict = CampaignListResponse.model_validate(c).model_dump()
+        cr = results_map.get(str(c.id))
+        if cr:
+            c_dict["metrics"] = {
+                "sent": cr.total_targeted or 0,
+                "delivered": cr.total_delivered or 0,
+                "opened": cr.total_opened or 0,
+                "clicked": cr.total_clicked or 0,
+                "converted": cr.total_converted or 0,
+                "revenue": float(cr.total_revenue or 0),
+                "roi": float(cr.roi or 0),
+            }
+        data.append(c_dict)
+
     total_pages = (total + page_size - 1) // page_size if total > 0 else 0
     return PaginatedResponse(
-        items=[CampaignListResponse.model_validate(c) for c in campaigns],
+        data=data,
         total=total,
         page=page,
         page_size=page_size,
+        limit=page_size,
         total_pages=total_pages,
         has_next=page < total_pages,
         has_prev=page > 1,
     )
 
 
-@router.post("/", response_model=APIResponse[CampaignResponse])
+@router.post("", response_model=APIResponse[CampaignResponse])
 async def create_campaign(
     payload: CampaignCreate,
     session: AsyncSession = Depends(get_session),
@@ -221,10 +250,11 @@ async def get_campaign_targets(
 
     total_pages = (total + page_size - 1) // page_size if total > 0 else 0
     return PaginatedResponse(
-        items=[CampaignTargetResponse.model_validate(t) for t in targets],
+        data=[CampaignTargetResponse.model_validate(t) for t in targets],
         total=total,
         page=page,
         page_size=page_size,
+        limit=page_size,
         total_pages=total_pages,
         has_next=page < total_pages,
         has_prev=page > 1,

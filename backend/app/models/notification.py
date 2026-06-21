@@ -3,10 +3,10 @@ from datetime import datetime, timezone
 from sqlalchemy import String, Text, Integer, Boolean, DateTime, ForeignKey, func, Enum as SAEnum
 from sqlalchemy.dialects.postgresql import UUID, JSONB
 from sqlalchemy.orm import Mapped, mapped_column
-from app.models.base import Base, UUIDMixin
+from app.models.base import Base, UUIDMixin, TimestampMixin
 
 
-class Notification(Base, UUIDMixin):
+class Notification(Base, UUIDMixin, TimestampMixin):
     __tablename__ = "notifications"
 
     organization_id: Mapped[uuid.UUID] = mapped_column(

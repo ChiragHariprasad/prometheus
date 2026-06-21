@@ -56,7 +56,7 @@ class CampaignResponse(BaseModel):
     goal: str | None = None
     status: str | None = None
     channel: str
-    segments: list[str] = []
+    segments: Any = {}
     target_customers: list[str] = []
     exclude_customers: list[str] = []
     content: dict[str, Any] = {}
@@ -124,7 +124,18 @@ class CampaignTargetResponse(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
 
+class CampaignMetricsResponse(BaseModel):
+    sent: int = 0
+    delivered: int = 0
+    opened: int = 0
+    clicked: int = 0
+    converted: int = 0
+    revenue: float = 0.0
+    roi: float = 0.0
+
+
 class CampaignListResponse(CampaignResponse):
     result_summary: dict[str, Any] | None = None
+    metrics: CampaignMetricsResponse | None = None
 
     model_config = ConfigDict(from_attributes=True)

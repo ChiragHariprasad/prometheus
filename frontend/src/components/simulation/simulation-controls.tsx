@@ -36,6 +36,8 @@ export function SimulationControls({
     parameters: {} as Record<string, unknown>,
   });
 
+  const runSimulation = useRunSimulation();
+
   const handleCreate = async () => {
     const result = await createSimulation.mutateAsync({
       name: config.name || `Simulation ${new Date().toLocaleDateString()}`,
@@ -45,6 +47,7 @@ export function SimulationControls({
       segment_ids: config.segment_ids,
       parameters: config.parameters,
     });
+    await runSimulation.mutateAsync(result.id);
     onSimulationCreated(result.id);
   };
 

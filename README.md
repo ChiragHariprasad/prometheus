@@ -1,5 +1,7 @@
 # PROMETHEUS — AI-Powered Customer Digital Twin Platform
 
+[![GitHub](https://img.shields.io/badge/GitHub-ChiragHariprasad/prometheus-blue?style=flat&logo=github)](https://github.com/ChiragHariprasad/prometheus)
+
 PROMETHEUS creates a continuously evolving AI Digital Twin for every customer. Unlike traditional CRM systems that store static records, PROMETHEUS models customer behavior, sentiment, preferences, intent, engagement, loyalty, communication patterns, and future actions — updated in real time from every interaction across email, web, mobile, support, social, and campaigns.
 
 ## What PROMETHEUS Does

@@ -150,8 +150,10 @@ class AnalyticsService:
 
         data = []
         for row in rows:
+            if row.period is None:
+                continue
             entry = {
-                "period": row.period.isoformat() if row.period else None,
+                "period": row.period.isoformat(),
                 "value": float(row.value) if row.value is not None else 0,
             }
             if query.dimension and hasattr(CustomerEvent, query.dimension):
@@ -280,15 +282,15 @@ class AnalyticsService:
             "granularity": granularity,
             "total_revenue": round(float(total_revenue), 2),
             "total_transactions": int(total_transactions),
-            "series": [
+            "revenue_trend": [
                 {
-                    "period": r.period.isoformat() if r.period else None,
+                    "period": r.period.isoformat(),
                     "revenue": round(float(r.revenue), 2),
                     "transactions": int(r.transactions),
                     "unique_customers": int(r.unique_customers),
                     "avg_order_value": round(float(r.avg_order_value or 0), 2),
                 }
-                for r in rows
+                for r in rows if r.period is not None
             ],
         }
 
@@ -312,12 +314,12 @@ class AnalyticsService:
 
         return [
             {
-                "date": r.date.isoformat() if r.date else None,
+                "date": r.date.isoformat(),
                 "events": int(r.events),
                 "active_users": int(r.active_users),
                 "events_per_user": round(r.events / r.active_users, 2) if r.active_users > 0 else 0,
             }
-            for r in rows
+            for r in rows if r.date is not None
         ]
 
     async def get_churn_analytics(self, organization_id: uuid.UUID, date_from: datetime, date_to: datetime) -> dict:
@@ -630,10 +632,10 @@ class AnalyticsService:
         rows = result.all()
         return [
             {
-                "date": r.date.isoformat() if r.date else None,
+                "date": r.date.isoformat(),
                 "value": round(float(r.value), 4) if r.value is not None else 0,
             }
-            for r in rows
+            for r in rows if r.date is not None
         ]
 
     async def _get_segment_distribution(self, organization_id: uuid.UUID) -> list[dict]:

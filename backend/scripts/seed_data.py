@@ -1,4 +1,16 @@
-"""Seed script using raw SQL — bypass ORM/enum mismatches."""
+"""Comprehensive seed script — populates ALL tables for the PROMETHEUS app.
+
+Creates:
+  - 20 new customers (for ~32 total with existing)
+  - 10 years of events (2016–2026) per customer
+  - 6 segments with customer mappings
+  - 10+ campaigns with results
+  - 5+ simulations with runs and results
+  - Customer twins with proper interest_graph & sentiment_trend
+
+Usage:  cd backend && python -m scripts.seed_data
+"""
+
 import asyncio
 import json
 import uuid
@@ -7,154 +19,549 @@ from datetime import datetime, timedelta, timezone
 
 from sqlalchemy import text
 
-from app.core.database import async_session_factory
+from app.core.database import async_session_factory, engine
 from app.core.security import hash_password
+
+ORG_ID = uuid.UUID("885f9275-ad3b-4fc4-92fb-550dde803fb7")
+NOW = datetime.now(timezone.utc)
+
+FIRST_NAMES = [
+    "Mia", "Liam", "Olivia", "Noah", "Emma", "Oliver", "Ava", "Elijah",
+    "Sophia", "Mateo", "Isabella", "Sebastian", "Luna", "James", "Harper",
+    "Benjamin", "Evelyn", "Lucas", "Camila", "Gianna",
+]
+LAST_NAMES = [
+    "Anderson", "Thomson", "Clark", "Lewis", "Walker", "Hall", "Allen",
+    "Young", "King", "Wright", "Hill", "Scott", "Green", "Adams", "Baker",
+    "Nelson", "Carter", "Mitchell", "Perez", "Turner",
+]
+
+EVENT_TYPES = [
+    "page_view", "purchase", "email_open", "email_click", "session",
+    "add_to_cart", "search", "login", "app_open", "review_submit",
+]
+CHANNELS = ["email", "sms", "push", "in_app", "webhook"]
+SOURCES = ["api", "system", "tracking"]
+DEVICES = ["desktop", "mobile", "tablet"]
+
+SEGMENT_DEFS = [
+    ("VIP", "High-value loyal customers"),
+    ("At Risk", "Churn signals detected"),
+    ("New", "Acquired within 30 days"),
+    ("Loyal", "6+ months continuous engagement"),
+    ("High Spenders", "Top 20% by lifetime value"),
+    ("Inactive", "No activity for 60+ days"),
+]
+
+CAMPAIGN_DEFS = [
+    ("Summer Sale 2026", "promotional", "email", "completed"),
+    ("VIP Loyalty Rewards", "loyalty", "email", "active"),
+    ("New User Onboarding", "onboarding", "in_app", "draft"),
+    ("Q3 Product Launch", "promotional", "push", "scheduled"),
+    ("Holiday Flash Sale", "promotional", "sms", "draft"),
+    ("Spring Clearance", "promotional", "email", "completed"),
+    ("Referral Program", "referral", "email", "active"),
+    ("Re-engagement Campaign", "retention", "push", "active"),
+    ("Black Friday 2026", "promotional", "sms", "scheduled"),
+    ("Customer Feedback", "survey", "in_app", "completed"),
+    ("Birthday Rewards", "loyalty", "email", "draft"),
+    ("Cross-sell Initiative", "upsell", "push", "draft"),
+]
+
+SIMULATION_DEFS = [
+    ("Q3 2026 Forecast", 5000, 0.95, 90),
+    ("Holiday Campaign ROI", 3000, 0.90, 60),
+    ("Churn Reduction Model", 8000, 0.95, 120),
+    ("New Customer Acquisition", 4000, 0.90, 45),
+    ("Pricing Sensitivity Analysis", 6000, 0.95, 30),
+    ("Product Launch Impact", 5000, 0.90, 90),
+]
+
+
+async def create_partitions(sql_session):
+    """Create yearly event partitions for 2016–2025."""
+    for year in range(2016, 2026):
+        start = f"{year}-01-01"
+        end = f"{year+1}-01-01"
+        name = f"customer_events_{year}"
+        try:
+            await sql_session.execute(text(
+                f"CREATE TABLE IF NOT EXISTS {name} PARTITION OF customer_events "
+                f"FOR VALUES FROM ('{start}') TO ('{end}')"
+            ))
+        except Exception:
+            pass  # may already exist
+    # Extend default partition to cover 2016 if needed
+    # The existing default covers 2027–2030, so we need a catch-all for pre-2026 too
+    try:
+        await sql_session.execute(text(
+            "CREATE TABLE IF NOT EXISTS customer_events_legacy PARTITION OF customer_events "
+            "FOR VALUES FROM ('2015-01-01') TO ('2016-01-01')"
+        ))
+    except Exception:
+        pass
+    await sql_session.commit()
 
 
 async def seed():
+    print("Creating event partitions for 2016–2025...")
+    async with engine.begin() as conn:
+        await conn.execute(text("SET app.current_org_id = '00000000-0000-0000-0000-000000000000'"))
+        await create_partitions(conn)
+
     async with async_session_factory() as session:
-        org_id = uuid.uuid4()
-        judge_id = uuid.uuid4()
-        admin_role_id = uuid.uuid4()
-        now = datetime.now(timezone.utc)
+        await session.execute(text("SET app.current_org_id = '00000000-0000-0000-0000-000000000000'"))
 
-        await session.execute(text("""
-            INSERT INTO organizations (id, name, slug, plan, settings, features, max_customers, max_users, is_active, created_at, updated_at)
-            VALUES (:id, :name, :slug, 'enterprise', '{}', '{}', 100000, 100, true, :now, :now)
-        """), {"id": org_id, "name": "TExpedition", "slug": "texpedition", "now": now})
+        # ── 0. Ensure judge user exists ────────────────────────
+        judge = (await session.execute(
+            text("SELECT id FROM users WHERE email = 'judge@texpedition.com' LIMIT 1")
+        )).first()
+        if not judge:
+            from app.core.security import hash_password
+            admin_role = (await session.execute(
+                text("SELECT id FROM roles WHERE organization_id = :o AND name = 'Admin' LIMIT 1"),
+                {"o": ORG_ID},
+            )).first()
+            if not admin_role:
+                rid = uuid.uuid4()
+                await session.execute(text(
+                    "INSERT INTO roles (id, organization_id, name, description, is_system, priority, created_at) "
+                    "VALUES (:id, :o, 'Admin', 'Administrator', true, 100, :now)"
+                ), {"id": rid, "o": ORG_ID, "now": NOW})
+                admin_role_ = rid
+            else:
+                admin_role_ = admin_role[0]
 
-        await session.execute(text("""
-            INSERT INTO roles (id, organization_id, name, description, is_system, priority, created_at)
-            VALUES (:id, :org_id, 'Admin', 'Administrator', true, 100, :now)
-        """), {"id": admin_role_id, "org_id": org_id, "now": now})
+            judge_id = uuid.uuid4()
+            pwh = hash_password("pass@123")
+            await session.execute(text(
+                "INSERT INTO users (id, organization_id, email, password_hash, first_name, last_name, is_active, is_verified, password_changed_at, created_at, updated_at) "
+                "VALUES (:id, :o, 'judge@texpedition.com', :pwh, 'Judge', 'User', true, true, :now, :now, :now)"
+            ), {"id": judge_id, "o": ORG_ID, "pwh": pwh, "now": NOW})
+            await session.execute(text(
+                "INSERT INTO user_roles (user_id, role_id, assigned_at) VALUES (:uid, :rid, :now)"
+            ), {"uid": judge_id, "rid": admin_role_, "now": NOW})
+            print("  Judge user created.")
+        else:
+            print("  Judge user exists.")
 
-        pwh = hash_password("pass@123")
-        await session.execute(text("""
-            INSERT INTO users (id, organization_id, email, password_hash, first_name, last_name, is_active, is_verified, password_changed_at, created_at, updated_at)
-            VALUES (:id, :org_id, 'judge@texpedition.com', :pwh, 'Judge', 'User', true, true, :now, :now, :now)
-        """), {"id": judge_id, "org_id": org_id, "pwh": pwh, "now": now})
+        # ── 1. Customers ──────────────────────────────────────
+        existing = (await session.execute(
+            text("SELECT id, first_name, last_name FROM customers WHERE organization_id = :o ORDER BY created_at"),
+            {"o": ORG_ID},
+        )).all()
+        existing_cids = [r[0] for r in existing]
+        print(f"  Existing customers: {len(existing_cids)}")
 
-        await session.execute(text("""
-            INSERT INTO user_roles (user_id, role_id, assigned_at)
-            VALUES (:uid, :rid, :now)
-        """), {"uid": judge_id, "rid": admin_role_id, "now": now})
-
-        first_names = ["Alice", "Bob", "Carol", "Dave", "Eve", "Frank", "Grace", "Henry", "Iris", "Jack"]
-        last_names = ["Smith", "Jones", "Brown", "Davis", "Wilson", "Moore", "Taylor", "Anderson", "Thomas", "Jackson"]
-        domains = ["gmail.com", "yahoo.com", "outlook.com", "company.com", "example.org"]
-        cities = ["New York", "San Francisco", "London", "Berlin", "Tokyo"]
-        countries = ["US", "US", "UK", "DE", "JP"]
-        tzs = ["America/New_York", "America/Los_Angeles", "Europe/London", "Europe/Berlin", "Asia/Tokyo"]
-
-        customer_ids = []
-        for i in range(10):
+        new_customers = []
+        start_idx = len(existing_cids)
+        for i in range(start_idx, start_idx + 20):
+            fname = FIRST_NAMES[i % len(FIRST_NAMES)]
+            lname = LAST_NAMES[i % len(LAST_NAMES)]
             cid = uuid.uuid4()
-            customer_ids.append(cid)
-            email = f"{first_names[i].lower()}.{last_names[i].lower()}{i}@{domains[i % len(domains)]}"
-            tags = random.sample(["vip", "new", "returning", "high_value", "at_risk", "mobile_user"], k=random.randint(1, 3))
-            location = {"city": cities[i % 5], "country": countries[i % 5], "timezone": tzs[i % 5]}
-
+            days_ago = random.randint(1, 3650)  # up to 10 years
+            created = NOW - timedelta(days=days_ago)
             await session.execute(text("""
-                INSERT INTO customers (id, organization_id, external_id, email, first_name, last_name, is_active, consent_marketing, consent_analytics, consent_profiling, first_seen_at, last_seen_at, location, tags, created_at, updated_at)
-                VALUES (:id, :org_id, :ext_id, :email, :fn, :ln, true, true, true, true, :first_seen, :last_seen, CAST(:loc AS jsonb), :tags, :now, :now)
+                INSERT INTO customers (id, organization_id, external_id, email, phone, first_name, last_name, timezone, locale, location, tags, is_active, consent_marketing, consent_analytics, consent_profiling, source, first_seen_at, last_seen_at, created_at, updated_at)
+                VALUES (:id, :o, :ext, :email, :phone, :fn, :ln, :tz, 'en-US', CAST(:loc AS jsonb), :tags, true, :cm, true, :cp, :src, :fs, :ls, :now, :now)
             """), {
-                "id": cid, "org_id": org_id,
-                "ext_id": f"ext-{i:04d}", "email": email,
-                "fn": first_names[i], "ln": last_names[i],
-                "first_seen": now - timedelta(days=random.randint(30, 180)),
-                "last_seen": now - timedelta(hours=random.randint(0, 72)),
-                "loc": json.dumps(location), "tags": tags, "now": now,
+                "id": cid, "o": ORG_ID,
+                "ext": f"ext-{i:04d}",
+                "email": f"{fname.lower()}.{lname.lower()}{i}@example.com",
+                "phone": f"+1-555-{random.randint(100,999)}-{random.randint(1000,9999)}",
+                "fn": fname, "ln": lname,
+                "tz": random.choice(["US/Eastern", "US/Pacific", "US/Central", "Europe/London", "Asia/Tokyo"]),
+                "loc": json.dumps({"city": random.choice(["NYC","LA","Chicago","Houston","Seattle","Denver"]), "country": "US"}),
+                "tags": random.sample(["newsletter", "loyalty", "premium", "beta", "vip"], k=random.randint(1, 3)),
+                "cm": random.random() > 0.2,
+                "cp": random.random() > 0.3,
+                "src": random.choice(["api", "web", "mobile", "import"]),
+                "fs": created,
+                "ls": created + timedelta(days=random.randint(0, min(days_ago, 365))),
+                "now": NOW,
             })
+            new_customers.append(cid)
+        await session.flush()
+        print(f"  Created {len(new_customers)} new customers.")
 
-            await session.execute(text("""
-                INSERT INTO customer_profiles (id, customer_id, organization_id, company, industry, annual_revenue, employee_count, created_at, updated_at)
-                VALUES (:id, :cid, :org_id, :company, :industry, :revenue, :emp, :now, :now)
-            """), {
-                "id": uuid.uuid4(), "cid": cid, "org_id": org_id,
-                "company": random.choice(["Acme Corp", "Globex Inc", "Initech", "Hooli", "Stark Industries"]),
-                "industry": random.choice(["Technology", "Finance", "Healthcare", "Retail", "Manufacturing"]),
-                "revenue": random.uniform(100000, 10000000),
-                "emp": random.randint(10, 10000),
-                "now": now,
-            })
+        all_cids = existing_cids + new_customers
+        print(f"  Total customers: {len(all_cids)}")
 
+        # ── 2. Segments ───────────────────────────────────────
+        seg_map = {}
+        for name, desc in SEGMENT_DEFS:
+            row = (await session.execute(
+                text("SELECT id FROM customer_segments WHERE organization_id=:o AND name=:n LIMIT 1"),
+                {"o": ORG_ID, "n": name},
+            )).first()
+            if row:
+                seg_map[name] = row[0]
+            else:
+                sid = uuid.uuid4()
+                await session.execute(text("""
+                    INSERT INTO customer_segments (id, organization_id, name, description, source, is_active, is_dynamic, customer_count, created_at, updated_at)
+                    VALUES (:id, :o, :n, :d, CAST('rule_based' AS segment_source), true, true, 0, :now, :now)
+                """), {"id": sid, "o": ORG_ID, "n": name, "d": desc, "now": NOW})
+                seg_map[name] = sid
         await session.flush()
 
-        for cid in customer_ids:
-            behavior = {
-                "avg_session_duration": random.uniform(30, 600),
-                "pages_per_session": random.uniform(1, 10),
-                "purchase_frequency": random.uniform(0.1, 5.0),
-                "bounce_rate": random.uniform(0.1, 0.7),
-            }
-            interests = random.sample(
-                ["electronics", "fashion", "home", "sports", "books", "music", "travel", "food"],
-                k=random.randint(2, 5),
+        # Assign customers to segments
+        await session.execute(
+            text("DELETE FROM customer_segment_mapping WHERE organization_id = :o"),
+            {"o": ORG_ID},
+        )
+        from app.models.customer import Customer
+        from sqlalchemy import select
+        db_customers = (await session.execute(
+            select(Customer).where(Customer.organization_id == ORG_ID)
+        )).scalars().all()
+        for c in db_customers:
+            age = (NOW - (c.first_seen_at or NOW)).days
+            names = set()
+            if age < 60:
+                names.add("New")
+            if age > 90:
+                names.add("Loyal")
+            if random.random() > 0.7:
+                names.add("VIP")
+            if random.random() > 0.6:
+                names.add("High Spenders")
+            if random.random() > 0.5:
+                names.add("At Risk")
+            if age > 30 and random.random() > 0.7:
+                names.add("Inactive")
+            if not names:
+                names.add("New")
+            for n in names:
+                if n in seg_map:
+                    await session.execute(text("""
+                        INSERT INTO customer_segment_mapping (customer_id, segment_id, organization_id, assigned_at, assigned_by, score)
+                        VALUES (:c, :s, :o, :now, 'seed', :sc)
+                    """), {"c": c.id, "s": seg_map[n], "o": ORG_ID, "now": NOW, "sc": random.random()})
+        # Update counts
+        for sid in seg_map.values():
+            cnt = (await session.execute(
+                text("SELECT count(*) FROM customer_segment_mapping WHERE segment_id=:s"),
+                {"s": sid},
+            )).scalar() or 0
+            await session.execute(
+                text("UPDATE customer_segments SET customer_count=:c WHERE id=:s"),
+                {"c": cnt, "s": sid},
             )
-            channel = {
-                "email": random.uniform(0, 1),
-                "sms": random.uniform(0, 1),
-                "push": random.uniform(0, 1),
-                "in_app": random.uniform(0, 1),
-            }
-            sentiment = [random.uniform(-1, 1) for _ in range(10)]
-            intent = {"next_best_action": random.choice(["email_offer", "push_discount", "retention_call"])}
-            risk = {"churn_risk": random.uniform(0, 1)}
-
-            await session.execute(text("""
-                INSERT INTO customer_twins (id, customer_id, organization_id, status, behavior_profile, interest_graph, channel_affinity, engagement_score, loyalty_score, lifetime_value, sentiment_trend, intent_forecast, risk_indicators, communication_preferences, confidence_score, built_at, created_at, updated_at)
-                VALUES (:id, :cid, :org_id, CAST('active' AS twin_status), CAST(:behavior AS jsonb), CAST(:interests AS jsonb), CAST(:channel AS jsonb), :engagement, :loyalty, :ltv, :sentiment, CAST(:intent AS jsonb), CAST(:risk AS jsonb), CAST(:prefs AS jsonb), :confidence, :built_at, :now, :now)
-            """), {
-                "id": uuid.uuid4(), "cid": cid, "org_id": org_id,
-                "behavior": json.dumps(behavior),
-                "interests": json.dumps({"categories": interests}),
-                "channel": json.dumps(channel),
-                "engagement": random.uniform(0, 100),
-                "loyalty": random.uniform(0, 100),
-                "ltv": random.uniform(100, 50000),
-                "sentiment": sentiment,  # array, asyncpg handles it
-                "intent": json.dumps(intent),
-                "risk": json.dumps(risk),
-                "prefs": json.dumps({"email": True, "push": True, "sms": False}),
-                "confidence": random.uniform(0.5, 1.0),
-                "built_at": now - timedelta(days=random.randint(0, 30)),
-                "now": now,
-            })
-
         await session.flush()
+        print(f"  Segments: {len(seg_map)}, mappings assigned.")
 
-        event_types = ["page_view", "purchase", "email_open", "email_click", "add_to_cart", "search", "login", "session"]
-        total_events = 0
-        for cid in customer_ids:
-            for _ in range(random.randint(10, 30)):
-                et = random.choice(event_types)
-                ts = now - timedelta(
-                    days=random.randint(0, 60),
+        # ── 3. Twins ──────────────────────────────────────────
+        twin_count = 0
+        for c in db_customers:
+            existing_twin = (await session.execute(
+                text("SELECT id FROM customer_twins WHERE customer_id=:c AND organization_id=:o LIMIT 1"),
+                {"c": c.id, "o": ORG_ID},
+            )).first()
+            if existing_twin:
+                continue
+
+            age_days = max((NOW - (c.first_seen_at or NOW)).days, 1)
+            eng = round(random.uniform(15, 98), 1)
+            loy = round(random.uniform(10, 95), 1)
+            ltv = round(random.uniform(100, 50000), 2)
+            churn_p = round(random.uniform(0.01, 0.95), 3)
+            sent = round(random.uniform(0.2, 0.95), 2)
+
+            interest_names = random.sample(
+                ["Electronics", "Fashion", "Sports", "Books", "Music", "Travel", "Food", "Fitness", "Gaming", "Home"],
+                k=random.randint(3, 6),
+            )
+            nodes = [{"name": n, "weight": round(random.uniform(0.3, 1.0), 3)} for n in interest_names]
+
+            ca = {ch: round(random.uniform(0.0, 1.0), 2) for ch in ["email", "sms", "push", "in_app", "webhook"]}
+
+            tl = min(age_days, 60)
+            st = [round(sent + random.uniform(-0.15, 0.15), 3) for _ in range(tl)]
+
+            twin_id = uuid.uuid4()
+            await session.execute(text("""
+                INSERT INTO customer_twins (id, customer_id, organization_id, status, version, behavior_profile, interest_graph, channel_affinity, engagement_score, loyalty_score, lifetime_value, sentiment_trend, intent_forecast, risk_indicators, communication_preferences, confidence_score, staleness_score, last_event_at, built_at, created_at, updated_at)
+                VALUES (:id, :cid, :o, CAST('active' AS twin_status), :ver, CAST(:bp AS jsonb), CAST(:ig AS jsonb), CAST(:ca AS jsonb), :eng, :loy, :ltv, :st, CAST(:intent AS jsonb), CAST(:risk AS jsonb), CAST(:prefs AS jsonb), :conf, :stale, :le, :built, :now, :now)
+            """), {
+                "id": twin_id, "cid": c.id, "o": ORG_ID,
+                "ver": random.randint(1, 5),
+                "bp": json.dumps({
+                    "sessions_per_week": round(random.uniform(1, 15), 1),
+                    "avg_session_duration": round(random.uniform(30, 600)),
+                    "purchase_frequency": round(random.uniform(0.1, 5), 1),
+                    "avg_order_value": round(random.uniform(20, 200), 2),
+                    "cart_abandonment_rate": round(random.uniform(0.1, 0.7), 2),
+                    "email_open_rate": round(random.uniform(0.2, 0.6), 2),
+                }),
+                "ig": json.dumps({
+                    "nodes": nodes,
+                    "dominant_category": nodes[0]["name"],
+                    "interest_diversity": round(random.uniform(0.3, 0.9), 2),
+                    "total_interactions": random.randint(10, 500),
+                }),
+                "ca": json.dumps(ca),
+                "eng": eng, "loy": loy, "ltv": ltv,
+                "st": st,
+                "intent": json.dumps({
+                    "purchase_intent_7d": round(random.uniform(0.1, 0.8), 2),
+                    "churn_risk_7d": churn_p,
+                    "predicted_ltv_90d": round(ltv * random.uniform(1.1, 2.0), 2),
+                    "recommended_action": random.choice(["upsell", "retention_discount", "re_engagement"]),
+                    "recommended_channel": random.choice(["email", "sms", "push"]),
+                }),
+                "risk": json.dumps({
+                    "churn_probability": churn_p,
+                    "current_sentiment": sent,
+                    "churn_risk_level": "high" if churn_p > 0.5 else "medium" if churn_p > 0.25 else "low",
+                    "engagement_decline_rate": round(random.uniform(-0.3, 0.1), 2),
+                    "negative_sentiment_count": random.randint(0, 10),
+                    "support_ticket_count": random.randint(0, 8),
+                }),
+                "prefs": json.dumps({"email": True, "sms": random.random() > 0.5, "push": random.random() > 0.3}),
+                "conf": round(random.uniform(0.7, 0.99), 2),
+                "stale": round(random.uniform(0.0, 0.4), 2),
+                "le": NOW - timedelta(hours=random.randint(1, 720)),
+                "built": NOW - timedelta(days=random.randint(0, min(age_days, 30))),
+                "now": NOW,
+            })
+            twin_count += 1
+        await session.flush()
+        print(f"  Twins: {twin_count} new, {len(db_customers) - twin_count} existing.")
+
+        # ── 4. Events (10 years: 2016–2026) ───────────────────
+        ev_count = 0
+        for cid in all_cids:
+            existing_ev = (await session.execute(
+                text("SELECT count(*) FROM customer_events WHERE customer_id=:c AND organization_id=:o"),
+                {"c": cid, "o": ORG_ID},
+            )).scalar()
+            if existing_ev and existing_ev > 0:
+                continue
+
+            # Generate events across 10 years
+            years_active = random.randint(3, 10)
+            base_date = NOW - timedelta(days=365 * years_active)
+            num_events = random.randint(200, 800)
+
+            for _ in range(num_events):
+                days_offset = random.randint(0, years_active * 365)
+                ts = base_date + timedelta(
+                    days=days_offset,
                     hours=random.randint(0, 23),
                     minutes=random.randint(0, 59),
                 )
+                if ts > NOW:
+                    continue
+                etype = random.choice(EVENT_TYPES)
+                channel = random.choice(CHANNELS)
+                src = random.choice(SOURCES)
+                device = random.choice(DEVICES)
+                value = round(random.uniform(5, 500), 2) if etype == "purchase" else None
+
                 props = {}
-                if et in ("purchase", "add_to_cart"):
-                    props = {"value": round(random.uniform(10, 500), 2), "currency": "USD",
-                             "page": random.choice(["/products", "/cart", "/checkout"])}
+                if etype == "purchase":
+                    props = {"value": value, "currency": "USD"}
+                elif etype in ("email_open", "email_click"):
+                    props = {"campaign": random.choice(["summer_sale", "welcome", "promo"])}
+                elif etype == "search":
+                    props = {"query": random.choice(["laptop", "shoes", "books", "fitness"])}
+
                 await session.execute(text("""
-                    INSERT INTO customer_events (id, organization_id, customer_id, event_type, event_name, event_properties, channel, source, device_type, processed, event_timestamp, ingested_at, created_at)
-                    VALUES (:id, :org_id, :cid, CAST(:et AS event_type), :name, CAST(:props AS jsonb), :channel, :source, :device, false, :ts, :now, :now)
+                    INSERT INTO customer_events (organization_id, customer_id, event_type, event_name, event_properties, context, channel, source, device_type, value, currency, event_timestamp, ingested_at, created_at)
+                    VALUES (:o, :c, CAST(:et AS event_type), :en, CAST(:props AS jsonb), '{}'::jsonb, :ch, :src, :dev, :val, :cur, :ts, :now, :now)
                 """), {
-                    "id": uuid.uuid4(), "org_id": org_id, "cid": cid,
-                    "et": et,
-                    "name": et.replace("_", " ").title(),
+                    "o": ORG_ID, "c": cid,
+                    "et": etype,
+                    "en": etype.replace("_", " ").title(),
                     "props": json.dumps(props),
-                    "channel": random.choice(["web", "mobile", "email"]),
-                    "source": random.choice(["direct", "organic", "paid", "referral"]),
-                    "device": random.choice(["desktop", "mobile", "tablet"]),
+                    "ch": channel,
+                    "src": src,
+                    "dev": device,
+                    "val": value,
+                    "cur": "USD" if value else None,
                     "ts": ts,
-                    "now": now,
+                    "now": NOW,
                 })
-                total_events += 1
+                ev_count += 1
+        await session.flush()
+        print(f"  Events: {ev_count} new.")
+
+        # ── 5. Campaigns ──────────────────────────────────────
+        camp_count = 0
+        for name, ctype, channel, status in CAMPAIGN_DEFS:
+            existing_camp = (await session.execute(
+                text("SELECT id FROM campaigns WHERE organization_id=:o AND name=:n LIMIT 1"),
+                {"o": ORG_ID, "n": name},
+            )).first()
+            if existing_camp:
+                continue
+
+            budget = random.randint(3000, 50000)
+            start_offset = {"draft": 60, "scheduled": 14, "active": -7, "completed": -45}.get(status, 0)
+            duration = random.randint(14, 45)
+            start_at = NOW + timedelta(days=start_offset)
+            end_at = start_at + timedelta(days=duration)
+
+            camp_id = uuid.uuid4()
+            tz = random.choice(["US/Eastern", "US/Pacific", "Europe/London"])
+            await session.execute(text("""
+                INSERT INTO campaigns (id, organization_id, name, type, goal, status, channel, segments, target_customers, content, schedule, budget, expected_reach, expected_conversion_rate, start_at, end_at, created_at, updated_at)
+                VALUES (:id, :o, :n, :t, :g, CAST(:st AS campaign_status), CAST(:ch AS notification_channel), CAST(:seg AS jsonb), :tc, CAST(:ct AS jsonb), CAST(:sched AS jsonb), :b, :er, :ecr, :sa, :ea, :now, :now)
+            """), {
+                "id": camp_id, "o": ORG_ID, "n": name, "t": ctype,
+                "g": f"Drive {ctype} results via {channel}",
+                "st": status, "ch": channel,
+                "seg": json.dumps([]),
+                "tc": [str(c) for c in random.sample(all_cids, min(len(all_cids), random.randint(5, 20)))],
+                "ct": json.dumps({"subject": name, "body": f"Check out {name}!"}),
+                "sched": json.dumps({
+                    "start": start_at.isoformat(),
+                    "end": end_at.isoformat(),
+                    "frequency": random.choice(["daily", "weekly", "monthly"]),
+                    "timezone": tz,
+                }),
+                "b": budget,
+                "er": random.randint(500, 10000),
+                "ecr": round(random.uniform(0.03, 0.25), 2),
+                "sa": start_at, "ea": end_at,
+                "now": NOW,
+            })
+
+            # Create campaign results for completed/active campaigns
+            if status in ("completed", "active"):
+            # see if result exists
+                existing_result = (await session.execute(
+                    text("SELECT id FROM campaign_results WHERE campaign_id=:c LIMIT 1"),
+                    {"c": camp_id},
+                )).first()
+                if not existing_result:
+                    total = random.randint(1000, 8000)
+                    delivered = int(total * random.uniform(0.85, 0.98))
+                    opened = int(delivered * random.uniform(0.2, 0.5))
+                    clicked = int(opened * random.uniform(0.1, 0.4))
+                    converted = int(clicked * random.uniform(0.05, 0.2))
+                    revenue = converted * random.uniform(20, 200)
+                    cost = budget or 3000
+                    await session.execute(text("""
+                        INSERT INTO campaign_results (id, campaign_id, organization_id, total_targeted, total_delivered, total_opened, total_clicked, total_converted, total_revenue, total_cost, open_rate, click_rate, conversion_rate, roi, computed_at, created_at)
+                        VALUES (:id, :c, :o, :tt, :td, :to, :tc_, :tconv, :tr, :tcost, :or_, :cr, :convr, :roi, :now, :now)
+                    """), {
+                        "id": uuid.uuid4(), "c": camp_id, "o": ORG_ID,
+                        "tt": total, "td": delivered, "to": opened,
+                        "tc_": clicked, "tconv": converted, "tr": round(revenue, 2),
+                        "tcost": round(float(cost), 2),
+                        "or_": round(opened / delivered, 4) if delivered else 0,
+                        "cr": round(clicked / delivered, 4) if delivered else 0,
+                        "convr": round(converted / delivered, 4) if delivered else 0,
+                        "roi": round((revenue - cost) / cost, 4) if cost else 0,
+                        "now": NOW,
+                    })
+            camp_count += 1
+        await session.flush()
+        print(f"  Campaigns: {camp_count} new.")
+
+        # ── 6. Simulations ────────────────────────────────────
+        sim_count = 0
+        all_seg_ids = [str(s) for s in seg_map.values()]
+        for name, iterations, confidence, horizon in SIMULATION_DEFS:
+            existing_sim = (await session.execute(
+                text("SELECT id FROM simulations WHERE organization_id=:o AND name=:n LIMIT 1"),
+                {"o": ORG_ID, "n": name},
+            )).first()
+            if existing_sim:
+                continue
+
+            base_rev = random.randint(30000, 150000)
+            sim_id = uuid.uuid4()
+            await session.execute(text("""
+                INSERT INTO simulations (id, organization_id, name, type, status, monte_carlo_iterations, confidence_level, time_horizon_days, segment_ids, sample_size, include_control, parameters, started_at, completed_at, created_at, updated_at)
+                VALUES (:id, :o, :n, 'campaign', CAST('completed' AS simulation_status), :iter, :conf, :horizon, :sids, :sample, true, CAST(:params AS jsonb), :started, :completed, :now, :now)
+            """), {
+                "id": sim_id, "o": ORG_ID, "n": name,
+                "iter": iterations, "conf": confidence, "horizon": horizon,
+                "sids": all_seg_ids,
+                "sample": 10000,
+                "params": json.dumps({
+                    "growth_rate": round(random.uniform(0.02, 0.08), 3),
+                    "seasonal_factor": round(random.uniform(1.0, 1.3), 2),
+                }),
+                "started": NOW - timedelta(days=random.randint(5, 30)),
+                "completed": NOW - timedelta(days=random.randint(0, 4)),
+                "now": NOW,
+            })
+
+            # Run
+            run_id = uuid.uuid4()
+            await session.execute(text("""
+                INSERT INTO simulation_runs (id, simulation_id, organization_id, run_number, status, seed, agents_count, iterations_executed, runtime_seconds, created_at)
+                VALUES (:id, :sid, :o, 1, 'completed', :seed, :agents, :iter, :rt, :now)
+            """), {
+                "id": run_id, "sid": sim_id, "o": ORG_ID,
+                "seed": random.randint(0, 2**31 - 1),
+                "agents": 100,
+                "iter": iterations,
+                "rt": round(random.uniform(30, 300), 2),
+                "now": NOW,
+            })
+
+            # Result
+            conv_rate = round(random.uniform(0.03, 0.08), 3)
+            await session.execute(text("""
+                INSERT INTO simulation_results (id, simulation_id, organization_id, run_id, aggregated_metrics, customer_projections, segment_projections, campaign_impact, confidence_intervals, monte_carlo_distribution, expected_outcomes, risk_assessment, recommendations, created_at)
+                VALUES (:id, :sid, :o, :rid, CAST(:agg AS jsonb), CAST(:cp AS jsonb), CAST(:sp AS jsonb), CAST(:ci AS jsonb), CAST(:confint AS jsonb), CAST(:mcd AS jsonb), CAST(:eo AS jsonb), CAST(:ra AS jsonb), :rec, :now)
+            """), {
+                "id": uuid.uuid4(), "sid": sim_id, "o": ORG_ID, "rid": run_id,
+                "rec": ["Adjust pricing tiers", "Increase ad spend on high-performing channels"],
+                "agg": json.dumps({
+                    "expected_revenue": base_rev,
+                    "conversion_rate": conv_rate,
+                    "sensitivity": [
+                        {"variable": "price", "impact": round(random.uniform(-0.3, -0.1), 2)},
+                        {"variable": "ad_spend", "impact": round(random.uniform(0.1, 0.3), 2)},
+                        {"variable": "seasonality", "impact": round(random.uniform(0.05, 0.2), 2)},
+                    ],
+                }),
+                "cp": json.dumps({"total": 10000, "reach": 7500}),
+                "sp": json.dumps({s: {"reach": random.randint(100, 2000)} for s, _ in SEGMENT_DEFS}),
+                "ci": json.dumps({
+                    "incremental_revenue": round(base_rev * 0.15, 2),
+                    "roi": round(random.uniform(1.5, 4.0), 2),
+                }),
+                "confint": json.dumps({
+                    "revenue": [round(base_rev * 0.85, 2), round(base_rev * 1.15, 2)],
+                    "conversions": [round(7500 * conv_rate * 0.85), round(7500 * conv_rate * 1.15)],
+                }),
+                "mcd": json.dumps({
+                    "best_case": {"revenue": round(base_rev * 1.3, 2), "conversions": 450},
+                    "most_likely": {"revenue": base_rev, "conversions": 300},
+                    "worst_case": {"revenue": round(base_rev * 0.6, 2), "conversions": 150},
+                }),
+                "eo": json.dumps({
+                    "expected_revenue": base_rev,
+                    "expected_conversions": 300,
+                    "expected_open_rate": round(random.uniform(0.2, 0.4), 2),
+                    "expected_click_rate": round(random.uniform(0.05, 0.12), 2),
+                }),
+                "ra": json.dumps({
+                    "level": random.choice(["low", "medium", "high"]),
+                    "factors": random.sample(
+                        ["Market volatility", "New competitor", "Seasonal demand", "Rising CAC"],
+                        k=random.randint(2, 3),
+                    ),
+                }),
+                "now": NOW,
+            })
+            sim_count += 1
+        await session.flush()
+        print(f"  Simulations: {sim_count} new.")
 
         await session.commit()
-        print(f"Seed complete: org={org_id}, judge={judge_id}, customers=10, events={total_events}")
+        print(f"\n=== Seed complete! ===")
+        print(f"  Customers: {len(all_cids)} total")
+        print(f"  Events: {ev_count} new")
+        print(f"  Campaigns: {camp_count}")
+        print(f"  Simulations: {sim_count}")
 
 
 if __name__ == "__main__":

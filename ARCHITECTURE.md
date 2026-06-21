@@ -1,4 +1,6 @@
-# PROMETHEUS Architecture Document
+# PROMETHEUS Architecture
+
+[![GitHub](https://img.shields.io/badge/GitHub-ChiragHariprasad/prometheus-blue?style=flat&logo=github)](https://github.com/ChiragHariprasad/prometheus) Document
 
 > **Note:** The architecture below describes the **planned production deployment** with microservices, service mesh, and cloud infrastructure. The current implementation runs as a **single FastAPI monolith** with **Docker Compose** (22 containers). See [judge-readme.md](judge-readme.md) for the actual architecture diagram.
 

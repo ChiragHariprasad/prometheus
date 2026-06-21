@@ -2,7 +2,7 @@ from datetime import datetime
 from uuid import UUID
 from typing import Any
 
-from pydantic import BaseModel, ConfigDict, field_validator
+from pydantic import BaseModel, ConfigDict, field_validator, model_validator
 
 
 class SimulationCreate(BaseModel):
@@ -16,10 +16,22 @@ class SimulationCreate(BaseModel):
     monte_carlo_iterations: int = 1000
     confidence_level: float = 0.95
     time_horizon_days: int = 30
+    iterations: int | None = None
+    time_horizon: int | None = None
     segment_ids: list[str] = []
     sample_size: int = 10000
     include_control: bool = True
     expected_outputs: list[str] = []
+
+    @model_validator(mode="before")
+    @classmethod
+    def _map_frontend_fields(cls, data: Any) -> Any:
+        if isinstance(data, dict):
+            if "iterations" in data and data["iterations"] is not None:
+                data["monte_carlo_iterations"] = data.pop("iterations")
+            if "time_horizon" in data and data["time_horizon"] is not None:
+                data["time_horizon_days"] = data.pop("time_horizon")
+        return data
 
     @field_validator("monte_carlo_iterations")
     @classmethod
@@ -60,31 +72,62 @@ class SimulationUpdate(BaseModel):
     expected_outputs: list[str] | None = None
 
 
+class SimulationConfigResponse(BaseModel):
+    iterations: int = 1000
+    time_horizon: int = 30
+    confidence_level: float = 0.95
+    segment_ids: list[str] = []
+    parameters: dict[str, Any] = {}
+
+
 class SimulationResponse(BaseModel):
     id: UUID
-    organization_id: UUID
     name: str
-    description: str | None = None
-    type: str
+    config: SimulationConfigResponse
     status: str | None = None
-    campaign_id: str | None = None
-    configuration: dict[str, Any] = {}
-    parameters: dict[str, Any] = {}
-    agent_configuration: dict[str, Any] = {}
-    monte_carlo_iterations: int = 1000
-    confidence_level: float = 0.95
-    time_horizon_days: int = 30
-    segment_ids: list[str] = []
-    sample_size: int = 10000
-    include_control: bool = True
-    expected_outputs: list[str] = []
-    created_by: UUID | None = None
-    started_at: datetime | None = None
-    completed_at: datetime | None = None
+    results: Any | None = None
+    forecast: Any | None = None
     created_at: datetime | None = None
-    updated_at: datetime | None = None
 
     model_config = ConfigDict(from_attributes=True)
+
+    @model_validator(mode="before")
+    @classmethod
+    def _build_nested(cls, data: Any) -> Any:
+        if isinstance(data, dict):
+            config = {
+                "iterations": data.pop("monte_carlo_iterations", 1000) or 1000,
+                "time_horizon": data.pop("time_horizon_days", 30) or 30,
+                "confidence_level": data.pop("confidence_level", 0.95) or 0.95,
+                "segment_ids": data.pop("segment_ids", []) or [],
+                "parameters": data.pop("parameters", {}) or {},
+            }
+            data["config"] = config
+            for key in ("organization_id", "description", "type", "campaign_id", "configuration",
+                        "agent_configuration", "sample_size", "include_control",
+                        "expected_outputs", "created_by", "started_at",
+                        "completed_at", "updated_at"):
+                data.pop(key, None)
+            data.setdefault("results", None)
+            data.setdefault("forecast", None)
+        elif hasattr(data, "monte_carlo_iterations"):
+            config = SimulationConfigResponse(
+                iterations=getattr(data, "monte_carlo_iterations", 1000) or 1000,
+                time_horizon=getattr(data, "time_horizon_days", 30) or 30,
+                confidence_level=getattr(data, "confidence_level", 0.95) or 0.95,
+                segment_ids=getattr(data, "segment_ids", []) or [],
+                parameters=getattr(data, "parameters", {}) or {},
+            )
+            data = {
+                "id": data.id,
+                "name": data.name,
+                "config": config,
+                "status": getattr(data, "status", None),
+                "results": None,
+                "forecast": None,
+                "created_at": getattr(data, "created_at", None),
+            }
+        return data
 
 
 class SimulationRunResponse(BaseModel):
@@ -118,7 +161,7 @@ class SimulationResultResponse(BaseModel):
     monte_carlo_distribution: dict[str, Any] = {}
     expected_outcomes: dict[str, Any] = {}
     risk_assessment: dict[str, Any] = {}
-    recommendations: list[dict[str, Any]] = []
+    recommendations: list[str] = []
 
     model_config = ConfigDict(from_attributes=True)
 
@@ -151,6 +194,4 @@ class SimulationProgressResponse(BaseModel):
 
 
 class SimulationListResponse(SimulationResponse):
-    status_summary: dict[str, Any] | None = None
-
-    model_config = ConfigDict(from_attributes=True)
+    pass

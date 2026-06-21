@@ -1,3 +1,4 @@
+import uuid
 from fastapi import APIRouter, Depends, Query, HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select, func
@@ -22,7 +23,7 @@ from app.services.simulation_service import SimulationService
 router = APIRouter(dependencies=[Depends(get_current_user)])
 
 
-@router.get("/", response_model=PaginatedResponse[SimulationListResponse])
+@router.get("", response_model=PaginatedResponse[SimulationListResponse])
 async def list_simulations(
     session: AsyncSession = Depends(get_session),
     org_id: str = Depends(get_current_organization),
@@ -52,32 +53,33 @@ async def list_simulations(
 
     total_pages = (total + page_size - 1) // page_size if total > 0 else 0
     return PaginatedResponse(
-        items=[SimulationListResponse.model_validate(s) for s in simulations],
+        data=[SimulationListResponse.model_validate(s) for s in simulations],
         total=total,
         page=page,
         page_size=page_size,
+        limit=page_size,
         total_pages=total_pages,
         has_next=page < total_pages,
         has_prev=page > 1,
     )
 
 
-@router.post("/", response_model=APIResponse[SimulationResponse])
+@router.post("", response_model=SimulationResponse)
 async def create_simulation(
     payload: SimulationCreate,
     session: AsyncSession = Depends(get_session),
     org_id: str = Depends(get_current_organization),
 ):
-    simulation = Simulation(organization_id=org_id, **payload.model_dump())
+    simulation = Simulation(organization_id=org_id, **payload.model_dump(exclude={"iterations", "time_horizon"}))
     session.add(simulation)
     await session.commit()
     await session.refresh(simulation)
-    return APIResponse(data=SimulationResponse.model_validate(simulation))
+    return SimulationResponse.model_validate(simulation)
 
 
 @router.get("/{simulation_id}", response_model=SimulationResponse)
 async def get_simulation(
-    simulation_id: str,
+    simulation_id: uuid.UUID,
     session: AsyncSession = Depends(get_session),
     org_id: str = Depends(get_current_organization),
 ):
@@ -90,7 +92,26 @@ async def get_simulation(
     simulation = result.scalar_one_or_none()
     if not simulation:
         raise NotFoundException("Simulation not found")
-    return SimulationResponse.model_validate(simulation)
+
+    resp = SimulationResponse.model_validate(simulation)
+
+    if simulation.status == "completed":
+        sim_result = await session.execute(
+            select(SimulationResult).where(
+                SimulationResult.simulation_id == simulation_id,
+                SimulationResult.organization_id == org_id,
+            )
+        )
+        result_obj = sim_result.scalar_one_or_none()
+        if result_obj:
+            resp.results = SimulationResultResponse.model_validate(result_obj).model_dump()
+
+        service = SimulationService(session)
+        forecast = await service.get_forecast(simulation_id)
+        if forecast:
+            resp.forecast = forecast.model_dump()
+
+    return resp
 
 
 @router.put("/{simulation_id}", response_model=SimulationResponse)
@@ -155,7 +176,7 @@ async def run_simulation(
         raise NotFoundException("Simulation not found")
 
     service = SimulationService(session)
-    await service.run(simulation, org_id)
+    await service.run_simulation(simulation_id=simulation.id)
     return APIResponse(message="Simulation execution triggered successfully")
 
 

@@ -22,6 +22,21 @@ export function EngagementChart({
   data,
   title = "Engagement Trend",
 }: EngagementChartProps) {
+  if (!data || data.length === 0) {
+    return (
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-sm font-medium">{title}</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="flex items-center justify-center h-[300px] text-muted-foreground">
+            No data available
+          </div>
+        </CardContent>
+      </Card>
+    );
+  }
+
   const chartData = data.map((point) => ({
     date: format(new Date(point.date), "MMM d"),
     Engagement: point.value,

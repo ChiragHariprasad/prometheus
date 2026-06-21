@@ -1,5 +1,7 @@
 # PROMETHEUS — Judge Evaluation Guide
 
+[![GitHub](https://img.shields.io/badge/GitHub-ChiragHariprasad/prometheus-blue?style=flat&logo=github)]( )
+
 ## What is PROMETHEUS?
 
 PROMETHEUS is an **AI-Powered Customer Digital Twin Platform** that creates a continuously evolving AI model for every customer. Unlike traditional CRM systems that store static records, PROMETHEUS models customer behavior, sentiment, preferences, intent, engagement, loyalty, communication patterns, and future actions — updated in real time from every interaction across email, web, mobile, support, social, and campaigns.

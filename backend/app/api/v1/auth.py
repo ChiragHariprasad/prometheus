@@ -44,7 +44,7 @@ async def login(
     )
 
 
-@router.post("/register", response_model=APIResponse[AuthUserResponse])
+@router.post("/register", response_model=LoginResponse)
 async def register(
     payload: RegisterRequest,
     session: AsyncSession = Depends(get_session),
@@ -57,7 +57,16 @@ async def register(
         first_name=payload.first_name,
         last_name=payload.last_name,
     )
-    return APIResponse(data=AuthUserResponse.model_validate(user))
+    access_token, refresh_token = await service.login(
+        email=payload.email,
+        password=payload.password,
+    )
+    return LoginResponse(
+        access_token=access_token,
+        refresh_token=refresh_token,
+        expires_in=settings.JWT_ACCESS_TOKEN_EXPIRE_MINUTES * 60,
+        user=AuthUserResponse.model_validate(user),
+    )
 
 
 @router.post("/refresh", response_model=TokenResponse)

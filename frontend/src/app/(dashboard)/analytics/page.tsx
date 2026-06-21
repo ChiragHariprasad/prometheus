@@ -76,10 +76,10 @@ export default function AnalyticsPage() {
       case "revenue":
         return (
           <ResponsiveContainer width="100%" height={400}>
-            <BarChart data={revenueData?.data || []}>
+            <BarChart data={revenueData?.revenue_trend || []}>
               <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
               <XAxis
-                dataKey="date"
+                dataKey="period"
                 tickFormatter={(v) => format(new Date(v), "MMM d")}
                 className="text-xs"
               />
@@ -104,7 +104,7 @@ export default function AnalyticsPage() {
       case "engagement":
         return (
           <ResponsiveContainer width="100%" height={400}>
-            <LineChart data={engagementData?.data || []}>
+            <LineChart data={engagementData?.trend || []}>
               <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
               <XAxis
                 dataKey="date"
@@ -120,9 +120,9 @@ export default function AnalyticsPage() {
                 }}
               />
               <Legend />
-              <Line type="monotone" dataKey="engagement" stroke="#3b82f6" name="Engagement" strokeWidth={2} />
-              <Line type="monotone" dataKey="retention" stroke="#22c55e" name="Retention" strokeWidth={2} />
-              <Line type="monotone" dataKey="satisfaction" stroke="#f59e0b" name="Satisfaction" strokeWidth={2} />
+              <Line type="monotone" dataKey="events" stroke="#3b82f6" name="Events" strokeWidth={2} />
+              <Line type="monotone" dataKey="active_users" stroke="#22c55e" name="Active Users" strokeWidth={2} />
+              <Line type="monotone" dataKey="events_per_user" stroke="#f59e0b" name="Events/User" strokeWidth={2} />
             </LineChart>
           </ResponsiveContainer>
         );
@@ -132,11 +132,11 @@ export default function AnalyticsPage() {
             <div className="h-[300px]">
               <ResponsiveContainer width="100%" height="100%">
                 <PieChart>
-                  <Pie
-                    data={[
-                      { name: "Churned", value: churnData?.churned_customers || 0 },
-                      { name: "At Risk", value: churnData?.at_risk || 0 },
-                    ]}
+                    <Pie
+                      data={[
+                        { name: "Churned", value: churnData?.churned_customers || 0 },
+                        { name: "At Risk", value: churnData?.at_risk_customers || 0 },
+                      ]}
                     cx="50%"
                     cy="50%"
                     innerRadius={60}
@@ -155,9 +155,9 @@ export default function AnalyticsPage() {
             <div className="space-y-4">
               <h3 className="font-semibold">Churn Rate: {((churnData?.churn_rate ?? 0) * 100).toFixed(1)}%</h3>
               <div className="space-y-2">
-                {churnData?.by_segment?.map((s) => (
-                  <div key={s.segment} className="flex justify-between text-sm">
-                    <span>{s.segment}</span>
+                {churnData?.churn_by_segment?.map((s) => (
+                  <div key={s.segment_id} className="flex justify-between text-sm">
+                    <span>{s.segment_name}</span>
                     <span className="font-mono">{((s.churn_rate ?? 0) * 100).toFixed(1)}%</span>
                   </div>
                 ))}
@@ -247,73 +247,78 @@ export default function AnalyticsPage() {
         <CardContent className="pt-6">{renderChart()}</CardContent>
       </Card>
 
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-sm font-medium">Data Table</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="overflow-x-auto">
-            <table className="w-full text-sm">
-              <thead>
-                <tr className="border-b">
-                  <th className="text-left py-2 px-3">Date</th>
-                  {activeMetric === "revenue" && (
-                    <>
-                      <th className="text-right py-2 px-3">Revenue</th>
-                      <th className="text-right py-2 px-3">Cost</th>
-                      <th className="text-right py-2 px-3">Profit</th>
-                    </>
+      {activeMetric !== "churn" && (
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-sm font-medium">Data Table</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="overflow-x-auto">
+              <table className="w-full text-sm">
+                <thead>
+                  <tr className="border-b">
+                    <th className="text-left py-2 px-3">Date</th>
+                    {activeMetric === "revenue" && (
+                      <>
+                        <th className="text-right py-2 px-3">Revenue</th>
+                        <th className="text-right py-2 px-3">Avg Order</th>
+                        <th className="text-right py-2 px-3">Transactions</th>
+                      </>
+                    )}
+                    {activeMetric === "engagement" && (
+                      <>
+                        <th className="text-right py-2 px-3">Events</th>
+                        <th className="text-right py-2 px-3">Active Users</th>
+                        <th className="text-right py-2 px-3">Events/User</th>
+                      </>
+                    )}
+                  </tr>
+                </thead>
+                <tbody>
+                  {(activeMetric === "revenue" ? revenueData?.revenue_trend : engagementData?.trend)?.map(
+                    (row: Record<string, unknown>, i: number) => {
+                      const dateField = activeMetric === "revenue" ? "period" : "date";
+                      return (
+                        <tr key={i} className="border-b hover:bg-muted/50">
+                          <td className="py-2 px-3">
+                            {format(new Date(row[dateField] as string), "MMM d, yyyy")}
+                          </td>
+                          {activeMetric === "revenue" && (
+                            <>
+                              <td className="text-right py-2 px-3">
+                                ${((row.revenue as number) || 0).toLocaleString()}
+                              </td>
+                              <td className="text-right py-2 px-3">
+                                ${(row.avg_order_value as number || 0).toLocaleString()}
+                              </td>
+                              <td className="text-right py-2 px-3">
+                                {(row.transactions as number) || 0}
+                              </td>
+                            </>
+                          )}
+                          {activeMetric === "engagement" && (
+                            <>
+                              <td className="text-right py-2 px-3">
+                                {(row.events as number).toFixed(1)}
+                              </td>
+                              <td className="text-right py-2 px-3">
+                                {(row.active_users as number).toFixed(1)}
+                              </td>
+                              <td className="text-right py-2 px-3">
+                                {(row.events_per_user as number).toFixed(1)}
+                              </td>
+                            </>
+                          )}
+                        </tr>
+                      );
+                    }
                   )}
-                  {activeMetric === "engagement" && (
-                    <>
-                      <th className="text-right py-2 px-3">Engagement</th>
-                      <th className="text-right py-2 px-3">Retention</th>
-                      <th className="text-right py-2 px-3">Satisfaction</th>
-                    </>
-                  )}
-                </tr>
-              </thead>
-              <tbody>
-                {(activeMetric === "revenue" ? revenueData?.data : engagementData?.data)?.map(
-                  (row: Record<string, unknown>, i: number) => (
-                    <tr key={i} className="border-b hover:bg-muted/50">
-                      <td className="py-2 px-3">
-                        {format(new Date(row.date as string), "MMM d, yyyy")}
-                      </td>
-                      {activeMetric === "revenue" && (
-                        <>
-                          <td className="text-right py-2 px-3">
-                            ${(row.revenue as number).toLocaleString()}
-                          </td>
-                          <td className="text-right py-2 px-3">
-                            ${(row.cost as number).toLocaleString()}
-                          </td>
-                          <td className="text-right py-2 px-3">
-                            ${(row.profit as number).toLocaleString()}
-                          </td>
-                        </>
-                      )}
-                      {activeMetric === "engagement" && (
-                        <>
-                          <td className="text-right py-2 px-3">
-                            {(row.engagement as number).toFixed(1)}%
-                          </td>
-                          <td className="text-right py-2 px-3">
-                            {(row.retention as number).toFixed(1)}%
-                          </td>
-                          <td className="text-right py-2 px-3">
-                            {(row.satisfaction as number).toFixed(1)}%
-                          </td>
-                        </>
-                      )}
-                    </tr>
-                  )
-                )}
-              </tbody>
-            </table>
-          </div>
-        </CardContent>
-      </Card>
+                </tbody>
+              </table>
+            </div>
+          </CardContent>
+        </Card>
+      )}
     </div>
   );
 }
