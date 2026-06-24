@@ -1,9 +1,7 @@
 import uuid
-import json
 from datetime import datetime, timezone, timedelta
-from typing import Any
 
-from sqlalchemy import select, func, and_, or_
+from sqlalchemy import select, or_
 from sqlalchemy.ext.asyncio import AsyncSession
 from qdrant_client import AsyncQdrantClient
 from qdrant_client.models import Filter, FieldCondition, MatchValue, SearchParams
@@ -12,11 +10,9 @@ from app.core.config import settings
 from app.core.exceptions import NotFoundException, ValidationException
 from app.core.logging import logger
 from app.core.redis import RedisClient
-from app.models.customer import Customer
 from app.models.twin import CustomerTwin
 from app.models.recommendation import Recommendation
 from app.models.campaign import Campaign
-from app.schemas.recommendation import RecommendationResponse
 from app.repositories.customer_repository import CustomerRepository
 
 
@@ -178,7 +174,7 @@ class RecommendationService:
         interests = twin.interest_graph or {}
         affinity = twin.channel_affinity or {}
 
-        if behavior.get("lifecycle_stage") == "new":
+        if behavior.get("lifecycle_stage") == "engaged" and behavior.get("behavior_score", 1.0) < 0.3:
             recommendations.append({
                 "type": "onboarding",
                 "title": "Complete your profile",

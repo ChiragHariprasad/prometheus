@@ -68,7 +68,7 @@ async def send_notification(
 ):
     notification = Notification(organization_id=org_id, **payload.model_dump())
     session.add(notification)
-
+    await session.flush()
     await session.refresh(notification)
 
     service = NotificationService(session)

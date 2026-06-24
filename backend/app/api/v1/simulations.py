@@ -70,9 +70,9 @@ async def create_simulation(
     session: AsyncSession = Depends(get_session),
     org_id: str = Depends(get_current_organization),
 ):
-    simulation = Simulation(organization_id=org_id, **payload.model_dump())
+    simulation = Simulation(organization_id=org_id, **payload.model_dump(exclude={"iterations", "time_horizon"}))
     session.add(simulation)
-
+    await session.flush()
     await session.refresh(simulation)
     return SimulationResponse.model_validate(simulation)
 
@@ -231,7 +231,7 @@ async def get_simulation_forecast(
     org_id: str = Depends(get_current_organization),
 ):
     service = SimulationService(session)
-    forecast = await service.get_forecast(simulation_id, org_id)
+    forecast = await service.get_forecast(simulation_id)
     if not forecast:
         raise NotFoundException("Forecast not available")
     return SimulationForecastResponse.model_validate(forecast)

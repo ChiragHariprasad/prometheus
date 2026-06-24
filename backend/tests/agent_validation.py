@@ -290,7 +290,7 @@ class AgentValidator:
 
         twin_statuses = [t["status"] for t in self.twins]
         self.report.check("Twin statuses valid",
-                          all(s in ("active", "built", "building", "stale", "archived") for s in twin_statuses),
+                          all(s in ("building", "built", "stale", "rebuilding", "failed") for s in twin_statuses),
                           f"statuses: {set(twin_statuses)}")
 
     async def validate_channel_affinity(self):

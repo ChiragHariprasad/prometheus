@@ -96,7 +96,7 @@ async def create_campaign(
 ):
     campaign = Campaign(organization_id=org_id, **payload.model_dump())
     session.add(campaign)
-
+    await session.flush()
     await session.refresh(campaign)
     return APIResponse(data=CampaignResponse.model_validate(campaign))
 

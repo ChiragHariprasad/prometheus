@@ -36,7 +36,19 @@ class PerCustomerTwinSummary(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
 
+class BehaviorSubScores(BaseModel):
+    engagement: float = 0.0
+    purchase_activity: float = 0.0
+    session_depth: float = 0.0
+    communication_response: float = 0.0
+    recency: float = 0.0
+
+    model_config = ConfigDict(from_attributes=True)
+
+
 class BehaviorProfileResponse(BaseModel):
+    behavior_score: float | None = None
+    sub_scores: BehaviorSubScores = BehaviorSubScores()
     sessions_per_week: float | None = None
     avg_session_duration: float | None = None
     page_depth_avg: float | None = None
@@ -68,6 +80,17 @@ class InterestGraphResponse(BaseModel):
     dominant_category: str | None = None
     interest_diversity: float | None = None
     total_interactions: int = 0
+
+    model_config = ConfigDict(from_attributes=True)
+
+
+class MemoryProfileResponse(BaseModel):
+    campaign_responses: list[dict[str, Any]] = []
+    purchase_categories: list[dict[str, Any]] = []
+    channel_history: list[dict[str, Any]] = []
+    discount_sensitivity: float | None = None
+    historical_engagement: dict[str, Any] = {}
+    seasonality_patterns: list[dict[str, Any]] = []
 
     model_config = ConfigDict(from_attributes=True)
 
@@ -111,6 +134,16 @@ class IntentForecastResponse(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
 
+class TwinOutputResponse(BaseModel):
+    sentiment: float | None = None
+    purchase_intent: float | None = None
+    churn_probability: float | None = None
+    lifetime_value: float | None = None
+    next_best_action: str | None = None
+
+    model_config = ConfigDict(from_attributes=True)
+
+
 class CustomerTwinResponse(BaseModel):
     customer_id: UUID
     organization_id: UUID
@@ -118,6 +151,7 @@ class CustomerTwinResponse(BaseModel):
     version: int | None = None
     behavior_profile: BehaviorProfileResponse | None = None
     interest_graph: InterestGraphResponse | None = None
+    memory_profile: MemoryProfileResponse | None = None
     channel_affinity: ChannelAffinityResponse | None = None
     engagement_score: float | None = None
     loyalty_score: float | None = None
@@ -125,6 +159,7 @@ class CustomerTwinResponse(BaseModel):
     sentiment_trend: list[float] = []
     intent_forecast: IntentForecastResponse | None = None
     risk_indicators: RiskIndicatorsResponse | None = None
+    twin_output: TwinOutputResponse | None = None
     communication_preferences: dict[str, Any] = {}
     confidence_score: float | None = None
     staleness_score: float | None = None

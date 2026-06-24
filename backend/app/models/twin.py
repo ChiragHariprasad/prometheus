@@ -1,6 +1,6 @@
 import uuid
 from datetime import datetime, timezone
-from sqlalchemy import String, Text, Integer, Float, Boolean, DateTime, ForeignKey, func, Enum as SAEnum
+from sqlalchemy import String, Integer, Float, Boolean, DateTime, ForeignKey, func, Enum as SAEnum
 from sqlalchemy.dialects.postgresql import UUID, JSONB, ARRAY
 from sqlalchemy.orm import Mapped, mapped_column
 from app.models.base import Base, UUIDMixin, TimestampMixin
@@ -15,10 +15,11 @@ class CustomerTwin(Base, UUIDMixin, TimestampMixin):
     organization_id: Mapped[uuid.UUID] = mapped_column(
         UUID(as_uuid=True), ForeignKey("organizations.id", ondelete="CASCADE"), nullable=False
     )
-    status: Mapped[str] = mapped_column(SAEnum('active', 'stale', 'archived', 'building', name="twin_status", create_type=False), default="building")
+    status: Mapped[str] = mapped_column(String(50), default="building")
     version: Mapped[int] = mapped_column(Integer, default=1)
     behavior_profile: Mapped[dict] = mapped_column(JSONB, default=dict)
     interest_graph: Mapped[dict] = mapped_column(JSONB, default=dict)
+    memory_profile: Mapped[dict] = mapped_column(JSONB, default=dict)
     channel_affinity: Mapped[dict] = mapped_column(JSONB, default=dict)
     engagement_score: Mapped[float | None] = mapped_column(Float, default=0.0)
     loyalty_score: Mapped[float | None] = mapped_column(Float, default=0.0)
@@ -42,6 +43,9 @@ class TwinSnapshot(Base, UUIDMixin, TimestampMixin):
 
     twin_id: Mapped[uuid.UUID] = mapped_column(
         UUID(as_uuid=True), ForeignKey("customer_twins.id", ondelete="CASCADE"), nullable=False
+    )
+    customer_id: Mapped[uuid.UUID | None] = mapped_column(
+        UUID(as_uuid=True), ForeignKey("customers.id", ondelete="CASCADE")
     )
     organization_id: Mapped[uuid.UUID] = mapped_column(
         UUID(as_uuid=True), ForeignKey("organizations.id", ondelete="CASCADE"), nullable=False

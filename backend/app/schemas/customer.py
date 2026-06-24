@@ -21,6 +21,7 @@ class CustomerCreate(BaseModel):
     consent_marketing: bool = False
     consent_analytics: bool = True
     consent_profiling: bool = False
+    segment_ids: list[str] = []
 
 
 class CustomerUpdate(BaseModel):
@@ -40,6 +41,7 @@ class CustomerUpdate(BaseModel):
     consent_marketing: bool | None = None
     consent_analytics: bool | None = None
     consent_profiling: bool | None = None
+    segment_ids: list[str] | None = None
 
 
 class CustomerResponse(BaseModel):

@@ -1,0 +1,944 @@
+{
+  "p50_ms": 5.235910415649414,
+  "p90_ms": 23.395538330078125,
+  "p95_ms": 2055.2704334259033,
+  "p99_ms": 2076.9741535186768,
+  "metrics": [
+    {
+      "path": "/openapi.json",
+      "method": "GET",
+      "status_code": 200,
+      "total_response_time": 2.0552704334259033,
+      "server_processing_time": 2.051417,
+      "payload_size": 135596,
+      "timestamp": "2026-06-24T19:46:28.253158+00:00"
+    },
+    {
+      "path": "/health",
+      "method": "GET",
+      "status_code": 200,
+      "total_response_time": 0.002717733383178711,
+      "server_processing_time": 0.002153,
+      "payload_size": 147,
+      "timestamp": "2026-06-24T19:46:28.257565+00:00"
+    },
+    {
+      "path": "/ready",
+      "method": "GET",
+      "status_code": 200,
+      "total_response_time": 0.001775503158569336,
+      "server_processing_time": 0.001342,
+      "payload_size": 18,
+      "timestamp": "2026-06-24T19:46:28.259353+00:00"
+    },
+    {
+      "path": "/api/v1/auth/me",
+      "method": "GET",
+      "status_code": 200,
+      "total_response_time": 0.0045244693756103516,
+      "server_processing_time": 0.00413,
+      "payload_size": 233,
+      "timestamp": "2026-06-24T19:46:28.263892+00:00"
+    },
+    {
+      "path": "/api/v1/users",
+      "method": "GET",
+      "status_code": 200,
+      "total_response_time": 0.014549016952514648,
+      "server_processing_time": 0.014069,
+      "payload_size": 106,
+      "timestamp": "2026-06-24T19:46:28.278462+00:00"
+    },
+    {
+      "path": "/api/v1/users/roles",
+      "method": "GET",
+      "status_code": 500,
+      "total_response_time": 0.01563715934753418,
+      "server_processing_time": 0.015032,
+      "payload_size": 97,
+      "timestamp": "2026-06-24T19:46:28.294123+00:00"
+    },
+    {
+      "path": "/api/v1/customers",
+      "method": "GET",
+      "status_code": 200,
+      "total_response_time": 2.0716261863708496,
+      "server_processing_time": 2.071036,
+      "payload_size": 14053,
+      "timestamp": "2026-06-24T19:46:30.365793+00:00"
+    },
+    {
+      "path": "/api/v1/customers/search",
+      "method": "GET",
+      "status_code": 422,
+      "total_response_time": 0.0033864974975585938,
+      "server_processing_time": 0.002836,
+      "payload_size": 87,
+      "timestamp": "2026-06-24T19:46:30.369203+00:00"
+    },
+    {
+      "path": "/api/v1/customers/new",
+      "method": "GET",
+      "status_code": 404,
+      "total_response_time": 0.002499818801879883,
+      "server_processing_time": 0.001889,
+      "payload_size": 119,
+      "timestamp": "2026-06-24T19:46:30.371735+00:00"
+    },
+    {
+      "path": "/api/v1/twins/summary",
+      "method": "GET",
+      "status_code": 200,
+      "total_response_time": 0.0042667388916015625,
+      "server_processing_time": 0.003878,
+      "payload_size": 156,
+      "timestamp": "2026-06-24T19:46:30.376026+00:00"
+    },
+    {
+      "path": "/api/v1/events",
+      "method": "GET",
+      "status_code": 200,
+      "total_response_time": 0.007683992385864258,
+      "server_processing_time": 0.007194,
+      "payload_size": 12131,
+      "timestamp": "2026-06-24T19:46:30.383730+00:00"
+    },
+    {
+      "path": "/api/v1/events/types",
+      "method": "GET",
+      "status_code": 200,
+      "total_response_time": 0.004748821258544922,
+      "server_processing_time": 0.004249,
+      "payload_size": 379,
+      "timestamp": "2026-06-24T19:46:30.388502+00:00"
+    },
+    {
+      "path": "/api/v1/events/summary",
+      "method": "GET",
+      "status_code": 422,
+      "total_response_time": 0.0027828216552734375,
+      "server_processing_time": 0.002274,
+      "payload_size": 178,
+      "timestamp": "2026-06-24T19:46:30.391306+00:00"
+    },
+    {
+      "path": "/api/v1/campaigns",
+      "method": "GET",
+      "status_code": 200,
+      "total_response_time": 0.006169795989990234,
+      "server_processing_time": 0.005667,
+      "payload_size": 6891,
+      "timestamp": "2026-06-24T19:46:30.397503+00:00"
+    },
+    {
+      "path": "/api/v1/simulations",
+      "method": "GET",
+      "status_code": 200,
+      "total_response_time": 0.010286092758178711,
+      "server_processing_time": 0.009327,
+      "payload_size": 3199,
+      "timestamp": "2026-06-24T19:46:30.407827+00:00"
+    },
+    {
+      "path": "/api/v1/recommendations",
+      "method": "GET",
+      "status_code": 200,
+      "total_response_time": 0.007990360260009766,
+      "server_processing_time": 0.007413,
+      "payload_size": 106,
+      "timestamp": "2026-06-24T19:46:30.415845+00:00"
+    },
+    {
+      "path": "/api/v1/notifications",
+      "method": "GET",
+      "status_code": 200,
+      "total_response_time": 0.006327629089355469,
+      "server_processing_time": 0.005803,
+      "payload_size": 106,
+      "timestamp": "2026-06-24T19:46:30.422197+00:00"
+    },
+    {
+      "path": "/api/v1/notifications/stats",
+      "method": "GET",
+      "status_code": 500,
+      "total_response_time": 0.011179208755493164,
+      "server_processing_time": 0.010623,
+      "payload_size": 97,
+      "timestamp": "2026-06-24T19:46:30.433399+00:00"
+    },
+    {
+      "path": "/api/v1/analytics/dashboard",
+      "method": "GET",
+      "status_code": 200,
+      "total_response_time": 2.085261106491089,
+      "server_processing_time": 2.084611,
+      "payload_size": 2352,
+      "timestamp": "2026-06-24T19:46:32.518693+00:00"
+    },
+    {
+      "path": "/api/v1/analytics/revenue",
+      "method": "GET",
+      "status_code": 200,
+      "total_response_time": 0.006150245666503906,
+      "server_processing_time": 0.005505,
+      "payload_size": 3088,
+      "timestamp": "2026-06-24T19:46:32.524867+00:00"
+    },
+    {
+      "path": "/api/v1/analytics/engagement",
+      "method": "GET",
+      "status_code": 200,
+      "total_response_time": 0.005247354507446289,
+      "server_processing_time": 0.004725,
+      "payload_size": 7495,
+      "timestamp": "2026-06-24T19:46:32.530136+00:00"
+    },
+    {
+      "path": "/api/v1/analytics/churn",
+      "method": "GET",
+      "status_code": 200,
+      "total_response_time": 0.017217397689819336,
+      "server_processing_time": 0.016732,
+      "payload_size": 1178,
+      "timestamp": "2026-06-24T19:46:32.547373+00:00"
+    },
+    {
+      "path": "/api/v1/analytics/campaigns",
+      "method": "GET",
+      "status_code": 500,
+      "total_response_time": 0.008916616439819336,
+      "server_processing_time": 0.008382,
+      "payload_size": 97,
+      "timestamp": "2026-06-24T19:46:32.556313+00:00"
+    },
+    {
+      "path": "/api/v1/analytics/export",
+      "method": "GET",
+      "status_code": 422,
+      "total_response_time": 2.0769741535186768,
+      "server_processing_time": 2.076428,
+      "payload_size": 97,
+      "timestamp": "2026-06-24T19:46:34.633324+00:00"
+    },
+    {
+      "path": "/api/v1/segments",
+      "method": "GET",
+      "status_code": 200,
+      "total_response_time": 0.0067386627197265625,
+      "server_processing_time": 0.006075,
+      "payload_size": 2047,
+      "timestamp": "2026-06-24T19:46:34.640174+00:00"
+    },
+    {
+      "path": "/api/v1/admin/audit-logs",
+      "method": "GET",
+      "status_code": 200,
+      "total_response_time": 0.00318145751953125,
+      "server_processing_time": 0.002681,
+      "payload_size": 106,
+      "timestamp": "2026-06-24T19:46:34.643379+00:00"
+    },
+    {
+      "path": "/api/v1/admin/system-health",
+      "method": "GET",
+      "status_code": 200,
+      "total_response_time": 0.004548072814941406,
+      "server_processing_time": 0.003973,
+      "payload_size": 358,
+      "timestamp": "2026-06-24T19:46:34.647946+00:00"
+    },
+    {
+      "path": "/api/v1/admin/feature-flags",
+      "method": "GET",
+      "status_code": 200,
+      "total_response_time": 0.0021369457244873047,
+      "server_processing_time": 0.001671,
+      "payload_size": 479,
+      "timestamp": "2026-06-24T19:46:34.650097+00:00"
+    },
+    {
+      "path": "/api/v1/admin/users",
+      "method": "GET",
+      "status_code": 200,
+      "total_response_time": 0.005472898483276367,
+      "server_processing_time": 0.005077,
+      "payload_size": 2,
+      "timestamp": "2026-06-24T19:46:34.655588+00:00"
+    },
+    {
+      "path": "/api/v1/admin/roles",
+      "method": "GET",
+      "status_code": 200,
+      "total_response_time": 0.0020160675048828125,
+      "server_processing_time": 0.001599,
+      "payload_size": 2,
+      "timestamp": "2026-06-24T19:46:34.657621+00:00"
+    },
+    {
+      "path": "/api/v1/admin/api-keys",
+      "method": "GET",
+      "status_code": 200,
+      "total_response_time": 0.0016412734985351562,
+      "server_processing_time": 0.001296,
+      "payload_size": 2,
+      "timestamp": "2026-06-24T19:46:34.659274+00:00"
+    },
+    {
+      "path": "/api/v1/admin/webhooks",
+      "method": "GET",
+      "status_code": 200,
+      "total_response_time": 0.0016942024230957031,
+      "server_processing_time": 0.001352,
+      "payload_size": 2,
+      "timestamp": "2026-06-24T19:46:34.660980+00:00"
+    },
+    {
+      "path": "/api/v1/customers?limit=10",
+      "method": "GET",
+      "status_code": 200,
+      "total_response_time": 0.00780034065246582,
+      "server_processing_time": 0.007373,
+      "payload_size": 8650,
+      "timestamp": "2026-06-24T19:46:34.671628+00:00"
+    },
+    {
+      "path": "/api/v1/customers/11782a90-7782-4a0b-b3ef-2ef1825f57fc/profile",
+      "method": "GET",
+      "status_code": 404,
+      "total_response_time": 0.005035877227783203,
+      "server_processing_time": 0.004487,
+      "payload_size": 137,
+      "timestamp": "2026-06-24T19:46:34.676745+00:00"
+    },
+    {
+      "path": "/api/v1/customers/11782a90-7782-4a0b-b3ef-2ef1825f57fc/preferences",
+      "method": "GET",
+      "status_code": 404,
+      "total_response_time": 0.006632804870605469,
+      "server_processing_time": 0.006053,
+      "payload_size": 145,
+      "timestamp": "2026-06-24T19:46:34.683398+00:00"
+    },
+    {
+      "path": "/api/v1/customers/11782a90-7782-4a0b-b3ef-2ef1825f57fc/segments",
+      "method": "GET",
+      "status_code": 200,
+      "total_response_time": 0.005742073059082031,
+      "server_processing_time": 0.005136,
+      "payload_size": 2,
+      "timestamp": "2026-06-24T19:46:34.689163+00:00"
+    },
+    {
+      "path": "/api/v1/customers/11782a90-7782-4a0b-b3ef-2ef1825f57fc/events",
+      "method": "GET",
+      "status_code": 200,
+      "total_response_time": 0.008892536163330078,
+      "server_processing_time": 0.007973,
+      "payload_size": 106,
+      "timestamp": "2026-06-24T19:46:34.698083+00:00"
+    },
+    {
+      "path": "/api/v1/customers/bef6ae88-b15e-493e-a168-0d84df192ea8/profile",
+      "method": "GET",
+      "status_code": 404,
+      "total_response_time": 0.005893707275390625,
+      "server_processing_time": 0.005325,
+      "payload_size": 137,
+      "timestamp": "2026-06-24T19:46:34.704013+00:00"
+    },
+    {
+      "path": "/api/v1/customers/bef6ae88-b15e-493e-a168-0d84df192ea8/preferences",
+      "method": "GET",
+      "status_code": 404,
+      "total_response_time": 0.0041255950927734375,
+      "server_processing_time": 0.003576,
+      "payload_size": 145,
+      "timestamp": "2026-06-24T19:46:34.708169+00:00"
+    },
+    {
+      "path": "/api/v1/customers/bef6ae88-b15e-493e-a168-0d84df192ea8/segments",
+      "method": "GET",
+      "status_code": 200,
+      "total_response_time": 0.004651069641113281,
+      "server_processing_time": 0.004116,
+      "payload_size": 2,
+      "timestamp": "2026-06-24T19:46:34.712849+00:00"
+    },
+    {
+      "path": "/api/v1/customers/bef6ae88-b15e-493e-a168-0d84df192ea8/events",
+      "method": "GET",
+      "status_code": 200,
+      "total_response_time": 0.006300449371337891,
+      "server_processing_time": 0.005632,
+      "payload_size": 106,
+      "timestamp": "2026-06-24T19:46:34.719182+00:00"
+    },
+    {
+      "path": "/api/v1/customers/3e3c0b2c-21fc-4208-b9aa-acdf791759f0/profile",
+      "method": "GET",
+      "status_code": 404,
+      "total_response_time": 0.005235910415649414,
+      "server_processing_time": 0.004708,
+      "payload_size": 137,
+      "timestamp": "2026-06-24T19:46:34.724456+00:00"
+    },
+    {
+      "path": "/api/v1/customers/3e3c0b2c-21fc-4208-b9aa-acdf791759f0/preferences",
+      "method": "GET",
+      "status_code": 404,
+      "total_response_time": 0.004261016845703125,
+      "server_processing_time": 0.003748,
+      "payload_size": 145,
+      "timestamp": "2026-06-24T19:46:34.728742+00:00"
+    },
+    {
+      "path": "/api/v1/customers/3e3c0b2c-21fc-4208-b9aa-acdf791759f0/segments",
+      "method": "GET",
+      "status_code": 200,
+      "total_response_time": 0.004537105560302734,
+      "server_processing_time": 0.004108,
+      "payload_size": 2,
+      "timestamp": "2026-06-24T19:46:34.733302+00:00"
+    },
+    {
+      "path": "/api/v1/customers/3e3c0b2c-21fc-4208-b9aa-acdf791759f0/events",
+      "method": "GET",
+      "status_code": 200,
+      "total_response_time": 0.006143331527709961,
+      "server_processing_time": 0.005573,
+      "payload_size": 712,
+      "timestamp": "2026-06-24T19:46:34.739476+00:00"
+    },
+    {
+      "path": "/api/v1/customers/54749272-1a64-4e9b-b161-b50dd702281b/profile",
+      "method": "GET",
+      "status_code": 404,
+      "total_response_time": 0.005791664123535156,
+      "server_processing_time": 0.00473,
+      "payload_size": 137,
+      "timestamp": "2026-06-24T19:46:34.745359+00:00"
+    },
+    {
+      "path": "/api/v1/customers/54749272-1a64-4e9b-b161-b50dd702281b/preferences",
+      "method": "GET",
+      "status_code": 404,
+      "total_response_time": 0.0039825439453125,
+      "server_processing_time": 0.003516,
+      "payload_size": 145,
+      "timestamp": "2026-06-24T19:46:34.749367+00:00"
+    },
+    {
+      "path": "/api/v1/customers/54749272-1a64-4e9b-b161-b50dd702281b/segments",
+      "method": "GET",
+      "status_code": 200,
+      "total_response_time": 0.003629922866821289,
+      "server_processing_time": 0.00321,
+      "payload_size": 2,
+      "timestamp": "2026-06-24T19:46:34.753018+00:00"
+    },
+    {
+      "path": "/api/v1/customers/54749272-1a64-4e9b-b161-b50dd702281b/events",
+      "method": "GET",
+      "status_code": 200,
+      "total_response_time": 0.005896806716918945,
+      "server_processing_time": 0.005242,
+      "payload_size": 712,
+      "timestamp": "2026-06-24T19:46:34.758939+00:00"
+    },
+    {
+      "path": "/api/v1/customers/42228b2d-a6a5-4fab-ac94-63e016d98912/profile",
+      "method": "GET",
+      "status_code": 404,
+      "total_response_time": 0.004477024078369141,
+      "server_processing_time": 0.00402,
+      "payload_size": 137,
+      "timestamp": "2026-06-24T19:46:34.763460+00:00"
+    },
+    {
+      "path": "/api/v1/customers/42228b2d-a6a5-4fab-ac94-63e016d98912/preferences",
+      "method": "GET",
+      "status_code": 404,
+      "total_response_time": 0.003931522369384766,
+      "server_processing_time": 0.003481,
+      "payload_size": 145,
+      "timestamp": "2026-06-24T19:46:34.767414+00:00"
+    },
+    {
+      "path": "/api/v1/customers/42228b2d-a6a5-4fab-ac94-63e016d98912/segments",
+      "method": "GET",
+      "status_code": 200,
+      "total_response_time": 0.004220724105834961,
+      "server_processing_time": 0.003742,
+      "payload_size": 240,
+      "timestamp": "2026-06-24T19:46:34.771660+00:00"
+    },
+    {
+      "path": "/api/v1/customers/42228b2d-a6a5-4fab-ac94-63e016d98912/events",
+      "method": "GET",
+      "status_code": 200,
+      "total_response_time": 0.007571220397949219,
+      "server_processing_time": 0.007063,
+      "payload_size": 12141,
+      "timestamp": "2026-06-24T19:46:34.779262+00:00"
+    },
+    {
+      "path": "/api/v1/customers/79ff0fbf-86fc-4ad7-a30a-758610ef188a/profile",
+      "method": "GET",
+      "status_code": 404,
+      "total_response_time": 0.0054051876068115234,
+      "server_processing_time": 0.004852,
+      "payload_size": 137,
+      "timestamp": "2026-06-24T19:46:34.784798+00:00"
+    },
+    {
+      "path": "/api/v1/customers/79ff0fbf-86fc-4ad7-a30a-758610ef188a/preferences",
+      "method": "GET",
+      "status_code": 404,
+      "total_response_time": 0.003743410110473633,
+      "server_processing_time": 0.003267,
+      "payload_size": 145,
+      "timestamp": "2026-06-24T19:46:34.788565+00:00"
+    },
+    {
+      "path": "/api/v1/customers/79ff0fbf-86fc-4ad7-a30a-758610ef188a/segments",
+      "method": "GET",
+      "status_code": 200,
+      "total_response_time": 0.003487825393676758,
+      "server_processing_time": 0.003117,
+      "payload_size": 479,
+      "timestamp": "2026-06-24T19:46:34.792070+00:00"
+    },
+    {
+      "path": "/api/v1/customers/79ff0fbf-86fc-4ad7-a30a-758610ef188a/events",
+      "method": "GET",
+      "status_code": 200,
+      "total_response_time": 0.005610466003417969,
+      "server_processing_time": 0.005233,
+      "payload_size": 11520,
+      "timestamp": "2026-06-24T19:46:34.797708+00:00"
+    },
+    {
+      "path": "/api/v1/customers/ea8d9bbe-6f6a-447c-8359-88e5740c59d7/profile",
+      "method": "GET",
+      "status_code": 404,
+      "total_response_time": 0.004114866256713867,
+      "server_processing_time": 0.003713,
+      "payload_size": 137,
+      "timestamp": "2026-06-24T19:46:34.801957+00:00"
+    },
+    {
+      "path": "/api/v1/customers/ea8d9bbe-6f6a-447c-8359-88e5740c59d7/preferences",
+      "method": "GET",
+      "status_code": 404,
+      "total_response_time": 0.003148317337036133,
+      "server_processing_time": 0.002768,
+      "payload_size": 145,
+      "timestamp": "2026-06-24T19:46:34.805124+00:00"
+    },
+    {
+      "path": "/api/v1/customers/ea8d9bbe-6f6a-447c-8359-88e5740c59d7/segments",
+      "method": "GET",
+      "status_code": 200,
+      "total_response_time": 0.0033063888549804688,
+      "server_processing_time": 0.0029,
+      "payload_size": 2,
+      "timestamp": "2026-06-24T19:46:34.808447+00:00"
+    },
+    {
+      "path": "/api/v1/customers/ea8d9bbe-6f6a-447c-8359-88e5740c59d7/events",
+      "method": "GET",
+      "status_code": 200,
+      "total_response_time": 0.0054912567138671875,
+      "server_processing_time": 0.005073,
+      "payload_size": 11518,
+      "timestamp": "2026-06-24T19:46:34.813958+00:00"
+    },
+    {
+      "path": "/api/v1/customers/10d7960b-5803-4fa4-a37c-90606ab704d8/profile",
+      "method": "GET",
+      "status_code": 404,
+      "total_response_time": 0.004312992095947266,
+      "server_processing_time": 0.003883,
+      "payload_size": 137,
+      "timestamp": "2026-06-24T19:46:34.818380+00:00"
+    },
+    {
+      "path": "/api/v1/customers/10d7960b-5803-4fa4-a37c-90606ab704d8/preferences",
+      "method": "GET",
+      "status_code": 404,
+      "total_response_time": 0.0037038326263427734,
+      "server_processing_time": 0.003211,
+      "payload_size": 145,
+      "timestamp": "2026-06-24T19:46:34.822108+00:00"
+    },
+    {
+      "path": "/api/v1/customers/10d7960b-5803-4fa4-a37c-90606ab704d8/segments",
+      "method": "GET",
+      "status_code": 200,
+      "total_response_time": 0.00416111946105957,
+      "server_processing_time": 0.003702,
+      "payload_size": 479,
+      "timestamp": "2026-06-24T19:46:34.826292+00:00"
+    },
+    {
+      "path": "/api/v1/customers/10d7960b-5803-4fa4-a37c-90606ab704d8/events",
+      "method": "GET",
+      "status_code": 200,
+      "total_response_time": 0.008005619049072266,
+      "server_processing_time": 0.007502,
+      "payload_size": 12113,
+      "timestamp": "2026-06-24T19:46:34.834330+00:00"
+    },
+    {
+      "path": "/api/v1/customers/bcd8b3e1-67e3-4f09-a16d-87b22601e329/profile",
+      "method": "GET",
+      "status_code": 404,
+      "total_response_time": 0.00509190559387207,
+      "server_processing_time": 0.004573,
+      "payload_size": 137,
+      "timestamp": "2026-06-24T19:46:34.839551+00:00"
+    },
+    {
+      "path": "/api/v1/customers/bcd8b3e1-67e3-4f09-a16d-87b22601e329/preferences",
+      "method": "GET",
+      "status_code": 404,
+      "total_response_time": 0.004609107971191406,
+      "server_processing_time": 0.004142,
+      "payload_size": 145,
+      "timestamp": "2026-06-24T19:46:34.844183+00:00"
+    },
+    {
+      "path": "/api/v1/customers/bcd8b3e1-67e3-4f09-a16d-87b22601e329/segments",
+      "method": "GET",
+      "status_code": 200,
+      "total_response_time": 0.004691123962402344,
+      "server_processing_time": 0.00423,
+      "payload_size": 240,
+      "timestamp": "2026-06-24T19:46:34.848899+00:00"
+    },
+    {
+      "path": "/api/v1/customers/bcd8b3e1-67e3-4f09-a16d-87b22601e329/events",
+      "method": "GET",
+      "status_code": 200,
+      "total_response_time": 0.008220672607421875,
+      "server_processing_time": 0.007631,
+      "payload_size": 12155,
+      "timestamp": "2026-06-24T19:46:34.857156+00:00"
+    },
+    {
+      "path": "/api/v1/customers/e56182d2-f8c0-4ea3-ac47-25de8dacbe57/profile",
+      "method": "GET",
+      "status_code": 404,
+      "total_response_time": 0.004509925842285156,
+      "server_processing_time": 0.003911,
+      "payload_size": 137,
+      "timestamp": "2026-06-24T19:46:34.861806+00:00"
+    },
+    {
+      "path": "/api/v1/customers/e56182d2-f8c0-4ea3-ac47-25de8dacbe57/preferences",
+      "method": "GET",
+      "status_code": 404,
+      "total_response_time": 0.003371715545654297,
+      "server_processing_time": 0.002746,
+      "payload_size": 145,
+      "timestamp": "2026-06-24T19:46:34.865205+00:00"
+    },
+    {
+      "path": "/api/v1/customers/e56182d2-f8c0-4ea3-ac47-25de8dacbe57/segments",
+      "method": "GET",
+      "status_code": 200,
+      "total_response_time": 0.0032989978790283203,
+      "server_processing_time": 0.002836,
+      "payload_size": 2,
+      "timestamp": "2026-06-24T19:46:34.868528+00:00"
+    },
+    {
+      "path": "/api/v1/customers/e56182d2-f8c0-4ea3-ac47-25de8dacbe57/events",
+      "method": "GET",
+      "status_code": 200,
+      "total_response_time": 0.005493879318237305,
+      "server_processing_time": 0.005019,
+      "payload_size": 12186,
+      "timestamp": "2026-06-24T19:46:34.874049+00:00"
+    },
+    {
+      "path": "/api/v1/twins/11782a90-7782-4a0b-b3ef-2ef1825f57fc",
+      "method": "GET",
+      "status_code": 404,
+      "total_response_time": 0.0046291351318359375,
+      "server_processing_time": 0.004012,
+      "payload_size": 143,
+      "timestamp": "2026-06-24T19:46:34.879013+00:00"
+    },
+    {
+      "path": "/api/v1/twins/bef6ae88-b15e-493e-a168-0d84df192ea8",
+      "method": "GET",
+      "status_code": 404,
+      "total_response_time": 0.005354881286621094,
+      "server_processing_time": 0.004886,
+      "payload_size": 143,
+      "timestamp": "2026-06-24T19:46:34.884388+00:00"
+    },
+    {
+      "path": "/api/v1/twins/3e3c0b2c-21fc-4208-b9aa-acdf791759f0",
+      "method": "GET",
+      "status_code": 500,
+      "total_response_time": 0.01101827621459961,
+      "server_processing_time": 0.010497,
+      "payload_size": 97,
+      "timestamp": "2026-06-24T19:46:34.895438+00:00"
+    },
+    {
+      "path": "/api/v1/twins/54749272-1a64-4e9b-b161-b50dd702281b",
+      "method": "GET",
+      "status_code": 500,
+      "total_response_time": 2.0656182765960693,
+      "server_processing_time": 2.064526,
+      "payload_size": 97,
+      "timestamp": "2026-06-24T19:46:36.961090+00:00"
+    },
+    {
+      "path": "/api/v1/twins/42228b2d-a6a5-4fab-ac94-63e016d98912",
+      "method": "GET",
+      "status_code": 200,
+      "total_response_time": 2.0694773197174072,
+      "server_processing_time": 2.068227,
+      "payload_size": 2508,
+      "timestamp": "2026-06-24T19:46:39.030600+00:00"
+    },
+    {
+      "path": "/api/v1/twins/11782a90-7782-4a0b-b3ef-2ef1825f57fc/predictions",
+      "method": "GET",
+      "status_code": 200,
+      "total_response_time": 0.0052645206451416016,
+      "server_processing_time": 0.004636,
+      "payload_size": 2,
+      "timestamp": "2026-06-24T19:46:39.036127+00:00"
+    },
+    {
+      "path": "/api/v1/twins/11782a90-7782-4a0b-b3ef-2ef1825f57fc/predictions/churn",
+      "method": "GET",
+      "status_code": 404,
+      "total_response_time": 0.004435300827026367,
+      "server_processing_time": 0.003944,
+      "payload_size": 147,
+      "timestamp": "2026-06-24T19:46:39.040585+00:00"
+    },
+    {
+      "path": "/api/v1/twins/11782a90-7782-4a0b-b3ef-2ef1825f57fc/predictions/ltv",
+      "method": "GET",
+      "status_code": 404,
+      "total_response_time": 0.005764961242675781,
+      "server_processing_time": 0.00521,
+      "payload_size": 145,
+      "timestamp": "2026-06-24T19:46:39.046372+00:00"
+    },
+    {
+      "path": "/api/v1/twins/bef6ae88-b15e-493e-a168-0d84df192ea8/predictions",
+      "method": "GET",
+      "status_code": 200,
+      "total_response_time": 0.0069255828857421875,
+      "server_processing_time": 0.006269,
+      "payload_size": 2,
+      "timestamp": "2026-06-24T19:46:39.053321+00:00"
+    },
+    {
+      "path": "/api/v1/twins/bef6ae88-b15e-493e-a168-0d84df192ea8/predictions/churn",
+      "method": "GET",
+      "status_code": 404,
+      "total_response_time": 0.004571199417114258,
+      "server_processing_time": 0.004043,
+      "payload_size": 147,
+      "timestamp": "2026-06-24T19:46:39.057928+00:00"
+    },
+    {
+      "path": "/api/v1/twins/bef6ae88-b15e-493e-a168-0d84df192ea8/predictions/ltv",
+      "method": "GET",
+      "status_code": 404,
+      "total_response_time": 0.005232810974121094,
+      "server_processing_time": 0.004738,
+      "payload_size": 145,
+      "timestamp": "2026-06-24T19:46:39.063189+00:00"
+    },
+    {
+      "path": "/api/v1/twins/3e3c0b2c-21fc-4208-b9aa-acdf791759f0/predictions",
+      "method": "GET",
+      "status_code": 200,
+      "total_response_time": 0.004549741744995117,
+      "server_processing_time": 0.003986,
+      "payload_size": 2,
+      "timestamp": "2026-06-24T19:46:39.067816+00:00"
+    },
+    {
+      "path": "/api/v1/twins/3e3c0b2c-21fc-4208-b9aa-acdf791759f0/predictions/churn",
+      "method": "GET",
+      "status_code": 404,
+      "total_response_time": 0.0034058094024658203,
+      "server_processing_time": 0.002944,
+      "payload_size": 147,
+      "timestamp": "2026-06-24T19:46:39.071252+00:00"
+    },
+    {
+      "path": "/api/v1/twins/3e3c0b2c-21fc-4208-b9aa-acdf791759f0/predictions/ltv",
+      "method": "GET",
+      "status_code": 404,
+      "total_response_time": 0.003557920455932617,
+      "server_processing_time": 0.003122,
+      "payload_size": 145,
+      "timestamp": "2026-06-24T19:46:39.074832+00:00"
+    },
+    {
+      "path": "/api/v1/twins/54749272-1a64-4e9b-b161-b50dd702281b/predictions",
+      "method": "GET",
+      "status_code": 200,
+      "total_response_time": 0.003715991973876953,
+      "server_processing_time": 0.00329,
+      "payload_size": 2,
+      "timestamp": "2026-06-24T19:46:39.078570+00:00"
+    },
+    {
+      "path": "/api/v1/twins/54749272-1a64-4e9b-b161-b50dd702281b/predictions/churn",
+      "method": "GET",
+      "status_code": 404,
+      "total_response_time": 0.003428936004638672,
+      "server_processing_time": 0.003029,
+      "payload_size": 147,
+      "timestamp": "2026-06-24T19:46:39.082025+00:00"
+    },
+    {
+      "path": "/api/v1/twins/54749272-1a64-4e9b-b161-b50dd702281b/predictions/ltv",
+      "method": "GET",
+      "status_code": 404,
+      "total_response_time": 0.003917694091796875,
+      "server_processing_time": 0.00349,
+      "payload_size": 145,
+      "timestamp": "2026-06-24T19:46:39.085964+00:00"
+    },
+    {
+      "path": "/api/v1/twins/42228b2d-a6a5-4fab-ac94-63e016d98912/predictions",
+      "method": "GET",
+      "status_code": 200,
+      "total_response_time": 0.004305362701416016,
+      "server_processing_time": 0.003886,
+      "payload_size": 2,
+      "timestamp": "2026-06-24T19:46:39.090294+00:00"
+    },
+    {
+      "path": "/api/v1/twins/42228b2d-a6a5-4fab-ac94-63e016d98912/predictions/churn",
+      "method": "GET",
+      "status_code": 404,
+      "total_response_time": 0.004452705383300781,
+      "server_processing_time": 0.004,
+      "payload_size": 147,
+      "timestamp": "2026-06-24T19:46:39.094775+00:00"
+    },
+    {
+      "path": "/api/v1/twins/42228b2d-a6a5-4fab-ac94-63e016d98912/predictions/ltv",
+      "method": "GET",
+      "status_code": 404,
+      "total_response_time": 0.003541231155395508,
+      "server_processing_time": 0.003093,
+      "payload_size": 145,
+      "timestamp": "2026-06-24T19:46:39.098339+00:00"
+    },
+    {
+      "path": "/api/v1/simulations",
+      "method": "POST",
+      "status_code": 200,
+      "total_response_time": 0.06672906875610352,
+      "server_processing_time": 0.066198,
+      "payload_size": 292,
+      "timestamp": "2026-06-24T19:46:39.165222+00:00"
+    },
+    {
+      "path": "/api/v1/simulations/b08175b3-bea9-4d79-9f4b-f8205eeb5a6a/status",
+      "method": "GET",
+      "status_code": 200,
+      "total_response_time": 0.004305362701416016,
+      "server_processing_time": 0.003759,
+      "payload_size": 115,
+      "timestamp": "2026-06-24T19:46:39.169559+00:00"
+    },
+    {
+      "path": "/api/v1/simulations/b08175b3-bea9-4d79-9f4b-f8205eeb5a6a/status",
+      "method": "GET",
+      "status_code": 200,
+      "total_response_time": 0.00550079345703125,
+      "server_processing_time": 0.004818,
+      "payload_size": 115,
+      "timestamp": "2026-06-24T19:46:40.175547+00:00"
+    },
+    {
+      "path": "/api/v1/simulations/b08175b3-bea9-4d79-9f4b-f8205eeb5a6a/status",
+      "method": "GET",
+      "status_code": 200,
+      "total_response_time": 0.005768775939941406,
+      "server_processing_time": 0.005046,
+      "payload_size": 115,
+      "timestamp": "2026-06-24T19:46:41.181950+00:00"
+    },
+    {
+      "path": "/api/v1/simulations/b08175b3-bea9-4d79-9f4b-f8205eeb5a6a/status",
+      "method": "GET",
+      "status_code": 200,
+      "total_response_time": 0.011445999145507812,
+      "server_processing_time": 0.009883,
+      "payload_size": 115,
+      "timestamp": "2026-06-24T19:46:42.193801+00:00"
+    },
+    {
+      "path": "/api/v1/simulations/b08175b3-bea9-4d79-9f4b-f8205eeb5a6a/status",
+      "method": "GET",
+      "status_code": 200,
+      "total_response_time": 0.013231277465820312,
+      "server_processing_time": 0.011308,
+      "payload_size": 115,
+      "timestamp": "2026-06-24T19:46:43.207636+00:00"
+    },
+    {
+      "path": "/api/v1/simulations/b08175b3-bea9-4d79-9f4b-f8205eeb5a6a/results",
+      "method": "GET",
+      "status_code": 404,
+      "total_response_time": 0.024734973907470703,
+      "server_processing_time": 0.021521,
+      "payload_size": 143,
+      "timestamp": "2026-06-24T19:46:44.233191+00:00"
+    },
+    {
+      "path": "/api/v1/twins/11782a90-7782-4a0b-b3ef-2ef1825f57fc",
+      "method": "GET",
+      "status_code": 404,
+      "total_response_time": 0.023395538330078125,
+      "server_processing_time": 0.021116,
+      "payload_size": 143,
+      "timestamp": "2026-06-24T19:46:44.257156+00:00"
+    },
+    {
+      "path": "/api/v1/customers/invalid-uuid-string",
+      "method": "GET",
+      "status_code": 404,
+      "total_response_time": 0.012043237686157227,
+      "server_processing_time": 0.009149,
+      "payload_size": 119,
+      "timestamp": "2026-06-24T19:46:44.269839+00:00"
+    },
+    {
+      "path": "/api/v1/customers",
+      "method": "POST",
+      "status_code": 409,
+      "total_response_time": 0.05649924278259277,
+      "server_processing_time": 0.054678,
+      "payload_size": 52,
+      "timestamp": "2026-06-24T19:46:44.326410+00:00"
+    },
+    {
+      "path": "/api/v1/simulations",
+      "method": "POST",
+      "status_code": 500,
+      "total_response_time": 0.07788753509521484,
+      "server_processing_time": 0.076197,
+      "payload_size": 97,
+      "timestamp": "2026-06-24T19:46:44.404373+00:00"
+    }
+  ]
+}

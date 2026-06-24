@@ -56,7 +56,7 @@ async def list_customers(
         query = query.where(
             or_(
                 Customer.email.ilike(f"%{search}%"),
-                Customer.full_name.ilike(f"%{search}%"),
+                (Customer.first_name + " " + Customer.last_name).ilike(f"%{search}%"),
             )
         )
     if email:
@@ -185,6 +185,32 @@ async def create_customer(
 
     await session.refresh(customer)
     return APIResponse(data=CustomerResponse.model_validate(customer))
+
+
+@router.get("/search", response_model=list[CustomerListResponse])
+async def search_customers(
+    q: str = Query(..., min_length=1),
+    session: AsyncSession = Depends(get_session),
+    org_id: str = Depends(get_current_organization),
+    limit: int = Query(20, ge=1, le=100),
+):
+    query = (
+        select(Customer)
+        .where(
+            Customer.organization_id == org_id,
+            Customer.is_active == True,
+            or_(
+                Customer.email.ilike(f"%{q}%"),
+                Customer.first_name.ilike(f"%{q}%"),
+                Customer.last_name.ilike(f"%{q}%"),
+                Customer.external_id.ilike(f"%{q}%"),
+            ),
+        )
+        .limit(limit)
+    )
+    result = await session.execute(query)
+    customers = list(result.scalars().all())
+    return [CustomerListResponse.model_validate(c) for c in customers]
 
 
 @router.post("/batch", response_model=APIResponse)
@@ -330,6 +356,8 @@ async def get_customer_profile(
 
     service = CustomerService(session)
     profile = await service.get_profile(customer_id)
+    if not profile:
+        raise NotFoundException("Customer profile not found")
     return CustomerProfileResponse.model_validate(profile)
 
 
@@ -370,6 +398,7 @@ async def update_customer_preferences(
     if not pref:
         pref = CustomerPreference(customer_id=customer_id, organization_id=org_id)
         session.add(pref)
+        await session.flush()
 
     for field, value in payload.items():
         setattr(pref, field, value)
@@ -446,32 +475,6 @@ async def get_customer_segments(
     )
     segments = result.scalars().all()
     return [CustomerSegmentResponse.model_validate(s) for s in segments]
-
-
-@router.get("/search", response_model=list[CustomerListResponse])
-async def search_customers(
-    q: str = Query(..., min_length=1),
-    session: AsyncSession = Depends(get_session),
-    org_id: str = Depends(get_current_organization),
-    limit: int = Query(20, ge=1, le=100),
-):
-    query = (
-        select(Customer)
-        .where(
-            Customer.organization_id == org_id,
-            Customer.is_active == True,
-            or_(
-                Customer.email.ilike(f"%{q}%"),
-                Customer.first_name.ilike(f"%{q}%"),
-                Customer.last_name.ilike(f"%{q}%"),
-                Customer.external_id.ilike(f"%{q}%"),
-            ),
-        )
-        .limit(limit)
-    )
-    result = await session.execute(query)
-    customers = list(result.scalars().all())
-    return [CustomerListResponse.model_validate(c) for c in customers]
 
 
 @router.post("/{customer_id}/merge", response_model=APIResponse)

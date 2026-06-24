@@ -15,10 +15,12 @@ const api = axios.create({
   timeout: 30000,
 });
 
+const DEV_TOKEN = "dev-mode-token";
+
 api.interceptors.request.use(
   (config: InternalAxiosRequestConfig) => {
     const token = useAuthStore.getState().token;
-    if (token) {
+    if (token && token !== DEV_TOKEN) {
       config.headers.Authorization = `Bearer ${token}`;
     }
     return config;

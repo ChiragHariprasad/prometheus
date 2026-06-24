@@ -31,8 +31,8 @@ class Customer(Base, UUIDMixin, TimestampMixin):
     consent_profiling: Mapped[bool] = mapped_column(Boolean, default=False)
     data_retention_days: Mapped[int | None] = mapped_column(Integer)
     source: Mapped[str | None] = mapped_column(String(100))
-    first_seen_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
-    last_seen_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+    first_seen_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), server_default=func.now())
+    last_seen_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), server_default=func.now())
 
 
 class CustomerProfile(Base, UUIDMixin):
@@ -173,7 +173,7 @@ class CustomerSegment(Base, UUIDMixin, TimestampMixin):
     )
     name: Mapped[str] = mapped_column(String(255), nullable=False)
     description: Mapped[str | None] = mapped_column(Text)
-    source: Mapped[str | None] = mapped_column(String(100))
+    source: Mapped[str] = mapped_column(String(100), default="manual")
     rules: Mapped[dict | None] = mapped_column(JSONB)
     ml_model_id: Mapped[str | None] = mapped_column(String(255))
     cluster_id: Mapped[int | None] = mapped_column(Integer)

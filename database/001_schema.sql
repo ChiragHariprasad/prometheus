@@ -14,15 +14,18 @@ CREATE EXTENSION IF NOT EXISTS "pg_stat_statements";
 -- ENUMS
 -- ============================================================
 CREATE TYPE event_type AS ENUM (
-    'page_view', 'purchase', 'email_open', 'email_click',
-    'session', 'support_ticket', 'campaign_response',
+    'page_view', 'purchase', 'email_sent', 'email_open', 'email_click',
+    'session', 'cart_abandon', 'bounce', 'unsubscribe',
+    'support_ticket', 'support_resolved', 'campaign_response',
     'social_interaction', 'app_open', 'app_close',
     'search', 'add_to_cart', 'remove_from_cart',
     'wishlist_add', 'wishlist_remove', 'review_submit',
+    'feedback', 'positive_feedback', 'negative_feedback',
+    'complaint', 'survey_response',
     'referral', 'redemption', 'login', 'logout'
 );
 
-CREATE TYPE twin_status AS ENUM ('active', 'stale', 'archived', 'building');
+CREATE TYPE twin_status AS ENUM ('building', 'built', 'stale', 'rebuilding', 'failed');
 CREATE TYPE simulation_status AS ENUM ('draft', 'running', 'completed', 'failed', 'cancelled');
 CREATE TYPE campaign_status AS ENUM ('draft', 'scheduled', 'active', 'paused', 'completed', 'cancelled');
 CREATE TYPE notification_channel AS ENUM ('email', 'sms', 'push', 'in_app', 'webhook');

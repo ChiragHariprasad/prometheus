@@ -32,7 +32,7 @@ async def list_users(
 
     if search:
         query = query.where(
-            User.email.ilike(f"%{search}%") | User.full_name.ilike(f"%{search}%")
+                User.email.ilike(f"%{search}%") | (User.first_name + " " + User.last_name).ilike(f"%{search}%")
         )
 
     total_query = select(func.count()).select_from(query.subquery())

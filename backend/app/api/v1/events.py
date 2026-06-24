@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends, Query, HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select, func, cast, Date
-from datetime import date, datetime
+from datetime import date, datetime, timezone
 from app.core.database import get_session
 from app.schemas.event import (
     EventCreate,
@@ -36,9 +36,12 @@ async def create_event(
     if not customer_check.scalar_one_or_none():
         raise NotFoundException("Customer not found")
 
-    event = Event(organization_id=org_id, **payload.model_dump())
+    event_data = payload.model_dump()
+    if not event_data.get("event_timestamp"):
+        event_data["event_timestamp"] = datetime.now(timezone.utc)
+    event = Event(organization_id=org_id, **event_data)
     session.add(event)
-
+    await session.flush()
     await session.refresh(event)
     return APIResponse(data=EventResponse.model_validate(event))
 
@@ -54,7 +57,7 @@ async def batch_ingest_events(
     return APIResponse(message=f"{count} events ingested successfully")
 
 
-@router.get("/", response_model=PaginatedResponse[EventResponse])
+@router.get("", response_model=PaginatedResponse[EventResponse])
 async def list_events(
     session: AsyncSession = Depends(get_session),
     org_id: str = Depends(get_current_organization),
@@ -109,21 +112,6 @@ async def list_events(
     )
 
 
-@router.get("/{event_id}", response_model=EventResponse)
-async def get_event(
-    event_id: str,
-    session: AsyncSession = Depends(get_session),
-    org_id: str = Depends(get_current_organization),
-):
-    result = await session.execute(
-        select(Event).where(Event.id == event_id, Event.organization_id == org_id)
-    )
-    event = result.scalar_one_or_none()
-    if not event:
-        raise NotFoundException("Event not found")
-    return EventResponse.model_validate(event)
-
-
 @router.get("/types", response_model=list[EventTypeResponse])
 async def list_event_types(
     session: AsyncSession = Depends(get_session),
@@ -162,3 +150,18 @@ async def get_event_summary(
         EventSummaryResponse(event_type=row.event_type, count=row.count)
         for row in rows
     ]
+
+
+@router.get("/{event_id}", response_model=EventResponse)
+async def get_event(
+    event_id: str,
+    session: AsyncSession = Depends(get_session),
+    org_id: str = Depends(get_current_organization),
+):
+    result = await session.execute(
+        select(Event).where(Event.id == event_id, Event.organization_id == org_id)
+    )
+    event = result.scalar_one_or_none()
+    if not event:
+        raise NotFoundException("Event not found")
+    return EventResponse.model_validate(event)

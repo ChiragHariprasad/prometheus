@@ -15,7 +15,7 @@ class Simulation(Base, UUIDMixin, TimestampMixin):
     name: Mapped[str] = mapped_column(String(255), nullable=False)
     description: Mapped[str | None] = mapped_column(Text)
     type: Mapped[str] = mapped_column(String(100), nullable=False)
-    status: Mapped[str] = mapped_column(SAEnum('draft', 'running', 'completed', 'failed', 'cancelled', name="simulation_status", create_type=False), default="draft")
+    status: Mapped[str] = mapped_column(String(50), default="draft")
     campaign_id: Mapped[uuid.UUID | None] = mapped_column(
         UUID(as_uuid=True), ForeignKey("campaigns.id", ondelete="SET NULL")
     )
@@ -35,6 +35,16 @@ class Simulation(Base, UUIDMixin, TimestampMixin):
     started_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
     completed_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
 
+    @property
+    def progress(self) -> float:
+        if self.status == "completed":
+            return 1.0
+        if self.status in ("failed", "cancelled"):
+            return 0.0
+        if self.status == "draft":
+            return 0.0
+        return 0.5
+
 
 class SimulationRun(Base, UUIDMixin):
     __tablename__ = "simulation_runs"
@@ -46,7 +56,7 @@ class SimulationRun(Base, UUIDMixin):
         UUID(as_uuid=True), ForeignKey("organizations.id", ondelete="CASCADE"), nullable=False
     )
     run_number: Mapped[int] = mapped_column(Integer, nullable=False)
-    status: Mapped[str] = mapped_column(SAEnum('draft', 'running', 'completed', 'failed', 'cancelled', name="simulation_status", create_type=False), default="pending")
+    status: Mapped[str] = mapped_column(String(50), default="pending")
     seed: Mapped[int | None] = mapped_column(Integer)
     agents_count: Mapped[int] = mapped_column(Integer, default=0)
     iterations_executed: Mapped[int] = mapped_column(Integer, default=0)

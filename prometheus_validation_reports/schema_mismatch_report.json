@@ -1,0 +1,30 @@
+[
+  {
+    "path": "/api/v1/users/roles",
+    "issue": "Unreachable or 500 Error"
+  },
+  {
+    "path": "/api/v1/customers/search",
+    "issue": "Unreachable or 500 Error"
+  },
+  {
+    "path": "/api/v1/customers/new",
+    "issue": "Unreachable or 500 Error"
+  },
+  {
+    "path": "/api/v1/events/summary",
+    "issue": "Unreachable or 500 Error"
+  },
+  {
+    "path": "/api/v1/notifications/stats",
+    "issue": "Unreachable or 500 Error"
+  },
+  {
+    "path": "/api/v1/analytics/campaigns",
+    "issue": "Unreachable or 500 Error"
+  },
+  {
+    "path": "/api/v1/analytics/export",
+    "issue": "Unreachable or 500 Error"
+  }
+]

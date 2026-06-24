@@ -39,7 +39,7 @@ async def run_analytics_query(
     org_id: str = Depends(get_current_organization),
 ):
     service = AnalyticsService(session)
-    result = await service.query(payload, org_id)
+    result = await service.query_analytics(org_id, payload)
     return AnalyticsResponse.model_validate(result)
 
 

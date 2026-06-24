@@ -717,7 +717,8 @@ class AnalyticsService:
         ]
 
     async def _get_churn_alerts(self, organization_id: uuid.UUID, limit: int = 5) -> list[dict[str, Any]]:
-        from app.models.customer import Customer, CustomerTwin
+        from app.models.customer import Customer
+        from app.models.twin import CustomerTwin
         from sqlalchemy import select, desc
 
         stmt = (
@@ -726,8 +727,7 @@ class AnalyticsService:
             .where(
                 Customer.organization_id == organization_id,
                 CustomerTwin.organization_id == organization_id,
-                CustomerTwin.staleness_score > 0.5,
-                Customer.status != "churned"
+                CustomerTwin.staleness_score > 0.5
             )
             .order_by(desc(CustomerTwin.staleness_score))
             .limit(limit)

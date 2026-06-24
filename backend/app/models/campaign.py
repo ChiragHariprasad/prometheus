@@ -17,10 +17,7 @@ class Campaign(Base, UUIDMixin, TimestampMixin):
     description: Mapped[str | None] = mapped_column(Text)
     type: Mapped[str] = mapped_column(String(100), nullable=False)
     goal: Mapped[str | None] = mapped_column(String(255))
-    status: Mapped[str] = mapped_column(
-        SAEnum("draft", "scheduled", "active", "paused", "completed", "cancelled", name="campaign_status", create_type=False),
-        default="draft",
-    )
+    status: Mapped[str] = mapped_column(String(50), default="draft")
     channel: Mapped[str | None] = mapped_column(String(50))
     segments: Mapped[dict | None] = mapped_column(JSONB)
     target_customers: Mapped[list[str] | None] = mapped_column(ARRAY(String))

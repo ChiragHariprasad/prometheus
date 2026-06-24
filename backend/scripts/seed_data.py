@@ -20,7 +20,6 @@ from datetime import datetime, timedelta, timezone
 from sqlalchemy import text
 
 from app.core.database import async_session_factory, engine
-from app.core.security import hash_password
 
 ORG_ID = uuid.UUID("885f9275-ad3b-4fc4-92fb-550dde803fb7")
 NOW = datetime.now(timezone.utc)
@@ -37,12 +36,20 @@ LAST_NAMES = [
 ]
 
 EVENT_TYPES = [
-    "page_view", "purchase", "email_open", "email_click", "session",
-    "add_to_cart", "search", "login", "app_open", "review_submit",
+    "purchase", "page_view", "email_sent", "email_open", "email_click",
+    "cart_abandon", "bounce", "unsubscribe", "review_submit", "feedback",
+    "positive_feedback", "negative_feedback", "complaint", "support_ticket",
+    "support_resolved", "survey_response", "referral", "return", "session",
+    "search", "app_open", "login",
 ]
 CHANNELS = ["email", "sms", "push", "in_app", "webhook"]
 SOURCES = ["api", "system", "tracking"]
 DEVICES = ["desktop", "mobile", "tablet"]
+
+INTEREST_CATEGORIES = [
+    "Electronics", "Fashion", "Sports", "Travel", "Books",
+    "Gaming", "Finance", "Health", "Automotive", "Home",
+]
 
 SEGMENT_DEFS = [
     ("VIP", "High-value loyal customers"),
@@ -279,20 +286,73 @@ async def seed():
             tl = min(age_days, 60)
             st = [round(sent + random.uniform(-0.15, 0.15), 3) for _ in range(tl)]
 
+            purchase_cats = []
+            for cat in random.sample(INTEREST_CATEGORIES, k=random.randint(1, 4)):
+                purchase_cats.append({
+                    "category": cat, "count": random.randint(1, 15),
+                    "total_value": round(random.uniform(50, 5000), 2),
+                    "last_purchase_at": (NOW - timedelta(days=random.randint(0, age_days))).isoformat(),
+                })
+            channel_history = []
+            for ch in random.sample(CHANNELS, k=random.randint(2, 4)):
+                channel_history.append({
+                    "channel": ch, "count": random.randint(5, 100),
+                    "last_interaction_at": (NOW - timedelta(days=random.randint(0, 30))).isoformat(),
+                })
+            campaign_responses = []
+            for _ in range(random.randint(2, 8)):
+                campaign_responses.append({
+                    "campaign_id": str(uuid.uuid4()),
+                    "event_type": random.choice(["email_open", "email_click", "purchase"]),
+                    "channel": random.choice(CHANNELS),
+                    "timestamp": (NOW - timedelta(days=random.randint(0, age_days))).isoformat(),
+                })
+            memory_profile = {
+                "campaign_responses": campaign_responses,
+                "purchase_categories": purchase_cats,
+                "channel_history": channel_history,
+                "discount_sensitivity": round(random.uniform(0.0, 0.8), 4),
+                "historical_engagement": {
+                    (NOW - timedelta(days=30 * i)).strftime("%Y-%m"): random.randint(5, 100)
+                    for i in range(min(12, max(age_days // 30, 1)))
+                },
+                "seasonality_patterns": [
+                    {"month": m, "count": random.randint(5, 50), "share": round(random.uniform(0.05, 0.15), 4)}
+                    for m in ["Jan", "Feb", "Mar", "Apr", "May", "Jun",
+                              "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"]
+                ],
+            }
+            twin_output = {
+                "sentiment": round(sum(st) / len(st), 4) if st else 0.0,
+                "purchase_intent": round(1.0 - churn_p * 0.5, 4),
+                "churn_probability": churn_p,
+                "lifetime_value": ltv,
+                "next_best_action": random.choice(["cross_sell", "upsell", "retention_offer", "re_engagement", "win_back"]),
+            }
+
             twin_id = uuid.uuid4()
             await session.execute(text("""
-                INSERT INTO customer_twins (id, customer_id, organization_id, status, version, behavior_profile, interest_graph, channel_affinity, engagement_score, loyalty_score, lifetime_value, sentiment_trend, intent_forecast, risk_indicators, communication_preferences, confidence_score, staleness_score, last_event_at, built_at, created_at, updated_at)
-                VALUES (:id, :cid, :o, CAST('active' AS twin_status), :ver, CAST(:bp AS jsonb), CAST(:ig AS jsonb), CAST(:ca AS jsonb), :eng, :loy, :ltv, :st, CAST(:intent AS jsonb), CAST(:risk AS jsonb), CAST(:prefs AS jsonb), :conf, :stale, :le, :built, :now, :now)
+                INSERT INTO customer_twins (id, customer_id, organization_id, status, version, behavior_profile, interest_graph, memory_profile, channel_affinity, engagement_score, loyalty_score, lifetime_value, sentiment_trend, intent_forecast, risk_indicators, communication_preferences, confidence_score, staleness_score, twin_metadata, last_event_at, built_at, created_at, updated_at)
+                VALUES (:id, :cid, :o, CAST('built' AS twin_status), :ver, CAST(:bp AS jsonb), CAST(:ig AS jsonb), CAST(:mem AS jsonb), CAST(:ca AS jsonb), :eng, :loy, :ltv, :st, CAST(:intent AS jsonb), CAST(:risk AS jsonb), CAST(:prefs AS jsonb), :conf, :stale, CAST(:meta AS jsonb), :le, :built, :now, :now)
             """), {
                 "id": twin_id, "cid": c.id, "o": ORG_ID,
                 "ver": random.randint(1, 5),
                 "bp": json.dumps({
+                    "behavior_score": round(eng / 100.0, 4),
+                    "sub_scores": {
+                        "engagement": round(eng / 100.0 * 0.8, 4),
+                        "purchase_activity": round(random.uniform(0.2, 0.9), 4),
+                        "session_depth": round(random.uniform(0.3, 0.8), 4),
+                        "communication_response": round(random.uniform(0.1, 0.7), 4),
+                        "recency": round(random.uniform(0.3, 1.0), 4),
+                    },
                     "sessions_per_week": round(random.uniform(1, 15), 1),
                     "avg_session_duration": round(random.uniform(30, 600)),
                     "purchase_frequency": round(random.uniform(0.1, 5), 1),
                     "avg_order_value": round(random.uniform(20, 200), 2),
                     "cart_abandonment_rate": round(random.uniform(0.1, 0.7), 2),
                     "email_open_rate": round(random.uniform(0.2, 0.6), 2),
+                    "lifecycle_stage": random.choice(["engaged", "active", "loyal", "at_risk", "inactive"]),
                 }),
                 "ig": json.dumps({
                     "nodes": nodes,
@@ -300,6 +360,7 @@ async def seed():
                     "interest_diversity": round(random.uniform(0.3, 0.9), 2),
                     "total_interactions": random.randint(10, 500),
                 }),
+                "mem": json.dumps(memory_profile),
                 "ca": json.dumps(ca),
                 "eng": eng, "loy": loy, "ltv": ltv,
                 "st": st,
@@ -321,6 +382,7 @@ async def seed():
                 "prefs": json.dumps({"email": True, "sms": random.random() > 0.5, "push": random.random() > 0.3}),
                 "conf": round(random.uniform(0.7, 0.99), 2),
                 "stale": round(random.uniform(0.0, 0.4), 2),
+                "meta": json.dumps({"model_version": "2.1.0", "build_source": "seed", "twin_output": twin_output}),
                 "le": NOW - timedelta(hours=random.randint(1, 720)),
                 "built": NOW - timedelta(days=random.randint(0, min(age_days, 30))),
                 "now": NOW,
@@ -357,15 +419,29 @@ async def seed():
                 channel = random.choice(CHANNELS)
                 src = random.choice(SOURCES)
                 device = random.choice(DEVICES)
-                value = round(random.uniform(5, 500), 2) if etype == "purchase" else None
+                value = round(random.uniform(5, 500), 2) if etype in ("purchase", "return") else None
 
                 props = {}
                 if etype == "purchase":
-                    props = {"value": value, "currency": "USD"}
-                elif etype in ("email_open", "email_click"):
-                    props = {"campaign": random.choice(["summer_sale", "welcome", "promo"])}
+                    props = {"value": value, "currency": "USD", "category": random.choice(INTEREST_CATEGORIES), "discount_applied": random.random() > 0.7}
+                elif etype == "return":
+                    props = {"value": value, "currency": "USD", "reason": random.choice(["defective", "not_wanted", "wrong_item"])}
+                elif etype in ("email_sent", "email_open", "email_click"):
+                    props = {"campaign": random.choice(["summer_sale", "welcome", "promo", "vip_rewards"])}
                 elif etype == "search":
-                    props = {"query": random.choice(["laptop", "shoes", "books", "fitness"])}
+                    props = {"query": random.choice(["laptop", "shoes", "books", "fitness", "phone", "camera"])}
+                elif etype in ("feedback", "positive_feedback", "negative_feedback", "survey_response"):
+                    props = {"rating": random.randint(1, 5), "source": random.choice(["email", "in_app", "web"])}
+                elif etype in ("complaint", "support_ticket"):
+                    props = {"category": random.choice(["billing", "shipping", "product_quality", "account"]), "priority": random.choice(["low", "medium", "high"])}
+                elif etype == "support_resolved":
+                    props = {"resolution_time_hours": random.randint(1, 72), "satisfied": random.random() > 0.3}
+                elif etype == "review_submit":
+                    props = {"rating": random.randint(1, 5), "category": random.choice(INTEREST_CATEGORIES)}
+                elif etype == "referral":
+                    props = {"referral_count": random.randint(1, 3)}
+                elif etype == "cart_abandon":
+                    props = {"cart_value": round(random.uniform(20, 500), 2), "item_count": random.randint(1, 10)}
 
                 await session.execute(text("""
                     INSERT INTO customer_events (organization_id, customer_id, event_type, event_name, event_properties, context, channel, source, device_type, value, currency, event_timestamp, ingested_at, created_at)
@@ -557,7 +633,7 @@ async def seed():
         print(f"  Simulations: {sim_count} new.")
 
         await session.commit()
-        print(f"\n=== Seed complete! ===")
+        print("\n=== Seed complete! ===")
         print(f"  Customers: {len(all_cids)} total")
         print(f"  Events: {ev_count} new")
         print(f"  Campaigns: {camp_count}")

@@ -58,7 +58,7 @@ async def create_segment(
 ):
     segment = CustomerSegment(organization_id=org_id, **payload)
     session.add(segment)
-
+    await session.flush()
     await session.refresh(segment)
 
     service = SegmentService(session)

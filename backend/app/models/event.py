@@ -19,7 +19,7 @@ class Event(Base):
         UUID(as_uuid=True), ForeignKey("customers.id", ondelete="CASCADE"), nullable=False
     )
     session_id: Mapped[uuid.UUID | None] = mapped_column(UUID(as_uuid=True))
-    event_type: Mapped[str] = mapped_column(SAEnum('page_view', 'purchase', 'email_open', 'email_click', 'session', 'support_ticket', 'campaign_response', 'social_interaction', 'app_open', 'app_close', 'search', 'add_to_cart', 'remove_from_cart', 'wishlist_add', 'wishlist_remove', 'review_submit', 'referral', 'redemption', 'login', 'logout', name="event_type", create_type=False), nullable=False)
+    event_type: Mapped[str] = mapped_column(String(100), nullable=False)
     event_name: Mapped[str] = mapped_column(String(255), nullable=False)
     event_properties: Mapped[dict] = mapped_column(JSONB, default=dict)
     context: Mapped[dict] = mapped_column(JSONB, default=dict)

@@ -1,11 +1,8 @@
 import uuid
-import math
 import random
-import statistics
-from datetime import datetime, timezone, timedelta
-from typing import Any
+from datetime import datetime, timezone
 
-from sqlalchemy import select, func, and_, or_
+from sqlalchemy import select, func
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.config import settings
@@ -14,8 +11,10 @@ from app.core.logging import logger
 from app.core.redis import RedisClient
 from app.models.simulation import Simulation, SimulationRun, SimulationResult
 from app.schemas.simulation import (
-    SimulationCreate, SimulationResponse,
-    SimulationResultResponse, SimulationForecastResponse,
+    SimulationCreate, SimulationResultResponse, SimulationForecastResponse,
+)
+from app.services.agent_simulation import (
+    SimulationEngine, CampaignConfig, AgentGenerator,
 )
 
 
@@ -207,205 +206,40 @@ class SimulationService:
 
     async def _execute_monte_carlo(self, simulation: Simulation, run: SimulationRun) -> dict:
         iterations = simulation.monte_carlo_iterations or settings.SIMULATION_DEFAULT_ITERATIONS
-        time_horizon = simulation.time_horizon_days or settings.SIMULATION_DEFAULT_TIME_HORIZON_DAYS
-        confidence = simulation.confidence_level or settings.SIMULATION_CONFIDENCE_LEVEL
-
         params = simulation.parameters or {}
-        base_response_rate = params.get("base_response_rate", 0.05)
-        base_conversion_rate = params.get("base_conversion_rate", 0.02)
-        base_open_rate = params.get("base_open_rate", 0.25)
-        avg_order_value = params.get("avg_order_value", 100.0)
-        customer_count = simulation.sample_size or params.get("customer_count", 10000)
-        cost_per_contact = params.get("cost_per_contact", 0.5)
+        agent_config = simulation.agent_configuration or {}
 
-        response_rates: list[float] = []
-        conversion_rates: list[float] = []
-        revenues: list[float] = []
-        open_rates: list[float] = []
-        click_rates: list[float] = []
+        campaign = CampaignConfig(
+            channel=agent_config.get("channel", params.get("channel", "email")),
+            offer_type=agent_config.get("offer_type", params.get("offer_type", "discount")),
+            discount_rate=agent_config.get("discount_rate", params.get("discount_rate", 0.1)),
+            urgency=agent_config.get("urgency", params.get("urgency", "medium")),
+            frequency=agent_config.get("frequency", params.get("frequency", 1)),
+            creative_type=agent_config.get("creative_type", params.get("creative_type", "image")),
+            avg_order_value=params.get("avg_order_value", 100.0),
+            cost_per_contact=params.get("cost_per_contact", 0.5),
+            fixed_cost=params.get("fixed_cost", 5000.0),
+            scenario=agent_config.get("scenario", params.get("scenario", "expected_case")),
+            competitor_pressure=agent_config.get("competitor_pressure", params.get("competitor_pressure", 0.0)),
+        )
 
-        for _ in range(iterations):
-            rr = random.gauss(base_response_rate, base_response_rate * 0.2)
-            rr = max(0.001, min(rr, 1.0))
-            response_rates.append(rr)
+        agent_count = simulation.sample_size or params.get("customer_count", 10000)
+        agents = AgentGenerator.synthetic(agent_count, seed=run.seed)
 
-            cr = random.gauss(base_conversion_rate, base_conversion_rate * 0.3)
-            cr = max(0.001, min(cr, 1.0))
-            conversion_rates.append(cr)
+        engine = SimulationEngine(agents, campaign, seed=run.seed)
+        result = engine.run(iterations=iterations)
 
-            o_r = random.gauss(base_open_rate, base_open_rate * 0.15)
-            o_r = max(0.01, min(o_r, 1.0))
-            open_rates.append(o_r)
+        result["aggregated_metrics"]["time_horizon_days"] = simulation.time_horizon_days or settings.SIMULATION_DEFAULT_TIME_HORIZON_DAYS
+        result["aggregated_metrics"]["confidence_level"] = simulation.confidence_level or settings.SIMULATION_CONFIDENCE_LEVEL
 
-            c_r = random.gauss(0.03, 0.01)
-            c_r = max(0.001, min(c_r, 1.0))
-            click_rates.append(c_r)
+        nba = engine.compute_next_best_action(result)
+        result["campaign_impact"]["next_best_action"] = nba
+        result["recommendations"].append(
+            f"Next best action: use channel '{nba['recommended_channel']}' "
+            f"with discount {nba['recommended_discount']:.0%} "
+            f"at frequency {nba['recommended_frequency']}."
+        )
 
-            responses = customer_count * rr
-            conversions = responses * cr
-            revenue = conversions * avg_order_value
-            revenues.append(revenue)
+        return result
 
-        mean_revenue = statistics.mean(revenues)
-        std_revenue = statistics.stdev(revenues) if len(revenues) > 1 else 0
 
-        total_cost = customer_count * cost_per_contact
-        total_cost_with_fixed = total_cost + params.get("fixed_cost", 5000)
-        roi = (mean_revenue - total_cost_with_fixed) / total_cost_with_fixed if total_cost_with_fixed > 0 else 0
-
-        z_score = 1.96
-        margin = z_score * (std_revenue / math.sqrt(iterations))
-
-        revenues_sorted = sorted(revenues)
-        ci_lower = revenues_sorted[int(iterations * (1 - confidence) / 2)]
-        ci_upper = revenues_sorted[int(iterations * (1 + confidence) / 2)]
-
-        percentiles = {}
-        for p in [5, 10, 25, 50, 75, 90, 95]:
-            idx = int(iterations * p / 100)
-            percentiles[str(p)] = round(revenues_sorted[min(idx, iterations - 1)], 2)
-
-        scenarios = {
-            "optimistic": {
-                "revenue": round(mean_revenue + margin, 2),
-                "conversions": round((mean_revenue + margin) / avg_order_value, 0),
-                "response_rate": round(statistics.mean(response_rates) + statistics.stdev(response_rates), 4),
-            },
-            "most_likely": {
-                "revenue": round(mean_revenue, 2),
-                "conversions": round(mean_revenue / avg_order_value, 0),
-                "response_rate": round(statistics.mean(response_rates), 4),
-            },
-            "pessimistic": {
-                "revenue": round(mean_revenue - margin, 2),
-                "conversions": round(max((mean_revenue - margin) / avg_order_value, 0), 0),
-                "response_rate": round(max(statistics.mean(response_rates) - statistics.stdev(response_rates), 0), 4),
-            },
-        }
-
-        risk_assessment = {
-            "probability_of_loss": round(
-                sum(1 for r in revenues if r < total_cost_with_fixed) / iterations, 4
-            ),
-            "value_at_risk_95": round(
-                mean_revenue - revenues_sorted[int(iterations * 0.05)], 2
-            ),
-            "expected_shortfall": round(
-                mean_revenue - statistics.mean(revenues_sorted[:int(iterations * 0.05)]), 2
-            ) if iterations > 20 else 0,
-            "upside_potential": round(revenues_sorted[int(iterations * 0.95)] - mean_revenue, 2),
-        }
-
-        return {
-            "aggregated_metrics": {
-                "total_iterations": iterations,
-                "mean_revenue": round(mean_revenue, 2),
-                "median_revenue": round(statistics.median(revenues), 2),
-                "std_revenue": round(std_revenue, 2),
-                "min_revenue": round(min(revenues), 2),
-                "max_revenue": round(max(revenues), 2),
-                "mean_response_rate": round(statistics.mean(response_rates), 4),
-                "mean_conversion_rate": round(statistics.mean(conversion_rates), 4),
-                "mean_open_rate": round(statistics.mean(open_rates), 4),
-                "mean_click_rate": round(statistics.mean(click_rates), 4),
-                "total_cost": round(total_cost_with_fixed, 2),
-                "roi": round(roi, 4),
-                "customer_count": int(customer_count),
-                "time_horizon_days": time_horizon,
-                "confidence_level": confidence,
-                "expected_responses": int(customer_count * statistics.mean(response_rates)),
-                "expected_conversions": int(customer_count * statistics.mean(response_rates) * statistics.mean(conversion_rates)),
-                "sensitivity": [
-                    {"parameter": "response_rate", "impact": round(0.6, 4)},
-                    {"parameter": "conversion_rate", "impact": round(0.3, 4)},
-                    {"parameter": "avg_order_value", "impact": round(0.1, 4)},
-                ],
-            },
-            "customer_projections": {
-                "total_customers": int(customer_count),
-                "responders": int(customer_count * statistics.mean(response_rates)),
-                "converters": int(customer_count * statistics.mean(response_rates) * statistics.mean(conversion_rates)),
-                "average_revenue_per_customer": round(mean_revenue / customer_count, 2) if customer_count > 0 else 0,
-            },
-            "segment_projections": {
-                "overall": {
-                    "response_rate": round(statistics.mean(response_rates), 4),
-                    "conversion_rate": round(statistics.mean(conversion_rates), 4),
-                    "revenue": round(mean_revenue, 2),
-                },
-            },
-            "campaign_impact": {
-                "expected_reach": int(customer_count),
-                "expected_impressions": int(customer_count * 3),
-                "expected_engagements": int(customer_count * statistics.mean(response_rates)),
-                "expected_conversions": int(customer_count * statistics.mean(response_rates) * statistics.mean(conversion_rates)),
-                "total_investment": round(total_cost_with_fixed, 2),
-                "expected_roi": round(roi, 4),
-            },
-            "confidence_intervals": {
-                "revenue": [round(ci_lower, 2), round(ci_upper, 2)],
-                "response_rate": [
-                    round(statistics.mean(response_rates) - 1.96 * statistics.stdev(response_rates), 4),
-                    round(statistics.mean(response_rates) + 1.96 * statistics.stdev(response_rates), 4),
-                ],
-                "conversions": [
-                    round(max(ci_lower / avg_order_value, 0), 0),
-                    round(ci_upper / avg_order_value, 0),
-                ],
-                "roi": [
-                    round((ci_lower - total_cost_with_fixed) / total_cost_with_fixed, 4),
-                    round((ci_upper - total_cost_with_fixed) / total_cost_with_fixed, 4),
-                ],
-            },
-            "monte_carlo_distribution": {
-                "histogram": self._build_histogram(revenues, 20),
-                "percentiles": percentiles,
-                "scenarios": scenarios,
-            },
-            "expected_outcomes": {
-                "expected_revenue": round(mean_revenue, 2),
-                "expected_conversions": round(mean_revenue / avg_order_value, 0),
-                "expected_open_rate": round(statistics.mean(open_rates), 4),
-                "expected_click_rate": round(statistics.mean(click_rates), 4),
-                "expected_roi": round(roi, 4),
-                "expected_cost": round(total_cost_with_fixed, 2),
-                "expected_profit": round(mean_revenue - total_cost_with_fixed, 2),
-            },
-            "risk_assessment": risk_assessment,
-            "recommendations": self._generate_recommendations(risk_assessment, roi, scenarios),
-        }
-
-    def _build_histogram(self, values: list[float], bins: int) -> list[dict]:
-        if not values:
-            return []
-        min_v, max_v = min(values), max(values)
-        if max_v == min_v:
-            return [{"bin_start": min_v, "bin_end": max_v, "count": len(values)}]
-        bin_width = (max_v - min_v) / bins
-        histogram = []
-        for i in range(bins):
-            start = min_v + i * bin_width
-            end = start + bin_width
-            count = sum(1 for v in values if start <= v < end)
-            histogram.append({
-                "bin_start": round(start, 2),
-                "bin_end": round(end, 2),
-                "count": count,
-            })
-        last = histogram[-1]
-        last["count"] += sum(1 for v in values if v >= end)
-        return histogram
-
-    def _generate_recommendations(self, risk: dict, roi: float, scenarios: dict) -> list[str]:
-        recs = []
-        if roi < 0:
-            recs.append("Current campaign parameters show negative ROI. Consider reducing budget or improving targeting.")
-        if risk.get("probability_of_loss", 0) > 0.3:
-            recs.append("High probability of loss detected. Consider running a smaller-scale test first.")
-        if scenarios.get("optimistic", {}).get("revenue", 0) > scenarios.get("pessimistic", {}).get("revenue", 0) * 3:
-            recs.append("Large variance between optimistic and pessimistic scenarios. Consider gathering more data.")
-        if roi > 2:
-            recs.append("Strong ROI projections. Consider increasing investment in this campaign.")
-        if not recs:
-            recs.append("Campaign shows balanced risk-reward profile. Proceed with planned execution.")
-        return recs

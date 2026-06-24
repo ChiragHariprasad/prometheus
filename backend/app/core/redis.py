@@ -28,6 +28,12 @@ class RedisClient:
         if self._client:
             await self._client.close()
 
+    async def setnx(self, key: str, value: Any, ttl: int = 300) -> bool:
+        if not self._client:
+            return False
+        result = await self._client.set(key, json.dumps(value), nx=True, ex=ttl)
+        return result is not None
+
     async def get(self, key: str) -> Optional[Any]:
         data = await self._client.get(key)
         if data:
