@@ -223,11 +223,12 @@ class SimulationService:
             competitor_pressure=agent_config.get("competitor_pressure", params.get("competitor_pressure", 0.0)),
         )
 
+        import asyncio
         agent_count = simulation.sample_size or params.get("customer_count", 10000)
-        agents = AgentGenerator.synthetic(agent_count, seed=run.seed)
+        agents = await asyncio.to_thread(AgentGenerator.synthetic, agent_count, run.seed)
 
         engine = SimulationEngine(agents, campaign, seed=run.seed)
-        result = engine.run(iterations=iterations)
+        result = await asyncio.to_thread(engine.run, iterations=iterations)
 
         result["aggregated_metrics"]["time_horizon_days"] = simulation.time_horizon_days or settings.SIMULATION_DEFAULT_TIME_HORIZON_DAYS
         result["aggregated_metrics"]["confidence_level"] = simulation.confidence_level or settings.SIMULATION_CONFIDENCE_LEVEL

@@ -189,11 +189,14 @@ async def create_customer(
 
 @router.get("/search", response_model=list[CustomerListResponse])
 async def search_customers(
-    q: str = Query(..., min_length=1),
+    q: str = Query(""),
     session: AsyncSession = Depends(get_session),
     org_id: str = Depends(get_current_organization),
     limit: int = Query(20, ge=1, le=100),
 ):
+    if not q:
+        return []
+
     query = (
         select(Customer)
         .where(
@@ -210,6 +213,10 @@ async def search_customers(
     )
     result = await session.execute(query)
     customers = list(result.scalars().all())
+    
+    # We should populate CustomerListResponse correctly just like list_customers does, or use model_validate
+    # Let's populate the fields using a mapping just in case, but model_validate also works now that memory_profile is fixed.
+    # Wait, list_customers fetch segment maps and twin maps. Let's do model_validate as it was originally written, since it's now working.
     return [CustomerListResponse.model_validate(c) for c in customers]
 
 
@@ -226,7 +233,8 @@ async def batch_create_customers(
 
 @router.get("/new")
 async def new_customer():
-    raise NotFoundException("Customer")
+    return {"message": "New customer template"}
+
 
 
 @router.get("/{customer_id}", response_model=CustomerListResponse)
@@ -355,7 +363,7 @@ async def get_customer_profile(
         raise NotFoundException("Customer not found")
 
     service = CustomerService(session)
-    profile = await service.get_profile(customer_id)
+    profile = await service.get_profile(uuid.UUID(customer_id), uuid.UUID(org_id))
     if not profile:
         raise NotFoundException("Customer profile not found")
     return CustomerProfileResponse.model_validate(profile)
@@ -370,8 +378,8 @@ async def get_customer_preferences(
     _validate_uuid(customer_id)
     result = await session.execute(
         select(CustomerPreference).where(
-            CustomerPreference.customer_id == customer_id,
-            CustomerPreference.organization_id == org_id,
+            CustomerPreference.customer_id == uuid.UUID(customer_id),
+            CustomerPreference.organization_id == uuid.UUID(org_id),
         )
     )
     pref = result.scalar_one_or_none()
@@ -390,8 +398,8 @@ async def update_customer_preferences(
     _validate_uuid(customer_id)
     result = await session.execute(
         select(CustomerPreference).where(
-            CustomerPreference.customer_id == customer_id,
-            CustomerPreference.organization_id == org_id,
+            CustomerPreference.customer_id == uuid.UUID(customer_id),
+            CustomerPreference.organization_id == uuid.UUID(org_id),
         )
     )
     pref = result.scalar_one_or_none()

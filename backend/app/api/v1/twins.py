@@ -16,6 +16,7 @@ from app.models.customer import Customer
 from app.middleware.auth import get_current_user, get_current_organization
 from app.core.exceptions import NotFoundException
 from app.services.twin_service import TwinService
+from app.services.prediction_service import PredictionService
 
 router = APIRouter(dependencies=[Depends(get_current_user)])
 
@@ -53,7 +54,8 @@ def _build_twin_response(twin: CustomerTwin) -> dict[str, Any]:
     channel_affinity = {}
     if isinstance(ca, dict):
         for k, v in ca.items():
-            channel_affinity[k] = float(v) if v is not None else 0.0
+            val = v.get("affinity", 0.0) if isinstance(v, dict) else v
+            channel_affinity[k] = float(val) if val is not None else 0.0
 
     sentiment_trend = []
     for i, s in enumerate(st):
@@ -68,18 +70,28 @@ def _build_twin_response(twin: CustomerTwin) -> dict[str, Any]:
                 "score": float(s),
             })
 
+    def scale_score(val):
+        if val is None:
+            return 0.0
+        # If val is between 0 and 100, and is greater than 1.0, scale it to 0.0-1.0
+        return float(val / 100.0 if val > 1.0 else val)
+
     return {
         "id": str(twin.customer_id),
         "customer_id": str(twin.customer_id),
-        "engagement_score": float(twin.engagement_score or 0),
-        "loyalty_score": float(twin.loyalty_score or 0),
-        "sentiment_score": float((ri.get("current_sentiment") if isinstance(ri, dict) else 0) or 0),
-        "churn_probability": float((ri.get("churn_probability") if isinstance(ri, dict) else 0) or 0),
+        "status": "built" if twin.status == "active" else (twin.status or "built"),
+        "engagement_score": scale_score(twin.engagement_score),
+        "loyalty_score": scale_score(twin.loyalty_score),
+        "confidence_score": scale_score(twin.confidence_score),
+        "staleness_score": scale_score(twin.staleness_score),
+        "sentiment_score": scale_score((ri.get("current_sentiment") if isinstance(ri, dict) else 0) or 0),
+        "churn_probability": scale_score((ri.get("churn_probability") if isinstance(ri, dict) else 0) or 0),
         "interests": interests,
+        "interest_graph": twin.interest_graph or {},
         "channel_affinity": channel_affinity,
         "sentiment_trend": sentiment_trend,
-        "last_rebuilt": (twin.built_at.isoformat() if twin.built_at else ""),
-        "created_at": (twin.updated_at.isoformat() if twin.updated_at else ""),
+        "last_rebuilt": twin.built_at.isoformat() if twin.built_at else None,
+        "created_at": twin.updated_at.isoformat() if twin.updated_at else None,
     }
 
 
@@ -99,7 +111,18 @@ async def get_customer_twin(
     )
     twin = result.scalar_one_or_none()
     if not twin:
-        raise NotFoundException("Twin not found for this customer")
+        service = TwinService(session)
+        await service.get_or_build_twin(
+            organization_id=uuid.UUID(org_id),
+            customer_id=uuid.UUID(customer_id),
+        )
+        result = await session.execute(
+            select(CustomerTwin).where(
+                CustomerTwin.customer_id == customer_id,
+                CustomerTwin.organization_id == org_id,
+            )
+        )
+        twin = result.scalar_one()
 
     return _build_twin_response(twin)
 
@@ -159,6 +182,39 @@ async def get_predictions(
     query = query.order_by(Prediction.created_at.desc()).limit(limit)
     result = await session.execute(query)
     predictions = result.scalars().all()
+
+    if not predictions:
+        pred_service = PredictionService(session)
+        try:
+            await pred_service.get_churn_prediction(
+                organization_id=uuid.UUID(org_id),
+                customer_id=uuid.UUID(customer_id),
+            )
+        except Exception:
+            pass
+        try:
+            await pred_service.get_ltv_prediction(
+                organization_id=uuid.UUID(org_id),
+                customer_id=uuid.UUID(customer_id),
+            )
+        except Exception:
+            pass
+        try:
+            await pred_service.get_intent_prediction(
+                organization_id=uuid.UUID(org_id),
+                customer_id=uuid.UUID(customer_id),
+            )
+        except Exception:
+            pass
+        requery = select(Prediction).where(
+            Prediction.customer_id == customer_id,
+            Prediction.organization_id == org_id,
+        )
+        if prediction_type:
+            requery = requery.where(Prediction.prediction_type == prediction_type)
+        requery = requery.order_by(Prediction.created_at.desc()).limit(limit)
+        result = await session.execute(requery)
+        predictions = result.scalars().all()
 
     return [PredictionResponse.model_validate(p) for p in predictions]
 

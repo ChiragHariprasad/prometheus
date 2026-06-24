@@ -133,7 +133,7 @@ async def compare_campaign_performance(
 async def export_analytics(
     session: AsyncSession = Depends(get_session),
     org_id: str = Depends(get_current_organization),
-    report_type: str = Query(...),
+    report_type: str = Query("customers"),
     format: str = Query("csv"),
     start_date: date | None = Query(None),
     end_date: date | None = Query(None),

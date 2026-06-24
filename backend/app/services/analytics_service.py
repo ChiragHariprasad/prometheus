@@ -398,6 +398,48 @@ class AnalyticsService:
             "churn_by_segment": churn_by_segment,
         }
 
+    async def compare_campaigns(
+        self,
+        organization_id: uuid.UUID,
+        campaign_ids: list[str] | None = None,
+        start_date: date | None = None,
+        end_date: date | None = None,
+    ) -> list[dict]:
+        query = select(Campaign).where(Campaign.organization_id == organization_id)
+        if campaign_ids:
+            query = query.where(Campaign.id.in_(campaign_ids))
+
+        result = await self.repo.session.execute(query)
+        campaigns = list(result.scalars().all())
+
+        performance = []
+        for camp in campaigns:
+            result_stmt = select(CampaignResult).where(
+                CampaignResult.campaign_id == camp.id,
+                CampaignResult.organization_id == organization_id,
+            )
+            res = await self.repo.session.execute(result_stmt)
+            cr = res.scalar_one_or_none()
+
+            performance.append({
+                "campaign_id": camp.id,
+                "campaign_name": camp.name,
+                "status": camp.status,
+                "total_targeted": cr.total_targeted if cr else 0,
+                "total_delivered": cr.total_delivered if cr else 0,
+                "total_opened": cr.total_opened if cr else 0,
+                "total_clicked": cr.total_clicked if cr else 0,
+                "total_converted": cr.total_converted if cr else 0,
+                "total_revenue": float(cr.total_revenue) if cr else 0.0,
+                "open_rate": cr.open_rate if cr else None,
+                "click_rate": cr.click_rate if cr else None,
+                "conversion_rate": cr.conversion_rate if cr else None,
+                "roi": cr.roi if cr else None,
+            })
+
+        return performance
+
+
     async def export_data(self, organization_id: uuid.UUID, query_params: dict) -> bytes:
         output = io.StringIO()
         writer = csv.writer(output)

@@ -22,7 +22,7 @@ class Notification(Base, UUIDMixin, TimestampMixin):
     title: Mapped[str] = mapped_column(String(255), nullable=False)
     body: Mapped[str | None] = mapped_column(Text)
     channel: Mapped[str] = mapped_column(String(50), nullable=False)
-    status: Mapped[str] = mapped_column(String(50), default="pending")
+    status: Mapped[str] = mapped_column(SAEnum("pending", "sent", "delivered", "opened", "clicked", "bounced", "failed", name="notification_status", create_type=False), default="pending")
     priority: Mapped[int] = mapped_column(Integer, default=0)
     template_id: Mapped[str | None] = mapped_column(String(255))
     template_data: Mapped[dict | None] = mapped_column(JSONB)

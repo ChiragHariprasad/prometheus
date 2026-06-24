@@ -85,68 +85,6 @@ async def create_user(
     return UserResponse.model_validate(user)
 
 
-@router.get("/{user_id}", response_model=UserResponse)
-async def get_user(
-    user_id: str,
-    session: AsyncSession = Depends(get_session),
-    org_id: str = Depends(get_current_organization),
-):
-    result = await session.execute(
-        select(User).where(User.id == user_id, User.organization_id == org_id)
-    )
-    user = result.scalar_one_or_none()
-    if not user:
-        raise NotFoundException("User not found")
-    return UserResponse.model_validate(user)
-
-
-@router.put("/{user_id}", response_model=UserResponse)
-async def update_user(
-    user_id: str,
-    payload: UserUpdate,
-    session: AsyncSession = Depends(get_session),
-    org_id: str = Depends(get_current_organization),
-):
-    result = await session.execute(
-        select(User).where(User.id == user_id, User.organization_id == org_id)
-    )
-    user = result.scalar_one_or_none()
-    if not user:
-        raise NotFoundException("User not found")
-
-    update_data = payload.model_dump(exclude_unset=True, exclude={"roles"})
-    for field, value in update_data.items():
-        setattr(user, field, value)
-
-    if payload.roles is not None:
-        role_query = await session.execute(
-            select(Role).where(Role.id.in_(payload.roles), Role.organization_id == org_id)
-        )
-        user.roles = role_query.scalars().all()
-
-
-    await session.refresh(user)
-    return UserResponse.model_validate(user)
-
-
-@router.delete("/{user_id}", response_model=APIResponse)
-async def deactivate_user(
-    user_id: str,
-    session: AsyncSession = Depends(get_session),
-    org_id: str = Depends(get_current_organization),
-):
-    result = await session.execute(
-        select(User).where(User.id == user_id, User.organization_id == org_id)
-    )
-    user = result.scalar_one_or_none()
-    if not user:
-        raise NotFoundException("User not found")
-
-    user.is_active = False
-
-    return APIResponse(message="User deactivated successfully")
-
-
 @router.get("/roles", response_model=list[RoleResponse])
 async def list_roles(
     session: AsyncSession = Depends(get_session),
@@ -215,6 +153,68 @@ async def delete_role(
     await session.delete(role)
 
     return APIResponse(message="Role deleted successfully")
+
+
+@router.get("/{user_id}", response_model=UserResponse)
+async def get_user(
+    user_id: str,
+    session: AsyncSession = Depends(get_session),
+    org_id: str = Depends(get_current_organization),
+):
+    result = await session.execute(
+        select(User).where(User.id == user_id, User.organization_id == org_id)
+    )
+    user = result.scalar_one_or_none()
+    if not user:
+        raise NotFoundException("User not found")
+    return UserResponse.model_validate(user)
+
+
+@router.put("/{user_id}", response_model=UserResponse)
+async def update_user(
+    user_id: str,
+    payload: UserUpdate,
+    session: AsyncSession = Depends(get_session),
+    org_id: str = Depends(get_current_organization),
+):
+    result = await session.execute(
+        select(User).where(User.id == user_id, User.organization_id == org_id)
+    )
+    user = result.scalar_one_or_none()
+    if not user:
+        raise NotFoundException("User not found")
+
+    update_data = payload.model_dump(exclude_unset=True, exclude={"roles"})
+    for field, value in update_data.items():
+        setattr(user, field, value)
+
+    if payload.roles is not None:
+        role_query = await session.execute(
+            select(Role).where(Role.id.in_(payload.roles), Role.organization_id == org_id)
+        )
+        user.roles = role_query.scalars().all()
+
+
+    await session.refresh(user)
+    return UserResponse.model_validate(user)
+
+
+@router.delete("/{user_id}", response_model=APIResponse)
+async def deactivate_user(
+    user_id: str,
+    session: AsyncSession = Depends(get_session),
+    org_id: str = Depends(get_current_organization),
+):
+    result = await session.execute(
+        select(User).where(User.id == user_id, User.organization_id == org_id)
+    )
+    user = result.scalar_one_or_none()
+    if not user:
+        raise NotFoundException("User not found")
+
+    user.is_active = False
+
+    return APIResponse(message="User deactivated successfully")
 
 
 @router.put("/{user_id}/roles", response_model=UserResponse)

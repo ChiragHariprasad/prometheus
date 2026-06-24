@@ -130,21 +130,20 @@ async def list_event_types(
 async def get_event_summary(
     session: AsyncSession = Depends(get_session),
     org_id: str = Depends(get_current_organization),
-    start_date: date = Query(...),
-    end_date: date = Query(...),
+    start_date: date | None = Query(None),
+    end_date: date | None = Query(None),
 ):
-    result = await session.execute(
-        select(
-            Event.event_type,
-            func.count().label("count"),
-        )
-        .where(
-            Event.organization_id == org_id,
-            cast(Event.created_at, Date) >= start_date,
-            cast(Event.created_at, Date) <= end_date,
-        )
-        .group_by(Event.event_type)
-    )
+    query = select(
+        Event.event_type,
+        func.count().label("count"),
+    ).where(Event.organization_id == org_id)
+
+    if start_date:
+        query = query.where(cast(Event.created_at, Date) >= start_date)
+    if end_date:
+        query = query.where(cast(Event.created_at, Date) <= end_date)
+
+    result = await session.execute(query.group_by(Event.event_type))
     rows = result.all()
     return [
         EventSummaryResponse(event_type=row.event_type, count=row.count)

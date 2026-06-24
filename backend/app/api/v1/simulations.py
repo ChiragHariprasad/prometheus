@@ -1,5 +1,5 @@
 import uuid
-from fastapi import APIRouter, Depends, Query, HTTPException
+from fastapi import APIRouter, Depends, Query, HTTPException, BackgroundTasks
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select, func
 from app.core.database import get_session
@@ -64,9 +64,22 @@ async def list_simulations(
     )
 
 
+async def _bg_run_simulation(simulation_id: uuid.UUID):
+    from app.core.database import async_session_factory
+    from app.services.simulation_service import SimulationService
+    from app.core.logging import logger
+    async with async_session_factory() as session:
+        try:
+            service = SimulationService(session)
+            await service.run_simulation(simulation_id=simulation_id)
+            await session.commit()
+        except Exception as e:
+            logger.error(f"Background simulation failed: {e}")
+
 @router.post("", response_model=SimulationResponse)
 async def create_simulation(
     payload: SimulationCreate,
+    background_tasks: BackgroundTasks,
     session: AsyncSession = Depends(get_session),
     org_id: str = Depends(get_current_organization),
 ):
@@ -74,6 +87,10 @@ async def create_simulation(
     session.add(simulation)
     await session.flush()
     await session.refresh(simulation)
+
+    # Auto-run the simulation in background
+    background_tasks.add_task(_bg_run_simulation, simulation.id)
+
     return SimulationResponse.model_validate(simulation)
 
 
@@ -116,7 +133,7 @@ async def get_simulation(
 
 @router.put("/{simulation_id}", response_model=SimulationResponse)
 async def update_simulation(
-    simulation_id: str,
+    simulation_id: uuid.UUID,
     payload: SimulationUpdate,
     session: AsyncSession = Depends(get_session),
     org_id: str = Depends(get_current_organization),
@@ -140,7 +157,7 @@ async def update_simulation(
 
 @router.delete("/{simulation_id}", response_model=APIResponse)
 async def delete_simulation(
-    simulation_id: str,
+    simulation_id: uuid.UUID,
     session: AsyncSession = Depends(get_session),
     org_id: str = Depends(get_current_organization),
 ):
@@ -161,7 +178,8 @@ async def delete_simulation(
 
 @router.post("/{simulation_id}/run", response_model=APIResponse)
 async def run_simulation(
-    simulation_id: str,
+    simulation_id: uuid.UUID,
+    background_tasks: BackgroundTasks,
     session: AsyncSession = Depends(get_session),
     org_id: str = Depends(get_current_organization),
 ):
@@ -175,14 +193,13 @@ async def run_simulation(
     if not simulation:
         raise NotFoundException("Simulation not found")
 
-    service = SimulationService(session)
-    await service.run_simulation(simulation_id=simulation.id)
+    background_tasks.add_task(_bg_run_simulation, simulation.id)
     return APIResponse(message="Simulation execution triggered successfully")
 
 
 @router.get("/{simulation_id}/status", response_model=SimulationStatusResponse)
 async def get_simulation_status(
-    simulation_id: str,
+    simulation_id: uuid.UUID,
     session: AsyncSession = Depends(get_session),
     org_id: str = Depends(get_current_organization),
 ):
@@ -207,7 +224,7 @@ async def get_simulation_status(
 
 @router.get("/{simulation_id}/results", response_model=SimulationResultResponse)
 async def get_simulation_results(
-    simulation_id: str,
+    simulation_id: uuid.UUID,
     session: AsyncSession = Depends(get_session),
     org_id: str = Depends(get_current_organization),
 ):
@@ -226,7 +243,7 @@ async def get_simulation_results(
 
 @router.get("/{simulation_id}/forecast", response_model=SimulationForecastResponse)
 async def get_simulation_forecast(
-    simulation_id: str,
+    simulation_id: uuid.UUID,
     session: AsyncSession = Depends(get_session),
     org_id: str = Depends(get_current_organization),
 ):
@@ -239,7 +256,7 @@ async def get_simulation_forecast(
 
 @router.get("/{simulation_id}/runs", response_model=list[SimulationRunResponse])
 async def get_simulation_runs(
-    simulation_id: str,
+    simulation_id: uuid.UUID,
     session: AsyncSession = Depends(get_session),
     org_id: str = Depends(get_current_organization),
 ):
@@ -257,7 +274,7 @@ async def get_simulation_runs(
 
 @router.get("/{simulation_id}/progress", response_model=SimulationProgressResponse)
 async def get_simulation_progress(
-    simulation_id: str,
+    simulation_id: uuid.UUID,
     session: AsyncSession = Depends(get_session),
     org_id: str = Depends(get_current_organization),
 ):

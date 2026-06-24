@@ -2,7 +2,7 @@ from datetime import datetime
 from uuid import UUID
 from typing import Any
 
-from pydantic import BaseModel, ConfigDict
+from pydantic import BaseModel, ConfigDict, computed_field
 
 
 class TwinSummary(BaseModel):
@@ -203,3 +203,18 @@ class PredictionResponse(BaseModel):
     created_at: datetime | None = None
 
     model_config = ConfigDict(from_attributes=True)
+
+    @computed_field
+    @property
+    def timestamp(self) -> datetime | None:
+        return self.created_at
+
+    @computed_field
+    @property
+    def confidence(self) -> float | None:
+        return self.confidence_score if self.confidence_score is not None else self.prediction_probability
+
+    @computed_field
+    @property
+    def value(self) -> float | None:
+        return self.prediction_value

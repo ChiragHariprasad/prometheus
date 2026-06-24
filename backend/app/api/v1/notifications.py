@@ -77,45 +77,6 @@ async def send_notification(
     return APIResponse(message="Notification sent successfully")
 
 
-@router.get("/{notification_id}", response_model=NotificationResponse)
-async def get_notification(
-    notification_id: str,
-    session: AsyncSession = Depends(get_session),
-    org_id: str = Depends(get_current_organization),
-):
-    result = await session.execute(
-        select(Notification).where(
-            Notification.id == notification_id,
-            Notification.organization_id == org_id,
-        )
-    )
-    notification = result.scalar_one_or_none()
-    if not notification:
-        raise NotFoundException("Notification not found")
-    return NotificationResponse.model_validate(notification)
-
-
-@router.post("/{notification_id}/retry", response_model=APIResponse)
-async def retry_notification(
-    notification_id: str,
-    session: AsyncSession = Depends(get_session),
-    org_id: str = Depends(get_current_organization),
-):
-    result = await session.execute(
-        select(Notification).where(
-            Notification.id == notification_id,
-            Notification.organization_id == org_id,
-        )
-    )
-    notification = result.scalar_one_or_none()
-    if not notification:
-        raise NotFoundException("Notification not found")
-
-    service = NotificationService(session)
-    await service.retry(notification)
-    return APIResponse(message="Notification retry initiated")
-
-
 @router.get("/stats", response_model=NotificationStatsResponse)
 async def get_notification_stats(
     session: AsyncSession = Depends(get_session),
@@ -158,3 +119,42 @@ async def get_notification_stats(
         delivery_rate=(delivered / total * 100) if total > 0 else 0.0,
         open_rate=(opened / delivered * 100) if delivered > 0 else 0.0,
     )
+
+
+@router.get("/{notification_id}", response_model=NotificationResponse)
+async def get_notification(
+    notification_id: str,
+    session: AsyncSession = Depends(get_session),
+    org_id: str = Depends(get_current_organization),
+):
+    result = await session.execute(
+        select(Notification).where(
+            Notification.id == notification_id,
+            Notification.organization_id == org_id,
+        )
+    )
+    notification = result.scalar_one_or_none()
+    if not notification:
+        raise NotFoundException("Notification not found")
+    return NotificationResponse.model_validate(notification)
+
+
+@router.post("/{notification_id}/retry", response_model=APIResponse)
+async def retry_notification(
+    notification_id: str,
+    session: AsyncSession = Depends(get_session),
+    org_id: str = Depends(get_current_organization),
+):
+    result = await session.execute(
+        select(Notification).where(
+            Notification.id == notification_id,
+            Notification.organization_id == org_id,
+        )
+    )
+    notification = result.scalar_one_or_none()
+    if not notification:
+        raise NotFoundException("Notification not found")
+
+    service = NotificationService(session)
+    await service.retry(notification)
+    return APIResponse(message="Notification retry initiated")

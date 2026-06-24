@@ -3,7 +3,7 @@ import math
 from datetime import datetime, timezone, timedelta
 from typing import Any
 
-from sqlalchemy import select, func
+from sqlalchemy import select, func, text
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.config import settings
@@ -552,7 +552,7 @@ class TwinService:
                 CustomerEvent.organization_id == organization_id,
                 CustomerEvent.event_timestamp >= since,
             )
-            .group_by(func.date_trunc("week", CustomerEvent.event_timestamp))
+            .group_by(text("week"))
         )
         result = await self.session.execute(stmt)
         return len(result.all())
@@ -885,7 +885,7 @@ class TwinService:
         ]
 
     async def _count_event_type_with_prop(self, customer_id: uuid.UUID, organization_id: uuid.UUID, event_type: str, prop_key: str, since: datetime) -> int:
-        from sqlalchemy import text as sa_text
+        from sqlalchemy import Boolean
         stmt = (
             select(func.count())
             .select_from(CustomerEvent)
@@ -894,7 +894,7 @@ class TwinService:
                 CustomerEvent.organization_id == organization_id,
                 CustomerEvent.event_type == event_type,
                 CustomerEvent.event_timestamp >= since,
-                CustomerEvent.event_properties[prop_key].astext.cast(sa_text("boolean")).is_(True),
+                CustomerEvent.event_properties[prop_key].astext.cast(Boolean).is_(True),
             )
         )
         result = await self.session.execute(stmt)
@@ -911,8 +911,8 @@ class TwinService:
                 CustomerEvent.organization_id == organization_id,
                 CustomerEvent.event_timestamp >= since,
             )
-            .group_by(func.date_trunc("month", CustomerEvent.event_timestamp))
-            .order_by(func.date_trunc("month", CustomerEvent.event_timestamp))
+            .group_by(text("month"))
+            .order_by(text("month"))
         )
         result = await self.session.execute(stmt)
         months = {}
@@ -932,8 +932,8 @@ class TwinService:
                 CustomerEvent.organization_id == organization_id,
                 CustomerEvent.event_timestamp >= since,
             )
-            .group_by(func.extract("month", CustomerEvent.event_timestamp))
-            .order_by(func.extract("month", CustomerEvent.event_timestamp))
+            .group_by(text("month"))
+            .order_by(text("month"))
         )
         result = await self.session.execute(stmt)
         month_names = [
@@ -1107,7 +1107,7 @@ class TwinService:
         return CustomerTwinResponse(
             customer_id=twin.customer_id,
             organization_id=twin.organization_id,
-            status=twin.status,
+            status="built" if twin.status == "active" else twin.status,
             version=twin.version,
             behavior_profile=BehaviorProfileResponse(
                 behavior_score=behavior.get("behavior_score"),
