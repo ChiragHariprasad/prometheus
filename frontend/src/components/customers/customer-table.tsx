@@ -243,9 +243,11 @@ export function CustomerTable({
                   ${customer.ltv.toLocaleString()}
                 </TableCell>
                 <TableCell className="text-muted-foreground text-xs">
-                  {formatDistanceToNow(new Date(customer.last_activity), {
-                    addSuffix: true,
-                  })}
+                  {customer.last_activity
+                    ? formatDistanceToNow(new Date(customer.last_activity), {
+                        addSuffix: true,
+                      })
+                    : "No activity"}
                 </TableCell>
                 <TableCell
                   onClick={(e) => e.stopPropagation()}

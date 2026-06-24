@@ -22,7 +22,7 @@ async def run_simulation_job(job: dict):
     logger.info(f"Starting simulation: {simulation_id}")
 
     async with async_session_factory() as session:
-        service = SimulationService(session, redis_client, kafka_client)
+        service = SimulationService(session, redis_client)
         try:
             result = await service.run_simulation(simulation_id)
             logger.info(f"Simulation {simulation_id} completed: {result.get('status')}")

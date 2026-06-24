@@ -7,11 +7,13 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.core.exceptions import NotFoundException
 from app.core.logging import logger
 from app.models.notification import Notification
+from app.repositories.notification_repository import NotificationRepository
 
 
 class NotificationService:
     def __init__(self, session: AsyncSession):
         self.session = session
+        self.repo = NotificationRepository(session)
 
     async def create_notification(
         self, org_id: uuid.UUID, customer_id: uuid.UUID | None = None,
@@ -44,13 +46,7 @@ class NotificationService:
     async def get_notification(
         self, notification_id: uuid.UUID, org_id: uuid.UUID,
     ) -> Notification:
-        result = await self.session.execute(
-            select(Notification).where(
-                Notification.id == notification_id,
-                Notification.organization_id == org_id,
-            )
-        )
-        notification = result.scalar_one_or_none()
+        notification = await self.repo.get(notification_id, org_id)
         if not notification:
             raise NotFoundException("Notification", str(notification_id))
         return notification
@@ -60,29 +56,23 @@ class NotificationService:
         customer_id: uuid.UUID | None = None,
         status: str | None = None, channel: str | None = None,
     ) -> tuple[list[Notification], int]:
-        stmt = select(Notification).where(Notification.organization_id == org_id)
-        count_stmt = select(func.count()).select_from(Notification).where(
-            Notification.organization_id == org_id,
-        )
+        filters = {}
         if customer_id:
-            stmt = stmt.where(Notification.customer_id == customer_id)
-            count_stmt = count_stmt.where(Notification.customer_id == customer_id)
+            filters["customer_id"] = str(customer_id)
         if status:
-            stmt = stmt.where(Notification.status == status)
-            count_stmt = count_stmt.where(Notification.status == status)
+            filters["status"] = status
         if channel:
-            stmt = stmt.where(Notification.channel == channel)
-            count_stmt = count_stmt.where(Notification.channel == channel)
-        total_result = await self.session.execute(count_stmt)
-        total = total_result.scalar() or 0
-        stmt = stmt.order_by(Notification.created_at.desc())
-        stmt = stmt.offset((page - 1) * page_size).limit(page_size)
-        result = await self.session.execute(stmt)
-        notifications = result.scalars().all()
-        return list(notifications), total
+            filters["channel"] = channel
+        return await self.repo.get_multi(
+            skip=(page - 1) * page_size, limit=page_size,
+            filters=filters, sorts=[{"field": "created_at", "direction": "desc"}],
+            organization_id=org_id,
+        )
 
     async def mark_read(self, notification_id: uuid.UUID, org_id: uuid.UUID) -> None:
-        notification = await self.get_notification(notification_id, org_id)
+        notification = await self.repo.get(notification_id, org_id)
+        if not notification:
+            raise NotFoundException("Notification", str(notification_id))
         notification.status = "read"
         await self.session.flush()
 
@@ -104,14 +94,7 @@ class NotificationService:
     async def get_unread_count(
         self, org_id: uuid.UUID, user_id: uuid.UUID | None = None,
     ) -> int:
-        stmt = select(func.count()).select_from(Notification).where(
-            Notification.organization_id == org_id,
-            Notification.status.in_(["sent", "delivered"]),
-        )
-        if user_id:
-            stmt = stmt.where(Notification.user_id == user_id)
-        result = await self.session.execute(stmt)
-        return result.scalar() or 0
+        return await self.repo.get_unread_count(org_id) if not user_id else 0
 
     async def send(self, notification: Notification) -> None:
         notification.status = "sending"

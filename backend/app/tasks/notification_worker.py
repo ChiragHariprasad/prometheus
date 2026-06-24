@@ -9,12 +9,23 @@ from app.core.logging import logger
 from app.services.notification_service import NotificationService
 
 
+import uuid
+from app.models.notification import Notification
+
+
 async def process_notification(event: dict):
+    notification_id = event.get("notification_id")
+    org_id = event.get("organization_id")
+    if not notification_id or not org_id:
+        logger.warning(f"Invalid notification event missing id/org: {event}")
+        return
+
     async with async_session_factory() as session:
-        service = NotificationService(session, redis_client)
+        service = NotificationService(session)
         try:
-            await service.send_notification(event)
-            logger.debug(f"Notification sent: {event.get('notification_id')}")
+            notification = await service.get_notification(uuid.UUID(notification_id), uuid.UUID(org_id))
+            await service.send(notification)
+            logger.debug(f"Notification sent: {notification_id}")
         except Exception as e:
             logger.error(f"Notification failed: {e}", exc_info=True)
 

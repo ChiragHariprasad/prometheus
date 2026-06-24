@@ -1,9 +1,9 @@
 import time
 from fastapi import Request
+from fastapi.responses import JSONResponse
 from starlette.middleware.base import BaseHTTPMiddleware
 from app.core.redis import redis_client
 from app.core.config import settings
-from app.core.exceptions import RateLimitException
 
 
 class RateLimitMiddleware(BaseHTTPMiddleware):
@@ -27,12 +27,18 @@ class RateLimitMiddleware(BaseHTTPMiddleware):
         max_requests, period = self._parse_rate_limit(limit)
         key = f"ratelimit:{client_ip}:{path}"
 
-        current = await redis_client.incr(key)
-        if current == 1:
-            await redis_client.expire(key, period)
+        pipe = await redis_client.pipeline()
+        pipe.incr(key)
+        pipe.expire(key, period)
+        results = await pipe.execute()
+        current = results[0]
 
         if current > max_requests:
-            raise RateLimitException(f"Rate limit exceeded: {limit}")
+            return JSONResponse(
+                status_code=429,
+                content={"success": False, "error": f"Rate limit exceeded: {limit}"},
+                headers={"Retry-After": str(period)},
+            )
 
         return await call_next(request)
 

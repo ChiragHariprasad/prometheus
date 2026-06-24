@@ -21,6 +21,7 @@ class PerCustomerTwinSummary(BaseModel):
     loyalty_score: float | None = None
     lifetime_value: float | None = None
     sentiment_trend: list[float] = []
+    sentiment_score: float | None = None
     churn_probability: float | None = None
     churn_risk_level: str | None = None
     lifecycle_stage: str | None = None

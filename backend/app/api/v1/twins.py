@@ -113,7 +113,7 @@ async def rebuild_twin(
     await _verify_customer_org(customer_id, org_id, session)
 
     service = TwinService(session)
-    await service.rebuild_twin(customer_id, org_id)
+    await service.rebuild_twin(organization_id=org_id, customer_id=customer_id)
     return APIResponse(message="Twin rebuild triggered successfully")
 
 

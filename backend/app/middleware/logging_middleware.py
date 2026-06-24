@@ -7,7 +7,8 @@ from app.core.logging import logger
 
 class LoggingMiddleware(BaseHTTPMiddleware):
     async def dispatch(self, request: Request, call_next):
-        request_id = uuid.uuid4().hex
+        request_id = getattr(request.state, "request_id", uuid.uuid4().hex)
+        request.state.request_id = request_id
         start_time = time.time()
 
         response = await call_next(request)

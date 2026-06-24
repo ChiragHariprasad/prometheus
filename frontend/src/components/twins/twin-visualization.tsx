@@ -81,13 +81,14 @@ export function ScoreGauge({
 
 interface TwinVisualizationProps {
   twin: {
-    engagement_score: number;
-    loyalty_score: number;
-    sentiment_score: number;
-    churn_probability: number;
-    interests: Array<{ name: string; weight: number }>;
-    channel_affinity: Record<string, number>;
-    sentiment_trend: Array<{ date: string; score: number }>;
+    engagement_score: number | null;
+    loyalty_score: number | null;
+    sentiment_score: number | null;
+    churn_probability: number | null;
+    staleness_score?: number | null;
+    interests?: Array<{ name: string; weight: number }>;
+    channel_affinity?: Record<string, number>;
+    sentiment_trend?: Array<number> | Array<{ date: string; score: number }>;
   };
 }
 
@@ -95,23 +96,23 @@ export function TwinVisualization({ twin }: TwinVisualizationProps) {
   return (
     <div className="space-y-6">
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        <ScoreGauge label="Engagement" value={twin.engagement_score} />
-        <ScoreGauge label="Loyalty" value={twin.loyalty_score} />
-        <ScoreGauge label="Sentiment" value={twin.sentiment_score} />
+        <ScoreGauge label="Engagement" value={twin.engagement_score || 0} />
+        <ScoreGauge label="Loyalty" value={twin.loyalty_score || 0} />
+        <ScoreGauge label="Sentiment" value={twin.sentiment_score || 0} />
         <div className="flex flex-col items-center justify-center gap-2">
           <div
             className={cn(
               "flex items-center gap-2 rounded-full px-3 py-1",
-              twin.churn_probability > 0.5
+              (twin.churn_probability ?? twin.staleness_score ?? 0) > 0.5
                 ? "bg-destructive/10 text-destructive"
-                : twin.churn_probability > 0.3
+                : (twin.churn_probability ?? twin.staleness_score ?? 0) > 0.3
                   ? "bg-yellow-50 text-yellow-700 dark:bg-yellow-950 dark:text-yellow-300"
                   : "bg-green-50 text-green-700 dark:bg-green-950 dark:text-green-300"
             )}
           >
             <AlertTriangle className="h-4 w-4" />
             <span className="text-sm font-medium">
-              {(twin.churn_probability * 100).toFixed(0)}% churn risk
+              {((twin.churn_probability ?? twin.staleness_score ?? 0) * 100).toFixed(0)}% churn risk
             </span>
           </div>
           <span className="text-xs text-muted-foreground">Churn Risk</span>
@@ -125,16 +126,13 @@ export function TwinVisualization({ twin }: TwinVisualizationProps) {
           </CardHeader>
           <CardContent>
             <div className="flex flex-wrap gap-2">
-              {twin.interests.map((interest) => (
+              {(twin.interests || []).map((interest) => (
                 <Badge
                   key={interest.name}
                   variant="secondary"
-                  className={cn(
-                    "text-xs",
-                    interest.weight > 0.7 && "bg-primary/10 text-primary"
-                  )}
+                  className="opacity-90"
                 >
-                  {interest.name}
+                  {interest.name} ({(interest.weight * 100).toFixed(0)}%)
                 </Badge>
               ))}
             </div>
@@ -148,7 +146,7 @@ export function TwinVisualization({ twin }: TwinVisualizationProps) {
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-2">
-            {Object.entries(twin.channel_affinity).map(([channel, score]) => (
+            {Object.entries(twin.channel_affinity || {}).map(([channel, score]) => (
               <div key={channel}>
                 <div className="mb-1 flex items-center justify-between text-sm">
                   <span className="capitalize">{channel}</span>
@@ -164,7 +162,7 @@ export function TwinVisualization({ twin }: TwinVisualizationProps) {
         </Card>
       </div>
 
-      {twin.sentiment_trend.length > 0 && (
+      {(twin.sentiment_trend || []).length > 0 && (
         <Card>
           <CardHeader>
             <CardTitle className="text-sm font-medium">
@@ -173,24 +171,27 @@ export function TwinVisualization({ twin }: TwinVisualizationProps) {
           </CardHeader>
           <CardContent>
             <div className="h-32 flex items-end gap-1">
-              {twin.sentiment_trend.slice(-30).map((point, i) => (
-                <div
-                  key={i}
-                  className="flex-1 flex flex-col justify-end"
-                >
+              {(twin.sentiment_trend || []).slice(-30).map((point: any, i) => {
+                const score = typeof point === "number" ? point : point?.score || 0;
+                return (
                   <div
-                    className={cn(
-                      "w-full rounded-t transition-all",
-                      point.score >= 0.7
-                        ? "bg-engagement-high"
-                        : point.score >= 0.4
-                          ? "bg-engagement-medium"
-                          : "bg-engagement-low"
-                    )}
-                    style={{ height: `${point.score * 100}%` }}
-                  />
-                </div>
-              ))}
+                    key={i}
+                    className="flex-1 flex flex-col justify-end"
+                  >
+                    <div
+                      className={cn(
+                        "w-full rounded-t transition-all",
+                        score >= 0.7
+                          ? "bg-engagement-high"
+                          : score >= 0.4
+                            ? "bg-engagement-medium"
+                            : "bg-engagement-low"
+                      )}
+                      style={{ height: `${score * 100}%` }}
+                    />
+                  </div>
+                );
+              })}
             </div>
           </CardContent>
         </Card>

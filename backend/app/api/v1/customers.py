@@ -84,14 +84,20 @@ async def list_customers(
     twin_map: dict[str, CustomerTwin] = {}
     if customer_ids:
         twin_result = await session.execute(
-            select(CustomerTwin).where(CustomerTwin.customer_id.in_(customer_ids))
+            select(CustomerTwin).where(
+                CustomerTwin.customer_id.in_(customer_ids),
+                CustomerTwin.organization_id == org_id,
+            )
         )
         twin_map = {str(t.customer_id): t for t in twin_result.scalars().all()}
 
     segment_map: dict[str, list[str]] = {}
     if customer_ids:
         seg_result = await session.execute(
-            select(CustomerSegmentMapping).where(CustomerSegmentMapping.customer_id.in_(customer_ids))
+            select(CustomerSegmentMapping).where(
+                CustomerSegmentMapping.customer_id.in_(customer_ids),
+                CustomerSegmentMapping.organization_id == org_id,
+            )
         )
         for m in seg_result.scalars().all():
             segment_map.setdefault(str(m.customer_id), []).append(str(m.segment_id))
@@ -176,7 +182,7 @@ async def create_customer(
         )
         customer.segments = seg_result.scalars().all()
 
-    await session.commit()
+
     await session.refresh(customer)
     return APIResponse(data=CustomerResponse.model_validate(customer))
 
@@ -211,7 +217,10 @@ async def get_customer(
     if not customer:
         raise NotFoundException("Customer not found")
     twin_result = await session.execute(
-        select(CustomerTwin).where(CustomerTwin.customer_id == customer.id)
+        select(CustomerTwin).where(
+            CustomerTwin.customer_id == customer.id,
+            CustomerTwin.organization_id == org_id,
+        )
     )
     twin = twin_result.scalar_one_or_none()
     churn_risk = "low"
@@ -281,7 +290,7 @@ async def update_customer(
         )
         customer.segments = seg_result.scalars().all()
 
-    await session.commit()
+
     await session.refresh(customer)
     return CustomerResponse.model_validate(customer)
 
@@ -301,7 +310,7 @@ async def delete_customer(
         raise NotFoundException("Customer not found")
 
     customer.is_active = False
-    await session.commit()
+
     return APIResponse(message="Customer deactivated successfully")
 
 
@@ -364,7 +373,7 @@ async def update_customer_preferences(
 
     for field, value in payload.items():
         setattr(pref, field, value)
-    await session.commit()
+
     await session.refresh(pref)
     return CustomerPreferenceResponse.model_validate(pref)
 
@@ -439,6 +448,32 @@ async def get_customer_segments(
     return [CustomerSegmentResponse.model_validate(s) for s in segments]
 
 
+@router.get("/search", response_model=list[CustomerListResponse])
+async def search_customers(
+    q: str = Query(..., min_length=1),
+    session: AsyncSession = Depends(get_session),
+    org_id: str = Depends(get_current_organization),
+    limit: int = Query(20, ge=1, le=100),
+):
+    query = (
+        select(Customer)
+        .where(
+            Customer.organization_id == org_id,
+            Customer.is_active == True,
+            or_(
+                Customer.email.ilike(f"%{q}%"),
+                Customer.first_name.ilike(f"%{q}%"),
+                Customer.last_name.ilike(f"%{q}%"),
+                Customer.external_id.ilike(f"%{q}%"),
+            ),
+        )
+        .limit(limit)
+    )
+    result = await session.execute(query)
+    customers = list(result.scalars().all())
+    return [CustomerListResponse.model_validate(c) for c in customers]
+
+
 @router.post("/{customer_id}/merge", response_model=APIResponse)
 async def merge_customers(
     customer_id: str,
@@ -447,6 +482,13 @@ async def merge_customers(
     org_id: str = Depends(get_current_organization),
 ):
     _validate_uuid(customer_id)
+    primary_uuid = uuid.UUID(customer_id)
+    org_uuid = uuid.UUID(org_id)
     service = CustomerService(session)
-    await service.merge_customers(customer_id, duplicate_ids, org_id)
+    for dup_id in duplicate_ids:
+        await service.merge_customers(
+            primary_id=primary_uuid,
+            secondary_id=uuid.UUID(dup_id),
+            organization_id=org_uuid,
+        )
     return APIResponse(message="Customers merged successfully")

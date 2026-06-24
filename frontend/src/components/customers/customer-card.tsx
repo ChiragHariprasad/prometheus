@@ -80,9 +80,11 @@ export function CustomerCard({ customer, onClick }: CustomerCardProps) {
             <div className="flex items-center gap-1 text-muted-foreground">
               <Activity className="h-3.5 w-3.5" />
               <span>
-                {formatDistanceToNow(new Date(customer.last_activity), {
-                  addSuffix: true,
-                })}
+                {customer.last_activity
+                  ? formatDistanceToNow(new Date(customer.last_activity), {
+                      addSuffix: true,
+                    })
+                  : "No activity"}
               </span>
             </div>
           </div>

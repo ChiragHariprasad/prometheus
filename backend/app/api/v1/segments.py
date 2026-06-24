@@ -58,7 +58,7 @@ async def create_segment(
 ):
     segment = CustomerSegment(organization_id=org_id, **payload)
     session.add(segment)
-    await session.commit()
+
     await session.refresh(segment)
 
     service = SegmentService(session)
@@ -104,7 +104,7 @@ async def update_segment(
 
     for field, value in payload.items():
         setattr(segment, field, value)
-    await session.commit()
+
     await session.refresh(segment)
     return CustomerSegmentResponse.model_validate(segment)
 
@@ -126,7 +126,7 @@ async def delete_segment(
         raise NotFoundException("Segment not found")
 
     await session.delete(segment)
-    await session.commit()
+
     return APIResponse(message="Segment deleted successfully")
 
 

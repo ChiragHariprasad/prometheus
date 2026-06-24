@@ -2,10 +2,12 @@ from datetime import datetime
 from uuid import UUID
 from typing import Any
 
-from pydantic import BaseModel, ConfigDict
+from pydantic import BaseModel, ConfigDict, model_validator
 
 
 class AnalyticsQuery(BaseModel):
+    model_config = ConfigDict(populate_by_name=True)
+
     metric: str
     dimension: str
     segment_id: UUID | None = None
@@ -13,6 +15,15 @@ class AnalyticsQuery(BaseModel):
     date_to: datetime
     granularity: str = "day"
     filters: dict[str, Any] = {}
+    dimensions: list[str] | None = None
+
+    @model_validator(mode="before")
+    @classmethod
+    def _map_dimensions(cls, data: Any) -> Any:
+        if isinstance(data, dict) and "dimensions" in data and data["dimensions"]:
+            if not data.get("dimension"):
+                data["dimension"] = data["dimensions"][0] if isinstance(data["dimensions"], list) else str(data["dimensions"])
+        return data
 
 
 class AnalyticsResponse(BaseModel):

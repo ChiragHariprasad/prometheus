@@ -52,11 +52,11 @@ export function SimulationResults({ simulation }: SimulationResultsProps) {
           </CardHeader>
           <CardContent>
             <p className="text-3xl font-bold text-green-600 dark:text-green-400">
-              ${results.expected_revenue.toLocaleString()}
+              ${results.expected_outcomes.expected_revenue.toLocaleString()}
             </p>
             <p className="text-xs text-muted-foreground mt-1">
-              Range: ${results.confidence_interval.lower.toLocaleString()} - $
-              {results.confidence_interval.upper.toLocaleString()}
+              Range: ${results.confidence_intervals.revenue[0].toLocaleString()} - $
+              {results.confidence_intervals.revenue[1].toLocaleString()}
             </p>
           </CardContent>
         </Card>
@@ -70,10 +70,10 @@ export function SimulationResults({ simulation }: SimulationResultsProps) {
           </CardHeader>
           <CardContent>
             <p className="text-3xl font-bold text-primary">
-              {(results.conversion_rate * 100).toFixed(1)}%
+              {(results.aggregated_metrics.mean_conversion_rate * 100).toFixed(1)}%
             </p>
             <Progress
-              value={results.conversion_rate * 100}
+              value={results.aggregated_metrics.mean_conversion_rate * 100}
               className="mt-2 h-2"
             />
           </CardContent>
@@ -115,7 +115,7 @@ export function SimulationResults({ simulation }: SimulationResultsProps) {
           <div className="space-y-4">
             {(["best_case", "most_likely", "worst_case"] as const).map(
               (scenario) => {
-                const data = results.scenarios[scenario];
+                const data = results.monte_carlo_distribution.scenarios[scenario];
                 const isBest = scenario === "best_case";
                 const isWorst = scenario === "worst_case";
                 const revenue = data?.revenue || 0;
@@ -171,7 +171,7 @@ export function SimulationResults({ simulation }: SimulationResultsProps) {
         </CardContent>
       </Card>
 
-      {results.sensitivity.length > 0 && (
+      {results.aggregated_metrics.sensitivity && results.aggregated_metrics.sensitivity.length > 0 && (
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2 text-sm font-medium">
@@ -181,13 +181,13 @@ export function SimulationResults({ simulation }: SimulationResultsProps) {
           </CardHeader>
           <CardContent>
             <div className="space-y-3">
-              {results.sensitivity
+              {results.aggregated_metrics.sensitivity
                 .sort((a, b) => Math.abs(b.impact) - Math.abs(a.impact))
                 .map((item) => (
-                  <div key={item.variable}>
+                  <div key={item.parameter}>
                     <div className="flex justify-between text-sm mb-1">
                       <span className="capitalize">
-                        {item.variable.replace("_", " ")}
+                        {item.parameter.replace("_", " ")}
                       </span>
                       <span
                         className={cn(

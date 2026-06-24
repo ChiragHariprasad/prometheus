@@ -18,6 +18,7 @@ from app.models.customer import (
 from app.models.event import Event as CustomerEvent
 from app.models.twin import CustomerTwin, Prediction as CustomerPrediction
 from app.models.campaign import Campaign, CampaignResult
+from app.repositories.analytics_repository import AnalyticsRepository
 from app.schemas.analytics import (
     AnalyticsQuery, AnalyticsResponse,
     DashboardResponse, DashboardStats, SegmentAnalyticsResponse,
@@ -26,8 +27,8 @@ from app.schemas.analytics import (
 
 class AnalyticsService:
     def __init__(self, session: AsyncSession, redis: RedisClient | None = None):
-        self.session = session
         self.redis = redis
+        self.repo = AnalyticsRepository(session)
 
     async def get_dashboard(self, organization_id: uuid.UUID) -> DashboardResponse:
         cache_key = f"dashboard:{organization_id}"
@@ -58,7 +59,7 @@ class AnalyticsService:
                 CustomerEvent.event_timestamp >= thirty_days_ago,
             )
         )
-        conversions_result = await self.session.execute(conversions_stmt)
+        conversions_result = await self.repo.session.execute(conversions_stmt)
         conversions_30d = conversions_result.scalar() or 0
 
         total_customers = customer_count if customer_count > 0 else 1
@@ -68,6 +69,8 @@ class AnalyticsService:
         engagement_trend = await self._get_daily_trend(organization_id, "engagement", thirty_days_ago)
         revenue_trend = await self._get_daily_trend(organization_id, "revenue", thirty_days_ago)
         segment_distribution = await self._get_segment_distribution(organization_id)
+
+        churn_alerts = await self._get_churn_alerts(organization_id, limit=5)
 
         stats = DashboardStats(
             total_customers=customer_count,
@@ -85,7 +88,7 @@ class AnalyticsService:
             segment_distribution=segment_distribution,
             top_segments=top_segments,
             recent_activity=[],
-            churn_alerts=[],
+            churn_alerts=churn_alerts,
         )
 
         if self.redis:
@@ -145,7 +148,7 @@ class AnalyticsService:
         else:
             stmt = stmt.group_by("period").order_by("period")
 
-        result = await self.session.execute(stmt)
+        result = await self.repo.session.execute(stmt)
         rows = result.all()
 
         data = []
@@ -177,7 +180,7 @@ class AnalyticsService:
         )
 
     async def get_segment_analytics(self, organization_id: uuid.UUID, segment_id: uuid.UUID) -> SegmentAnalyticsResponse:
-        segment = await self.session.get(CustomerSegment, segment_id)
+        segment = await self.repo.session.get(CustomerSegment, segment_id)
         if not segment or segment.organization_id != organization_id:
             raise NotFoundException("Segment", str(segment_id))
 
@@ -185,7 +188,7 @@ class AnalyticsService:
             CustomerSegmentMapping.segment_id == segment_id,
             CustomerSegmentMapping.organization_id == organization_id,
         )
-        mapping_result = await self.session.execute(mapping_stmt)
+        mapping_result = await self.repo.session.execute(mapping_stmt)
         customer_count = mapping_result.scalar() or 0
 
         avg_engagement = await self._segment_avg_twin_field(
@@ -212,7 +215,7 @@ class AnalyticsService:
                 ),
             )
         )
-        churn_result = await self.session.execute(churn_stmt)
+        churn_result = await self.repo.session.execute(churn_stmt)
         at_risk = churn_result.scalar() or 0
         churn_rate = round(at_risk / customer_count, 4) if customer_count > 0 else 0
 
@@ -225,7 +228,7 @@ class AnalyticsService:
             CustomerSegmentMapping.organization_id == organization_id,
             CustomerSegmentMapping.assigned_at < previous_period,
         )
-        previous_result = await self.session.execute(previous_stmt)
+        previous_result = await self.repo.session.execute(previous_stmt)
         previous_customers = previous_result.scalar() or 0
         growth_rate = round((current_count - previous_customers) / max(previous_customers, 1), 4)
 
@@ -270,7 +273,7 @@ class AnalyticsService:
             .group_by(text("period"))
             .order_by(text("period"))
         )
-        result = await self.session.execute(stmt)
+        result = await self.repo.session.execute(stmt)
         rows = result.all()
 
         total_revenue = sum(r.revenue for r in rows)
@@ -309,7 +312,7 @@ class AnalyticsService:
             .group_by(text("date"))
             .order_by(text("date"))
         )
-        result = await self.session.execute(stmt)
+        result = await self.repo.session.execute(stmt)
         rows = result.all()
 
         return [
@@ -339,7 +342,7 @@ class AnalyticsService:
                 ),
             )
         )
-        churned_result = await self.session.execute(churned_stmt)
+        churned_result = await self.repo.session.execute(churned_stmt)
         churned_count = churned_result.scalar() or 0
 
         at_risk_stmt = (
@@ -352,7 +355,7 @@ class AnalyticsService:
                 CustomerTwin.staleness_score <= 0.8,
             )
         )
-        at_risk_result = await self.session.execute(at_risk_stmt)
+        at_risk_result = await self.repo.session.execute(at_risk_stmt)
         at_risk_count = at_risk_result.scalar() or 0
 
         healthy_stmt = (
@@ -363,14 +366,14 @@ class AnalyticsService:
                 CustomerTwin.engagement_score >= 0.3,
             )
         )
-        healthy_result = await self.session.execute(healthy_stmt)
+        healthy_result = await self.repo.session.execute(healthy_stmt)
         healthy_count = healthy_result.scalar() or 0
 
         churn_by_segment = []
         segments_stmt = select(CustomerSegment).where(
             CustomerSegment.organization_id == organization_id,
         )
-        segments_result = await self.session.execute(segments_stmt)
+        segments_result = await self.repo.session.execute(segments_stmt)
         segments = list(segments_result.scalars().all())
 
         for segment in segments:
@@ -417,7 +420,7 @@ class AnalyticsService:
                     Customer.created_at >= date_from,
                     Customer.created_at <= date_to,
                 )
-            result = await self.session.execute(stmt)
+            result = await self.repo.session.execute(stmt)
             customers = list(result.scalars().all())
             for c in customers:
                 writer.writerow([
@@ -444,7 +447,7 @@ class AnalyticsService:
                     CustomerEvent.event_timestamp <= date_to,
                 )
             stmt = stmt.order_by(CustomerEvent.event_timestamp.desc())
-            result = await self.session.execute(stmt)
+            result = await self.repo.session.execute(stmt)
             events = list(result.scalars().all())
             for ev in events:
                 writer.writerow([
@@ -462,7 +465,7 @@ class AnalyticsService:
             stmt = select(CustomerTwin).where(
                 CustomerTwin.organization_id == organization_id,
             )
-            result = await self.session.execute(stmt)
+            result = await self.repo.session.execute(stmt)
             twins = list(result.scalars().all())
             for t in twins:
                 writer.writerow([
@@ -482,7 +485,7 @@ class AnalyticsService:
             Customer.organization_id == organization_id,
             Customer.is_active.is_(True),
         )
-        result = await self.session.execute(stmt)
+        result = await self.repo.session.execute(stmt)
         return result.scalar() or 0
 
     async def _count_events_since(self, organization_id: uuid.UUID, since: datetime) -> int:
@@ -490,7 +493,7 @@ class AnalyticsService:
             CustomerEvent.organization_id == organization_id,
             CustomerEvent.event_timestamp >= since,
         )
-        result = await self.session.execute(stmt)
+        result = await self.repo.session.execute(stmt)
         return result.scalar() or 0
 
     async def _count_active_campaigns(self, organization_id: uuid.UUID) -> int:
@@ -498,7 +501,7 @@ class AnalyticsService:
             Campaign.organization_id == organization_id,
             Campaign.status == "active",
         )
-        result = await self.session.execute(stmt)
+        result = await self.repo.session.execute(stmt)
         return result.scalar() or 0
 
     async def _avg_twin_field(self, organization_id: uuid.UUID, field: Any) -> float | None:
@@ -506,7 +509,7 @@ class AnalyticsService:
             CustomerTwin.organization_id == organization_id,
             field.isnot(None),
         )
-        result = await self.session.execute(stmt)
+        result = await self.repo.session.execute(stmt)
         val = result.scalar()
         return round(float(val), 4) if val is not None else None
 
@@ -520,7 +523,7 @@ class AnalyticsService:
                 field.isnot(None),
             )
         )
-        result = await self.session.execute(stmt)
+        result = await self.repo.session.execute(stmt)
         val = result.scalar()
         return round(float(val), 4) if val is not None else None
 
@@ -533,7 +536,7 @@ class AnalyticsService:
                 CustomerTwin.organization_id == organization_id,
             )
         )
-        result = await self.session.execute(stmt)
+        result = await self.repo.session.execute(stmt)
         return float(result.scalar() or 0)
 
     async def _sum_event_value_since(self, organization_id: uuid.UUID, event_type: str, since: datetime) -> float:
@@ -542,7 +545,7 @@ class AnalyticsService:
             CustomerEvent.event_type == event_type,
             CustomerEvent.event_timestamp >= since,
         )
-        result = await self.session.execute(stmt)
+        result = await self.repo.session.execute(stmt)
         return float(result.scalar() or 0)
 
     async def _compute_churn_rate(self, organization_id: uuid.UUID, since: datetime) -> float | None:
@@ -564,7 +567,7 @@ class AnalyticsService:
                 ),
             )
         )
-        result = await self.session.execute(churned_stmt)
+        result = await self.repo.session.execute(churned_stmt)
         churned = result.scalar() or 0
         return round(churned / total, 4)
 
@@ -584,7 +587,7 @@ class AnalyticsService:
             .order_by(text("count desc"))
             .limit(limit)
         )
-        result = await self.session.execute(stmt)
+        result = await self.repo.session.execute(stmt)
         rows = result.all()
         return [
             {
@@ -628,7 +631,7 @@ class AnalyticsService:
         else:
             return []
 
-        result = await self.session.execute(stmt)
+        result = await self.repo.session.execute(stmt)
         rows = result.all()
         return [
             {
@@ -652,7 +655,7 @@ class AnalyticsService:
             .group_by(CustomerSegment.name)
             .order_by(text("count desc"))
         )
-        result = await self.session.execute(stmt)
+        result = await self.repo.session.execute(stmt)
         rows = result.all()
         return [
             {"name": r.name, "value": int(r.count)}
@@ -664,7 +667,7 @@ class AnalyticsService:
             CustomerSegmentMapping.segment_id == segment_id,
             CustomerSegmentMapping.organization_id == organization_id,
         )
-        result = await self.session.execute(stmt)
+        result = await self.repo.session.execute(stmt)
         return result.scalar() or 0
 
     async def _segment_at_risk_count(self, segment_id: uuid.UUID, organization_id: uuid.UUID) -> int:
@@ -680,7 +683,7 @@ class AnalyticsService:
                 ),
             )
         )
-        result = await self.session.execute(stmt)
+        result = await self.repo.session.execute(stmt)
         return result.scalar() or 0
 
     async def _segment_top_interests(self, segment_id: uuid.UUID, organization_id: uuid.UUID) -> list[dict]:
@@ -702,13 +705,43 @@ class AnalyticsService:
             .order_by(text("count desc"))
             .limit(10)
         )
-        result = await self.session.execute(stmt)
+        result = await self.repo.session.execute(stmt)
         rows = result.all()
         return [
             {
                 "category": r.category,
                 "customer_count": int(r.count),
                 "avg_affinity": round(float(r.avg_affinity or 0), 4),
+            }
+            for r in rows
+        ]
+
+    async def _get_churn_alerts(self, organization_id: uuid.UUID, limit: int = 5) -> list[dict[str, Any]]:
+        from app.models.customer import Customer, CustomerTwin
+        from sqlalchemy import select, desc
+
+        stmt = (
+            select(Customer.id, Customer.first_name, Customer.last_name, CustomerTwin.staleness_score)
+            .join(CustomerTwin, CustomerTwin.customer_id == Customer.id)
+            .where(
+                Customer.organization_id == organization_id,
+                CustomerTwin.organization_id == organization_id,
+                CustomerTwin.staleness_score > 0.5,
+                Customer.status != "churned"
+            )
+            .order_by(desc(CustomerTwin.staleness_score))
+            .limit(limit)
+        )
+        
+        result = await self.repo.session.execute(stmt)
+        rows = result.all()
+        
+        return [
+            {
+                "customer_id": str(r.id),
+                "customer_name": f"{r.first_name or ''} {r.last_name or ''}".strip() or "Unknown Customer",
+                "churn_probability": float(r.staleness_score or 0.0),
+                "reasons": ["High staleness score", "Decreasing engagement"],
             }
             for r in rows
         ]

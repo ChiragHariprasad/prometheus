@@ -6,6 +6,9 @@ from pydantic import BaseModel, ConfigDict, field_validator
 
 
 class EventCreate(BaseModel):
+    model_config = ConfigDict(populate_by_name=True)
+
+    customer_id: str | None = None
     event_type: str
     event_name: str
     event_properties: dict[str, Any] = {}

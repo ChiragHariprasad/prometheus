@@ -207,7 +207,10 @@ class CampaignService:
             if segment_ids:
                 stmt = (
                     stmt.join(CustomerSegmentMapping, CustomerSegmentMapping.customer_id == Customer.id)
-                    .where(CustomerSegmentMapping.segment_id.in_(segment_ids))
+                    .where(
+                        CustomerSegmentMapping.segment_id.in_(segment_ids),
+                        CustomerSegmentMapping.organization_id == campaign.organization_id,
+                    )
                 )
 
         if campaign.target_customers:
@@ -250,29 +253,30 @@ class CampaignService:
     async def _distribute_to_targets(self, campaign: Campaign, customers: list[Customer]) -> int:
         channel = campaign.channel
         distributed = 0
+        customer_ids = [c.id for c in customers]
 
-        for customer in customers:
-            twin_stmt = select(CustomerTwin).where(
-                CustomerTwin.customer_id == customer.id,
-                CustomerTwin.organization_id == campaign.organization_id,
-            )
-            twin_result = await self.session.execute(twin_stmt)
-            twin = twin_result.scalar_one_or_none()
+        twin_stmt = select(CustomerTwin).where(
+            CustomerTwin.customer_id.in_(customer_ids),
+            CustomerTwin.organization_id == campaign.organization_id,
+        )
+        twin_result = await self.session.execute(twin_stmt)
+        twin_map = {t.customer_id: t for t in twin_result.scalars().all()}
 
-            target_stmt = select(CampaignTarget).where(
-                CampaignTarget.campaign_id == campaign.id,
-                CampaignTarget.customer_id == customer.id,
-                CampaignTarget.organization_id == campaign.organization_id,
-            )
-            target_result = await self.session.execute(target_stmt)
-            target = target_result.scalar_one_or_none()
+        target_stmt = select(CampaignTarget).where(
+            CampaignTarget.campaign_id == campaign.id,
+            CampaignTarget.customer_id.in_(customer_ids),
+            CampaignTarget.organization_id == campaign.organization_id,
+        )
+        target_result = await self.session.execute(target_stmt)
+        targets = list(target_result.scalars().all())
 
-            if target:
-                target.status = "delivered"
-                target.delivered_at = datetime.now(timezone.utc)
-                if twin:
-                    target.engagement_score = twin.engagement_score
-                distributed += 1
+        for target in targets:
+            target.status = "delivered"
+            target.delivered_at = datetime.now(timezone.utc)
+            twin = twin_map.get(target.customer_id)
+            if twin:
+                target.engagement_score = twin.engagement_score
+            distributed += 1
 
         await self.session.flush()
         return distributed

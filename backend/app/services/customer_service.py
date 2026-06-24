@@ -9,7 +9,7 @@ from app.core.exceptions import NotFoundException, ConflictException, Validation
 from app.core.logging import logger
 from app.core.redis import RedisClient
 from app.models.customer import (
-    Customer, CustomerProfile,
+    Customer, CustomerProfile, CustomerEmbedding,
     CustomerSegment, CustomerSegmentMapping, CustomerInterest,
     CustomerPreference,
 )
@@ -65,6 +65,8 @@ class CustomerService:
                 raise ConflictException(f"Customer with external_id {external_id} already exists")
 
         customer = await self.repo.create(data, organization_id=organization_id)
+        if self.redis:
+            await self.redis.delete(f"customer:{customer.id}", f"org:{organization_id}:customers")
         logger.info("Customer created", extra={"customer_id": str(customer.id), "org_id": str(organization_id)})
         return customer
 
@@ -72,6 +74,8 @@ class CustomerService:
         customer = await self.repo.update(customer_id, data, organization_id)
         if not customer:
             raise NotFoundException("Customer", str(customer_id))
+        if self.redis:
+            await self.redis.delete(f"customer:{customer_id}", f"org:{organization_id}:customers")
         logger.info("Customer updated", extra={"customer_id": str(customer_id), "org_id": str(organization_id)})
         return customer
 
@@ -80,8 +84,27 @@ class CustomerService:
         if not customer:
             raise NotFoundException("Customer", str(customer_id))
         result = await self.repo.delete(customer_id, soft=soft, organization_id=organization_id)
+        if self.redis:
+            await self.redis.delete(f"customer:{customer_id}", f"org:{organization_id}:customers")
         logger.info("Customer deleted", extra={"customer_id": str(customer_id), "soft": soft})
         return result
+
+    async def batch_create(self, customers: list[CustomerCreate | dict], organization_id: uuid.UUID) -> int:
+        count = 0
+        for data in customers:
+            try:
+                await self.create_customer(organization_id, data)
+                count += 1
+            except Exception as e:
+                logger.error("Failed to batch create customer", extra={"error": str(e), "org_id": str(organization_id)})
+        return count
+
+    async def get_profile(self, customer_id: uuid.UUID, organization_id: uuid.UUID | None = None) -> CustomerProfile | None:
+        query = select(CustomerProfile).where(CustomerProfile.customer_id == customer_id)
+        if organization_id:
+            query = query.where(CustomerProfile.organization_id == organization_id)
+        result = await self.session.execute(query)
+        return result.scalar_one_or_none()
 
     async def merge_customers(self, primary_id: uuid.UUID, secondary_id: uuid.UUID, organization_id: uuid.UUID) -> Customer:
         primary = await self.repo.get(primary_id, organization_id)
@@ -94,53 +117,75 @@ class CustomerService:
         if primary.id == secondary.id:
             raise ValidationException("Cannot merge a customer with itself")
 
-        if not primary.email and secondary.email:
-            primary.email = secondary.email
-        if not primary.phone and secondary.phone:
-            primary.phone = secondary.phone
-        if not primary.external_id and secondary.external_id:
-            primary.external_id = secondary.external_id
-        if not primary.first_name and secondary.first_name:
-            primary.first_name = secondary.first_name
-        if not primary.last_name and secondary.last_name:
-            primary.last_name = secondary.last_name
+        savepoint = await self.session.begin_nested()
+        try:
+            if not primary.email and secondary.email:
+                primary.email = secondary.email
+            if not primary.phone and secondary.phone:
+                primary.phone = secondary.phone
+            if not primary.external_id and secondary.external_id:
+                primary.external_id = secondary.external_id
+            if not primary.first_name and secondary.first_name:
+                primary.first_name = secondary.first_name
+            if not primary.last_name and secondary.last_name:
+                primary.last_name = secondary.last_name
 
-        existing_tags = set(primary.tags or [])
-        existing_tags.update(secondary.tags or [])
-        primary.tags = list(existing_tags)
+            existing_tags = set(primary.tags or [])
+            existing_tags.update(secondary.tags or [])
+            primary.tags = list(existing_tags)
 
-        if secondary.location:
-            if primary.location:
-                primary.location = {**secondary.location, **primary.location}
-            else:
-                primary.location = secondary.location
+            if secondary.location:
+                if primary.location:
+                    primary.location = {**secondary.location, **primary.location}
+                else:
+                    primary.location = secondary.location
 
-        if secondary.custom_attributes:
-            if primary.custom_attributes:
-                primary.custom_attributes = {**secondary.custom_attributes, **primary.custom_attributes}
-            else:
-                primary.custom_attributes = secondary.custom_attributes
+            if secondary.custom_attributes:
+                if primary.custom_attributes:
+                    primary.custom_attributes = {**secondary.custom_attributes, **primary.custom_attributes}
+                else:
+                    primary.custom_attributes = secondary.custom_attributes
 
-        tables_to_reassign = [
-            CustomerEvent, CustomerTwin, CustomerProfile,
-            CustomerSegmentMapping, CustomerInterest, CustomerPreference,
-            CustomerPrediction,
-        ]
-        for model_cls in tables_to_reassign:
-            stmt = (
-                select(model_cls)
-                .where(
-                    model_cls.customer_id == secondary_id,
-                    model_cls.organization_id == organization_id,
+            one_to_one_models = {CustomerProfile, CustomerTwin, CustomerPreference, CustomerEmbedding}
+            many_to_one_models = {CustomerEvent, CustomerSegmentMapping, CustomerInterest, CustomerPrediction}
+            tables_to_reassign = list(one_to_one_models | many_to_one_models)
+
+            for model_cls in tables_to_reassign:
+                stmt = (
+                    select(model_cls)
+                    .where(
+                        model_cls.customer_id == secondary_id,
+                        model_cls.organization_id == organization_id,
+                    )
                 )
-            )
-            result = await self.session.execute(stmt)
-            for obj in result.scalars().all():
-                obj.customer_id = primary_id
+                result = await self.session.execute(stmt)
+                rows = list(result.scalars().all())
+                if not rows:
+                    continue
 
-        secondary.is_active = False
-        await self.session.flush()
-        await self.session.refresh(primary)
+                if model_cls in one_to_one_models:
+                    delete_primary = (
+                        select(model_cls)
+                        .where(
+                            model_cls.customer_id == primary_id,
+                            model_cls.organization_id == organization_id,
+                        )
+                    )
+                    existing = (await self.session.execute(delete_primary)).scalar_one_or_none()
+                    if existing:
+                        await self.session.delete(existing)
+
+                for obj in rows:
+                    obj.customer_id = primary_id
+
+            secondary.is_active = False
+            await self.session.flush()
+            await self.session.refresh(primary)
+
+            await savepoint.commit()
+        except Exception:
+            await savepoint.rollback()
+            raise
 
         logger.info("Customers merged",
                     extra={"primary_id": str(primary_id), "secondary_id": str(secondary_id)})

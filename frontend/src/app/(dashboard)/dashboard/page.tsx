@@ -73,7 +73,7 @@ export default function DashboardPage() {
         />
         <StatsCard
           label="Avg Engagement"
-          value={`${stats.avg_engagement}%`}
+          value={`${(stats.avg_engagement * 100).toFixed(1)}%`}
           trend={3}
           trendLabel="vs last week"
           icon={<TrendingUp className="h-4 w-4 text-white" />}
@@ -92,7 +92,7 @@ export default function DashboardPage() {
         />
         <StatsCard
           label="Churn Rate"
-          value={`${stats.churn_rate}%`}
+          value={`${(stats.churn_rate * 100).toFixed(1)}%`}
           trend={-2}
           trendLabel="vs last month"
           icon={<AlertTriangle className="h-4 w-4 text-white" />}

@@ -141,19 +141,19 @@ export function ForecastChart({ simulation }: ForecastChartProps) {
             <div>
               <p className="text-xs text-muted-foreground">Expected</p>
               <p className="text-lg font-bold text-primary">
-                ${results.expected_revenue.toLocaleString()}
+                ${results.expected_outcomes?.expected_revenue?.toLocaleString() || 0}
               </p>
             </div>
             <div>
               <p className="text-xs text-muted-foreground">Best Case</p>
               <p className="text-lg font-bold text-green-600">
-                ${results.scenarios.best_case.revenue?.toLocaleString() || 0}
+                ${results.monte_carlo_distribution?.scenarios?.best_case?.revenue?.toLocaleString() || 0}
               </p>
             </div>
             <div>
               <p className="text-xs text-muted-foreground">Worst Case</p>
               <p className="text-lg font-bold text-red-600">
-                ${results.scenarios.worst_case.revenue?.toLocaleString() || 0}
+                ${results.monte_carlo_distribution?.scenarios?.worst_case?.revenue?.toLocaleString() || 0}
               </p>
             </div>
           </div>

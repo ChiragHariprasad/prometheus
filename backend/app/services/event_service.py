@@ -2,7 +2,7 @@ import uuid
 from datetime import datetime, timezone, timedelta
 from typing import Any
 
-from sqlalchemy import select, func, and_
+from sqlalchemy import select, func, and_, update
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.config import settings
@@ -15,6 +15,7 @@ from app.models.event import Event as CustomerEvent
 from app.models.twin import CustomerTwin
 from app.schemas.event import EventCreate, EventResponse
 from app.repositories.customer_repository import CustomerRepository
+from app.repositories.event_repository import EventRepository
 
 
 class EventService:
@@ -23,6 +24,7 @@ class EventService:
         self.kafka = kafka
         self.redis = redis
         self.repo = CustomerRepository(session)
+        self.event_repo = EventRepository(session)
 
     async def ingest_event(self, organization_id: uuid.UUID, event_data: EventCreate | dict, customer_id: uuid.UUID | None = None) -> EventResponse:
         if isinstance(event_data, dict):
@@ -103,8 +105,10 @@ class EventService:
         if customer_id:
             await self._update_customer_last_seen(customer_id, organization_id, event_timestamp)
 
+        if self.redis:
+            await self.redis.delete(f"dashboard:{organization_id}")
+
         await self._produce_to_kafka(organization_id, event)
-        await self.process_event(organization_id, event)
 
         logger.info("Event ingested", extra={
             "event_id": str(event.id), "event_type": event_type, "org_id": str(organization_id),
@@ -136,6 +140,9 @@ class EventService:
             event_timestamp=event.event_timestamp,
             ingested_at=event.ingested_at,
         )
+
+    async def batch_ingest(self, events: list[EventCreate | dict], organization_id: uuid.UUID) -> int:
+        return await self.ingest_batch(organization_id, events)
 
     async def ingest_batch(self, organization_id: uuid.UUID, events: list[EventCreate | dict]) -> int:
         count = 0
@@ -178,8 +185,11 @@ class EventService:
                     target.revenue = (target.revenue or 0) + (event.value or 0)
                     target.status = "converted"
 
-            event.processed = True
-            await self.session.flush()
+            await self.session.execute(
+                update(CustomerEvent)
+                .where(CustomerEvent.id == event.id, CustomerEvent.processed == False)
+                .values(processed=True)
+            )
 
         except Exception as e:
             logger.error("Event processing failed", extra={
@@ -188,48 +198,27 @@ class EventService:
             })
 
     async def get_event_summary(self, organization_id: uuid.UUID, date_from: datetime, date_to: datetime) -> dict:
-        stmt = (
-            select(
-                CustomerEvent.event_type,
-                func.count().label("count"),
-                func.sum(CustomerEvent.value).label("total_value"),
-            )
-            .where(
-                CustomerEvent.organization_id == organization_id,
-                CustomerEvent.event_timestamp >= date_from,
-                CustomerEvent.event_timestamp <= date_to,
-            )
-            .group_by(CustomerEvent.event_type)
-        )
-        result = await self.session.execute(stmt)
-        rows = result.all()
+        events = await self.event_repo.get_date_range(organization_id, date_from.date(), date_to.date())
 
-        total_events = sum(r.count for r in rows)
-        total_value = sum(r.total_value or 0 for r in rows)
-        unique_customers_stmt = (
-            select(func.count(func.distinct(CustomerEvent.customer_id)))
-            .where(
-                CustomerEvent.organization_id == organization_id,
-                CustomerEvent.event_timestamp >= date_from,
-                CustomerEvent.event_timestamp <= date_to,
-            )
-        )
-        unique_result = await self.session.execute(unique_customers_stmt)
-        unique_customers = unique_result.scalar() or 0
+        by_type: dict[str, dict] = {}
+        for e in events:
+            entry = by_type.setdefault(e.event_type, {"count": 0, "total_value": 0.0})
+            entry["count"] += 1
+            entry["total_value"] += e.value or 0
+
+        unique_customers = len({e.customer_id for e in events if e.customer_id})
+        total_events = len(events)
+        total_value = sum(e.value or 0 for e in events)
 
         return {
             "date_from": date_from.isoformat(),
             "date_to": date_to.isoformat(),
             "total_events": total_events,
-            "total_value": round(float(total_value), 2),
+            "total_value": round(total_value, 2),
             "unique_customers": unique_customers,
             "events_by_type": [
-                {
-                    "event_type": r.event_type,
-                    "count": r.count,
-                    "total_value": round(float(r.total_value or 0), 2),
-                }
-                for r in rows
+                {"event_type": etype, "count": data["count"], "total_value": round(data["total_value"], 2)}
+                for etype, data in by_type.items()
             ],
         }
 

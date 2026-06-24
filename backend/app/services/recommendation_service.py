@@ -70,11 +70,13 @@ class RecommendationService:
 
         return await self.get_personalized(organization_id, customer_id, limit=20)
 
-    async def record_feedback(self, recommendation_id: uuid.UUID, feedback_type: str) -> None:
+    async def record_feedback(self, recommendation_id: uuid.UUID, feedback_type: str, organization_id: uuid.UUID | None = None) -> None:
         if feedback_type not in ("click", "dismiss", "convert", "hide"):
             raise ValidationException(f"Invalid feedback type: {feedback_type}")
 
         stmt = select(Recommendation).where(Recommendation.id == recommendation_id)
+        if organization_id:
+            stmt = stmt.where(Recommendation.organization_id == organization_id)
         result = await self.session.execute(stmt)
         rec = result.scalar_one_or_none()
         if not rec:

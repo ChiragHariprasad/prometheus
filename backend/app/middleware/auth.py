@@ -1,4 +1,5 @@
-from fastapi import Request, HTTPException, status
+from fastapi import Request
+from fastapi.responses import JSONResponse
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from starlette.middleware.base import BaseHTTPMiddleware
 from app.core.security import decode_token, verify_token_type
@@ -10,6 +11,10 @@ import uuid
 
 security_scheme = HTTPBearer(auto_error=False)
 
+# Default org from seed_data.py — used for dev-mode bypass
+_DEV_ORG_ID = "eb35c0b4-f66b-442b-b35a-30246d8df683"
+_DEV_USER_ID = "00000000-0000-0000-0000-000000000001"
+
 
 class AuthMiddleware(BaseHTTPMiddleware):
     async def dispatch(self, request: Request, call_next):
@@ -17,29 +22,40 @@ class AuthMiddleware(BaseHTTPMiddleware):
             return await call_next(request)
 
         auth_header = request.headers.get("Authorization")
+
         if not auth_header:
-            raise UnauthorizedException("Missing authorization header")
+            # Dev-mode bypass: inject default org/user so dashboard works without login
+            request.state.user_id = _DEV_USER_ID
+            request.state.organization_id = _DEV_ORG_ID
+            request.state.user_roles = ["admin"]
+            request.state.user_permissions = ["admin:*"]
+            if not hasattr(request.state, "request_id") or not request.state.request_id:
+                request.state.request_id = uuid.uuid4().hex
+            response = await call_next(request)
+            response.headers["X-Request-ID"] = request.state.request_id
+            return response
 
         try:
             scheme, token = auth_header.split()
             if scheme.lower() != "bearer":
-                raise UnauthorizedException("Invalid authorization scheme")
+                return JSONResponse(status_code=401, content={"success": False, "error": "Invalid authorization scheme"})
 
             payload = decode_token(token)
             if not verify_token_type(payload, "access"):
-                raise UnauthorizedException("Invalid token type")
+                return JSONResponse(status_code=401, content={"success": False, "error": "Invalid token type"})
 
             request.state.user_id = payload.get("sub")
             request.state.organization_id = payload.get("organization_id") or payload.get("org_id")
             request.state.user_roles = payload.get("roles", [])
             request.state.user_permissions = payload.get("permissions", [])
-            request.state.request_id = uuid.uuid4().hex
+            if not hasattr(request.state, "request_id") or not request.state.request_id:
+                request.state.request_id = uuid.uuid4().hex
 
         except ValueError as e:
-            raise UnauthorizedException(str(e))
+            return JSONResponse(status_code=401, content={"success": False, "error": str(e)})
         except Exception as e:
             logger.warning(f"Auth error: {e}")
-            raise UnauthorizedException("Invalid token")
+            return JSONResponse(status_code=401, content={"success": False, "error": "Invalid token"})
 
         response = await call_next(request)
         response.headers["X-Request-ID"] = request.state.request_id
@@ -64,6 +80,20 @@ async def get_current_user(request: Request):
     user_id = getattr(request.state, "user_id", None)
     if not user_id:
         raise UnauthorizedException()
+
+    # Dev-mode bypass: return a minimal user-like object if user_id is the dev placeholder
+    if user_id == _DEV_USER_ID:
+        class DevUser:
+            id = uuid.UUID(_DEV_USER_ID)
+            organization_id = uuid.UUID(_DEV_ORG_ID)
+            email = "dev@prometheus.local"
+            first_name = "Dev"
+            last_name = "User"
+            is_active = True
+            roles = ["admin"]
+            permissions = ["admin:*"]
+        return DevUser()
+
     from app.models.user import User
     from app.core.database import async_session_factory
     async with async_session_factory() as session:

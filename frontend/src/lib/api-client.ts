@@ -29,41 +29,78 @@ export interface AuthResponse {
 
 export interface Customer {
   id: string;
-  email: string;
-  name: string;
+  organization_id: string;
+  email?: string;
+  external_id?: string;
+  first_name?: string;
+  last_name?: string;
+  name?: string;
   phone?: string;
   tags: string[];
   segments: string[];
   engagement_score: number;
   loyalty_score: number;
-  churn_risk: "low" | "medium" | "high";
+  churn_risk: string;
   ltv: number;
-  last_activity: string;
+  last_activity: string | null;
+  timezone: string;
+  locale: string;
+  is_active: boolean;
+  source: string | null;
+  first_seen_at: string | null;
+  last_seen_at: string | null;
   created_at: string;
   updated_at: string;
-  preferences?: Record<string, unknown>;
-  metadata?: Record<string, unknown>;
 }
 
 export interface CustomerCreate {
-  email: string;
-  name: string;
+  email?: string;
+  external_id?: string;
+  first_name?: string;
+  last_name?: string;
   phone?: string;
+  timezone?: string;
+  locale?: string;
   tags?: string[];
-  preferences?: Record<string, unknown>;
-  metadata?: Record<string, unknown>;
+  location?: Record<string, unknown>;
+  custom_attributes?: Record<string, unknown>;
+  consent_marketing?: boolean;
+  consent_analytics?: boolean;
+  consent_profiling?: boolean;
 }
 
-export interface CustomerUpdate extends Partial<CustomerCreate> {}
+export interface CustomerUpdate {
+  email?: string;
+  external_id?: string;
+  first_name?: string;
+  last_name?: string;
+  phone?: string;
+  timezone?: string;
+  locale?: string;
+  tags?: string[];
+  location?: Record<string, unknown>;
+  custom_attributes?: Record<string, unknown>;
+  is_active?: boolean;
+  consent_marketing?: boolean;
+  consent_analytics?: boolean;
+  consent_profiling?: boolean;
+}
 
 export interface CustomerEvent {
   id: string;
-  customer_id: string;
+  organization_id: string;
+  customer_id: string | null;
   event_type: string;
-  properties: Record<string, unknown>;
-  channel: string;
-  timestamp: string;
-  created_at: string;
+  event_name: string;
+  event_properties: Record<string, unknown>;
+  channel: string | null;
+  source: string | null;
+  campaign_id: string | null;
+  value: number | null;
+  currency: string | null;
+  processed: boolean;
+  event_timestamp: string | null;
+  ingested_at: string | null;
 }
 
 export interface CustomerSegment {
@@ -76,17 +113,21 @@ export interface CustomerSegment {
 }
 
 export interface Twin {
-  id: string;
   customer_id: string;
-  engagement_score: number;
-  loyalty_score: number;
-  sentiment_score: number;
-  churn_probability: number;
-  interests: Array<{ name: string; weight: number }>;
-  channel_affinity: Record<string, number>;
-  sentiment_trend: Array<{ date: string; score: number }>;
-  last_rebuilt: string;
-  created_at: string;
+  organization_id: string;
+  status: string | null;
+  version: number | null;
+  engagement_score: number | null;
+  loyalty_score: number | null;
+  lifetime_value: number | null;
+  sentiment_trend: number[];
+  sentiment_score: number | null;
+  churn_probability: number | null;
+  channel_affinity: { email: number; sms: number; push: number; in_app: number };
+  confidence_score: number | null;
+  staleness_score: number | null;
+  built_at: string | null;
+  updated_at: string | null;
 }
 
 export interface TwinSummary {
@@ -94,8 +135,8 @@ export interface TwinSummary {
   avg_engagement: number;
   avg_loyalty: number;
   avg_sentiment: number;
-  churn_risk_distribution: { low: number; medium: number; high: number };
-  top_interests: Array<{ name: string; count: number }>;
+  churn_risk_distribution: Record<string, number>;
+  top_interests: Array<Record<string, unknown>>;
 }
 
 export interface Campaign {
@@ -154,15 +195,33 @@ export interface Simulation {
   };
   status: "draft" | "running" | "completed" | "failed";
   results?: {
-    expected_revenue: number;
-    conversion_rate: number;
-    confidence_interval: { lower: number; upper: number };
-    scenarios: {
-      best_case: Record<string, number>;
-      worst_case: Record<string, number>;
-      most_likely: Record<string, number>;
+    aggregated_metrics: {
+      mean_revenue: number;
+      mean_conversion_rate: number;
+      sensitivity: Array<{ parameter: string; impact: number }>;
     };
-    sensitivity: Array<{ variable: string; impact: number }>;
+    expected_outcomes: {
+      expected_revenue: number;
+      expected_conversions: number;
+      expected_open_rate: number;
+      expected_click_rate: number;
+      expected_roi: number;
+      expected_cost: number;
+      expected_profit: number;
+    };
+    confidence_intervals: {
+      revenue: [number, number];
+      response_rate: [number, number];
+      conversions: [number, number];
+      roi: [number, number];
+    };
+    monte_carlo_distribution: {
+      scenarios: {
+        best_case: Record<string, number>;
+        worst_case: Record<string, number>;
+        most_likely: Record<string, number>;
+      };
+    };
     risk_assessment: { level: string; factors: string[] };
   };
   forecast?: {
@@ -247,9 +306,11 @@ export interface Segment {
   id: string;
   name: string;
   description: string;
-  criteria: Record<string, unknown>;
+  rules: Record<string, unknown>;
   customer_count: number;
-  computed: boolean;
+  is_dynamic: boolean;
+  source: string | null;
+  is_active: boolean;
   created_at: string;
   updated_at: string;
 }
@@ -409,11 +470,19 @@ class ApiClient {
     return response.data;
   }
 
-  async getTwinPredictions(customerId: string): Promise<{
-    churn: { probability: number; timeframe: string; factors: string[] };
-    ltv: { predicted: number; range: [number, number]; confidence: number };
-    next_best_action: { action: string; expected_impact: number };
-  }> {
+  async getTwinPredictions(customerId: string): Promise<Array<{
+    id: string;
+    customer_id: string;
+    prediction_type: string;
+    prediction_value: number;
+    prediction_probability: number | null;
+    prediction_label: string | null;
+    prediction_explanation: Record<string, unknown>;
+    confidence_score: number | null;
+    model_version: string;
+    model_name: string;
+    created_at: string | null;
+  }>> {
     const response = await api.get(`/twins/${customerId}/predictions`);
     return response.data;
   }
@@ -472,7 +541,20 @@ class ApiClient {
     }>;
   }> {
     const response = await api.get(`/campaigns/${id}/results`);
-    return response.data;
+    const result = response.data?.data ?? response.data;
+    return {
+      metrics: {
+        sent: result.total_targeted ?? 0,
+        delivered: result.total_delivered ?? 0,
+        opened: result.total_opened ?? 0,
+        clicked: result.total_clicked ?? 0,
+        converted: result.total_converted ?? 0,
+        revenue: result.total_revenue ?? 0,
+        roi: result.total_roi ?? 0,
+      },
+      timeline: result.timeline ?? [],
+      ab_results: result.ab_test_results ?? result.ab_results,
+    };
   }
 
   // Simulations
@@ -513,11 +595,19 @@ class ApiClient {
   async ingestEvent(data: {
     customer_id: string;
     event_type: string;
-    properties: Record<string, unknown>;
-    channel: string;
-    timestamp?: string;
+    event_name?: string;
+    event_properties?: Record<string, unknown>;
+    channel?: string;
+    event_timestamp?: string;
   }): Promise<CustomerEvent> {
-    const response = await api.post("/events/ingest", data);
+    const response = await api.post("/events", {
+      customer_id: data.customer_id,
+      event_type: data.event_type,
+      event_name: data.event_name ?? data.event_type,
+      event_properties: data.event_properties ?? {},
+      channel: data.channel,
+      event_timestamp: data.event_timestamp,
+    });
     return response.data;
   }
 
@@ -525,12 +615,22 @@ class ApiClient {
     events: Array<{
       customer_id: string;
       event_type: string;
-      properties: Record<string, unknown>;
-      channel: string;
-      timestamp?: string;
+      event_name?: string;
+      event_properties?: Record<string, unknown>;
+      channel?: string;
+      event_timestamp?: string;
     }>;
   }): Promise<{ ingested: number }> {
-    const response = await api.post("/events/ingest-batch", data);
+    const response = await api.post("/events/batch", {
+      events: data.events.map(e => ({
+        customer_id: e.customer_id,
+        event_type: e.event_type,
+        event_name: e.event_name ?? e.event_type,
+        event_properties: e.event_properties ?? {},
+        channel: e.channel,
+        event_timestamp: e.event_timestamp,
+      })),
+    });
     return response.data;
   }
 

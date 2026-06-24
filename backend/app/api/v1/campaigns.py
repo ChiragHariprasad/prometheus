@@ -96,7 +96,7 @@ async def create_campaign(
 ):
     campaign = Campaign(organization_id=org_id, **payload.model_dump())
     session.add(campaign)
-    await session.commit()
+
     await session.refresh(campaign)
     return APIResponse(data=CampaignResponse.model_validate(campaign))
 
@@ -132,7 +132,7 @@ async def update_campaign(
 
     for field, value in payload.model_dump(exclude_unset=True).items():
         setattr(campaign, field, value)
-    await session.commit()
+
     await session.refresh(campaign)
     return CampaignResponse.model_validate(campaign)
 
@@ -151,7 +151,7 @@ async def delete_campaign(
         raise NotFoundException("Campaign not found")
 
     campaign.status = "cancelled"
-    await session.commit()
+
     return APIResponse(message="Campaign deleted successfully")
 
 
@@ -187,7 +187,7 @@ async def pause_campaign(
         raise NotFoundException("Campaign not found")
 
     campaign.status = "paused"
-    await session.commit()
+
     return APIResponse(message="Campaign paused successfully")
 
 
@@ -205,7 +205,7 @@ async def cancel_campaign(
         raise NotFoundException("Campaign not found")
 
     campaign.status = "cancelled"
-    await session.commit()
+
     return APIResponse(message="Campaign cancelled successfully")
 
 

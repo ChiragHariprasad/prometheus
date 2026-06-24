@@ -1,5 +1,6 @@
 import uuid
 import secrets
+import pyotp
 from datetime import datetime, timedelta, timezone
 
 from sqlalchemy import select, func

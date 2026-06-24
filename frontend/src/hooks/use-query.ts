@@ -142,6 +142,7 @@ export function useRunSimulation() {
     mutationFn: (id: string) => apiClient.runSimulation(id),
     onSuccess: (_, id) => {
       queryClient.invalidateQueries({ queryKey: ["simulation", id] });
+      queryClient.invalidateQueries({ queryKey: ["simulations"] });
     },
   });
 }

@@ -80,7 +80,7 @@ async def create_user(
         )
         user.roles = role_query.scalars().all()
 
-    await session.commit()
+
     await session.refresh(user)
     return UserResponse.model_validate(user)
 
@@ -124,7 +124,7 @@ async def update_user(
         )
         user.roles = role_query.scalars().all()
 
-    await session.commit()
+
     await session.refresh(user)
     return UserResponse.model_validate(user)
 
@@ -143,7 +143,7 @@ async def deactivate_user(
         raise NotFoundException("User not found")
 
     user.is_active = False
-    await session.commit()
+
     return APIResponse(message="User deactivated successfully")
 
 
@@ -173,7 +173,7 @@ async def create_role(
 
     role = Role(organization_id=org_id, **payload.model_dump())
     session.add(role)
-    await session.commit()
+
     await session.refresh(role)
     return RoleResponse.model_validate(role)
 
@@ -194,7 +194,7 @@ async def update_role(
 
     for field, value in payload.model_dump().items():
         setattr(role, field, value)
-    await session.commit()
+
     await session.refresh(role)
     return RoleResponse.model_validate(role)
 
@@ -213,7 +213,7 @@ async def delete_role(
         raise NotFoundException("Role not found")
 
     await session.delete(role)
-    await session.commit()
+
     return APIResponse(message="Role deleted successfully")
 
 
@@ -236,6 +236,6 @@ async def assign_user_roles(
     )
     roles = role_query.scalars().all()
     user.roles = roles
-    await session.commit()
+
     await session.refresh(user)
     return UserResponse.model_validate(user)

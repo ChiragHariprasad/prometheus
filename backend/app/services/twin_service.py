@@ -46,7 +46,7 @@ class TwinService:
         twin_stmt = select(CustomerTwin).where(
             CustomerTwin.customer_id == customer_id,
             CustomerTwin.organization_id == organization_id,
-        )
+        ).with_for_update()
         twin_result = await self.session.execute(twin_stmt)
         twin = twin_result.scalar_one_or_none()
 
@@ -90,6 +90,8 @@ class TwinService:
             await self.session.flush()
             await self.session.refresh(twin)
 
+        if self.redis:
+            await self.redis.delete(f"twin:{customer_id}", f"org:{organization_id}:twins")
         logger.info("Twin rebuilt", extra={"customer_id": str(customer_id), "version": twin.version})
         return self._to_twin_response(twin, customer)
 
@@ -97,7 +99,7 @@ class TwinService:
         twin_stmt = select(CustomerTwin).where(
             CustomerTwin.customer_id == customer_id,
             CustomerTwin.organization_id == organization_id,
-        )
+        ).with_for_update()
         twin_result = await self.session.execute(twin_stmt)
         twin = twin_result.scalar_one_or_none()
 
@@ -137,11 +139,14 @@ class TwinService:
             return PerCustomerTwinSummary()
 
         risk = twin.risk_indicators or {}
+        trend = twin.sentiment_trend or []
+        sentiment_score = round(sum(trend) / len(trend), 4) if trend else None
         return PerCustomerTwinSummary(
             engagement_score=twin.engagement_score,
             loyalty_score=twin.loyalty_score,
             lifetime_value=twin.lifetime_value,
-            sentiment_trend=twin.sentiment_trend or [],
+            sentiment_trend=trend,
+            sentiment_score=sentiment_score,
             churn_probability=risk.get("churn_probability"),
             churn_risk_level=risk.get("churn_risk_level"),
             lifecycle_stage=(twin.behavior_profile or {}).get("lifecycle_stage"),
@@ -153,6 +158,25 @@ class TwinService:
             last_prediction_at=twin.last_prediction_at,
             status=twin.status,
         )
+
+    async def rebuild_stale_twins(self) -> int:
+        stmt = select(CustomerTwin).where(
+            CustomerTwin.staleness_score > settings.TWIN_STALENESS_THRESHOLD,
+            CustomerTwin.status == "built",
+        )
+        result = await self.session.execute(stmt)
+        stale_twins = list(result.scalars().all())
+        count = 0
+        for twin in stale_twins:
+            try:
+                await self.rebuild_twin(twin.organization_id, twin.customer_id)
+                count += 1
+            except Exception as e:
+                logger.warning("Failed to rebuild stale twin", extra={
+                    "customer_id": str(twin.customer_id), "error": str(e),
+                })
+        logger.info("Stale twins rebuilt", extra={"count": count})
+        return count
 
     async def get_org_summary(self, organization_id: uuid.UUID) -> TwinSummary | None:
         stmt = select(
@@ -263,8 +287,8 @@ class TwinService:
             trend.append(round(running, 4))
 
         if len(trend) > days:
-            step = len(trend) // days
-            trend = [trend[i * step] for i in range(days)]
+            step = (len(trend) - 1) / (days - 1) if days > 1 else len(trend)
+            trend = [trend[int(i * step)] for i in range(days)]
 
         return trend
 

@@ -70,9 +70,9 @@ async def create_simulation(
     session: AsyncSession = Depends(get_session),
     org_id: str = Depends(get_current_organization),
 ):
-    simulation = Simulation(organization_id=org_id, **payload.model_dump(exclude={"iterations", "time_horizon"}))
+    simulation = Simulation(organization_id=org_id, **payload.model_dump())
     session.add(simulation)
-    await session.commit()
+
     await session.refresh(simulation)
     return SimulationResponse.model_validate(simulation)
 
@@ -133,7 +133,7 @@ async def update_simulation(
 
     for field, value in payload.model_dump(exclude_unset=True).items():
         setattr(simulation, field, value)
-    await session.commit()
+
     await session.refresh(simulation)
     return SimulationResponse.model_validate(simulation)
 
@@ -155,7 +155,7 @@ async def delete_simulation(
         raise NotFoundException("Simulation not found")
 
     await session.delete(simulation)
-    await session.commit()
+
     return APIResponse(message="Simulation deleted successfully")
 
 

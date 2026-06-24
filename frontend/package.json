@@ -7,7 +7,8 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "generate-types": "openapi-typescript http://localhost:8004/openapi.json -o src/lib/generated-api.ts"
   },
   "dependencies": {
     "@radix-ui/react-dialog": "^1.1.6",
@@ -41,6 +42,7 @@
     "@types/react-dom": "^19.0.3",
     "autoprefixer": "^10.4.20",
     "postcss": "^8.5.1",
+    "openapi-typescript": "^7.6.0",
     "puppeteer": "^25.1.0",
     "puppeteer-core": "^25.1.0",
     "tailwindcss": "^3.4.17",

@@ -1,6 +1,6 @@
 import uuid
 from datetime import datetime, timezone
-from sqlalchemy import String, Text, Integer, Float, Boolean, DateTime, ForeignKey, func, PrimaryKeyConstraint, Enum as SAEnum
+from sqlalchemy import String, Text, Integer, Float, Boolean, DateTime, ForeignKey, func, PrimaryKeyConstraint, Enum as SAEnum, Index, text
 from sqlalchemy.dialects.postgresql import UUID, JSONB, INET
 from sqlalchemy.orm import Mapped, mapped_column
 from app.models.base import Base
@@ -38,6 +38,7 @@ class Event(Base):
     currency: Mapped[str | None] = mapped_column(String(3))
     processed: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
     processing_latency_ms: Mapped[int | None] = mapped_column(Integer)
+    idempotency_key: Mapped[str | None] = mapped_column(String(255))
     event_timestamp: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), nullable=False
     )
@@ -50,5 +51,6 @@ class Event(Base):
 
     __table_args__ = (
         PrimaryKeyConstraint(id, event_timestamp),
+        Index("ix_customer_events_idempotency_key", "organization_id", "idempotency_key", unique=True, postgresql_where=text("idempotency_key IS NOT NULL")),
         {"postgresql_partition_by": "RANGE (event_timestamp)"},
     )

@@ -39,6 +39,10 @@ export default function CustomerDetailPage() {
   const { data: events } = useCustomerEvents(id);
   const { data: predictions } = useTwinPredictions(id);
 
+  const churnPred = predictions?.find((p: any) => p.prediction_type === "churn_risk" || p.prediction_type === "churn");
+  const ltvPred = predictions?.find((p: any) => p.prediction_type === "ltv");
+  const nbaPred = predictions?.find((p: any) => p.prediction_type === "next_best_action" || p.prediction_type === "nba");
+
   if (customerLoading) {
     return (
       <div className="flex items-center justify-center h-64">
@@ -242,7 +246,7 @@ export default function CustomerDetailPage() {
               <div className="flex items-center justify-between">
                 <p className="text-sm text-muted-foreground">
                   Last rebuilt:{" "}
-                  {format(new Date(twin.last_rebuilt), "MMM d, yyyy HH:mm")}
+                  {twin.built_at ? format(new Date(twin.built_at), "MMM d, yyyy HH:mm") : "N/A"}
                 </p>
                 <Button variant="outline" size="sm">
                   <RefreshCw className="mr-2 h-4 w-4" />
@@ -259,7 +263,7 @@ export default function CustomerDetailPage() {
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <InterestCloud interests={twin.interests} />
+                  <InterestCloud interests={(twin as any).interests || []} />
                 </CardContent>
               </Card>
             </div>
@@ -294,7 +298,7 @@ export default function CustomerDetailPage() {
                         </span>
                       </div>
                       <p className="text-xs text-muted-foreground mt-1">
-                        {format(new Date(event.timestamp), "MMM d, yyyy HH:mm")}
+                        {event.event_timestamp ? format(new Date(event.event_timestamp), "MMM d, yyyy HH:mm") : "Unknown time"}
                       </p>
                     </div>
                   </div>
@@ -310,77 +314,83 @@ export default function CustomerDetailPage() {
         </TabsContent>
 
         <TabsContent value="predictions" className="mt-6">
-          {predictions ? (
+          {churnPred || ltvPred || nbaPred ? (
             <div className="grid gap-6 md:grid-cols-3">
-              <Card>
-                <CardHeader className="pb-2">
-                  <CardTitle className="flex items-center gap-2 text-sm font-medium text-muted-foreground">
-                    <AlertTriangle className="h-4 w-4" />
-                    Churn Prediction
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-3xl font-bold text-destructive">
-                    {(predictions.churn.probability * 100).toFixed(0)}%
-                  </p>
-                  <p className="text-sm text-muted-foreground mt-1">
-                    within {predictions.churn.timeframe}
-                  </p>
-                  <div className="mt-3 space-y-1">
-                    {predictions.churn.factors.map((factor) => (
-                      <Badge
-                        key={factor}
-                        variant="outline"
-                        className="text-[10px]"
-                      >
-                        {factor}
-                      </Badge>
-                    ))}
-                  </div>
-                </CardContent>
-              </Card>
+              {churnPred && (
+                <Card>
+                  <CardHeader className="pb-2">
+                    <CardTitle className="flex items-center gap-2 text-sm font-medium text-muted-foreground">
+                      <AlertTriangle className="h-4 w-4" />
+                      Churn Prediction
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <p className="text-3xl font-bold text-destructive">
+                      {((churnPred.prediction_probability || 0) * 100).toFixed(0)}%
+                    </p>
+                    <p className="text-sm text-muted-foreground mt-1">
+                      within {(churnPred.prediction_explanation?.timeframe as string) || "30 days"}
+                    </p>
+                    <div className="mt-3 space-y-1">
+                      {((churnPred.prediction_explanation?.factors as string[]) || []).map((factor: string) => (
+                        <Badge
+                          key={factor}
+                          variant="outline"
+                          className="text-[10px]"
+                        >
+                          {factor}
+                        </Badge>
+                      ))}
+                    </div>
+                  </CardContent>
+                </Card>
+              )}
 
-              <Card>
-                <CardHeader className="pb-2">
-                  <CardTitle className="flex items-center gap-2 text-sm font-medium text-muted-foreground">
-                    <DollarSign className="h-4 w-4" />
-                    Predicted LTV
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-3xl font-bold">
-                    ${predictions.ltv.predicted.toLocaleString()}
-                  </p>
-                  <p className="text-sm text-muted-foreground mt-1">
-                    Range: ${predictions.ltv.range[0].toLocaleString()} - $
-                    {predictions.ltv.range[1].toLocaleString()}
-                  </p>
-                  <p className="text-xs text-muted-foreground mt-1">
-                    {(predictions.ltv.confidence * 100).toFixed(0)}% confidence
-                  </p>
-                </CardContent>
-              </Card>
+              {ltvPred && (
+                <Card>
+                  <CardHeader className="pb-2">
+                    <CardTitle className="flex items-center gap-2 text-sm font-medium text-muted-foreground">
+                      <DollarSign className="h-4 w-4" />
+                      Predicted LTV
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <p className="text-3xl font-bold">
+                      ${(ltvPred.prediction_value || 0).toLocaleString()}
+                    </p>
+                    <p className="text-sm text-muted-foreground mt-1">
+                      Range: ${(ltvPred.prediction_explanation?.range as number[])?.[0]?.toLocaleString() || 0} - $
+                      {(ltvPred.prediction_explanation?.range as number[])?.[1]?.toLocaleString() || 0}
+                    </p>
+                    <p className="text-xs text-muted-foreground mt-1">
+                      {((ltvPred.confidence_score || 0) * 100).toFixed(0)}% confidence
+                    </p>
+                  </CardContent>
+                </Card>
+              )}
 
-              <Card>
-                <CardHeader className="pb-2">
-                  <CardTitle className="flex items-center gap-2 text-sm font-medium text-muted-foreground">
-                    <Target className="h-4 w-4" />
-                    Next Best Action
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-lg font-bold capitalize">
-                    {predictions.next_best_action.action.replace("_", " ")}
-                  </p>
-                  <p className="text-sm text-muted-foreground mt-1">
-                    Expected impact: +
-                    {(
-                      predictions.next_best_action.expected_impact * 100
-                    ).toFixed(0)}
-                    %
-                  </p>
-                </CardContent>
-              </Card>
+              {nbaPred && (
+                <Card>
+                  <CardHeader className="pb-2">
+                    <CardTitle className="flex items-center gap-2 text-sm font-medium text-muted-foreground">
+                      <Target className="h-4 w-4" />
+                      Next Best Action
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <p className="text-lg font-bold capitalize">
+                      {nbaPred.prediction_label?.replace("_", " ") || "Unknown"}
+                    </p>
+                    <p className="text-sm text-muted-foreground mt-1">
+                      Expected impact: +
+                      {(
+                        ((nbaPred.prediction_explanation?.expected_impact as number) || 0) * 100
+                      ).toFixed(0)}
+                      %
+                    </p>
+                  </CardContent>
+                </Card>
+              )}
             </div>
           ) : (
             <div className="text-center py-12 text-muted-foreground">

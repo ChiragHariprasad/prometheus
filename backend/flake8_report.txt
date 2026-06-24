@@ -1,0 +1,883 @@
+app/api/v1/__init__.py:1:1: F401 'app.api.v1.auth' imported but unused
+app/api/v1/__init__.py:2:1: F401 'app.api.v1.users' imported but unused
+app/api/v1/__init__.py:3:1: F401 'app.api.v1.customers' imported but unused
+app/api/v1/__init__.py:4:1: F401 'app.api.v1.twins' imported but unused
+app/api/v1/__init__.py:5:1: F401 'app.api.v1.events' imported but unused
+app/api/v1/__init__.py:6:1: F401 'app.api.v1.campaigns' imported but unused
+app/api/v1/__init__.py:7:1: F401 'app.api.v1.simulations' imported but unused
+app/api/v1/__init__.py:8:1: F401 'app.api.v1.recommendations' imported but unused
+app/api/v1/__init__.py:9:1: F401 'app.api.v1.notifications' imported but unused
+app/api/v1/__init__.py:10:1: F401 'app.api.v1.analytics' imported but unused
+app/api/v1/__init__.py:11:1: F401 'app.api.v1.segments' imported but unused
+app/api/v1/__init__.py:12:1: F401 'app.api.v1.admin' imported but unused
+app/api/v1/admin.py:5:1: F401 'app.models.user.User' imported but unused
+app/api/v1/admin.py:9:1: F401 'uuid.UUID' imported but unused
+app/api/v1/admin.py:10:1: F401 'datetime.timezone' imported but unused
+app/api/v1/admin.py:69:80: E501 line too long (96 > 79 characters)
+app/api/v1/admin.py:70:80: E501 line too long (91 > 79 characters)
+app/api/v1/admin.py:71:80: E501 line too long (91 > 79 characters)
+app/api/v1/admin.py:72:80: E501 line too long (92 > 79 characters)
+app/api/v1/admin.py:83:80: E501 line too long (145 > 79 characters)
+app/api/v1/admin.py:84:80: E501 line too long (138 > 79 characters)
+app/api/v1/admin.py:85:80: E501 line too long (133 > 79 characters)
+app/api/v1/admin.py:86:80: E501 line too long (150 > 79 characters)
+app/api/v1/admin.py:96:5: F811 redefinition of unused 'User' from line 5
+app/api/v1/admin.py:110:5: F811 redefinition of unused 'User' from line 5
+app/api/v1/admin.py:111:80: E501 line too long (81 > 79 characters)
+app/api/v1/analytics.py:1:1: F401 'fastapi.HTTPException' imported but unused
+app/api/v1/analytics.py:3:1: F401 'sqlalchemy.select' imported but unused
+app/api/v1/analytics.py:3:1: F401 'sqlalchemy.func' imported but unused
+app/api/v1/analytics.py:16:1: F401 'app.schemas.common.APIResponse' imported but unused
+app/api/v1/analytics.py:68:80: E501 line too long (105 > 79 characters)
+app/api/v1/analytics.py:69:80: E501 line too long (105 > 79 characters)
+app/api/v1/analytics.py:70:80: E501 line too long (90 > 79 characters)
+app/api/v1/analytics.py:83:80: E501 line too long (105 > 79 characters)
+app/api/v1/analytics.py:84:80: E501 line too long (105 > 79 characters)
+app/api/v1/analytics.py:104:80: E501 line too long (105 > 79 characters)
+app/api/v1/analytics.py:105:80: E501 line too long (105 > 79 characters)
+app/api/v1/analytics.py:128:80: E501 line too long (84 > 79 characters)
+app/api/v1/analytics.py:142:80: E501 line too long (88 > 79 characters)
+app/api/v1/analytics.py:151:80: E501 line too long (93 > 79 characters)
+app/api/v1/auth.py:1:1: F401 'fastapi.HTTPException' imported but unused
+app/api/v1/auth.py:20:1: F401 'app.core.exceptions.NotFoundException' imported but unused
+app/api/v1/auth.py:20:1: F401 'app.core.exceptions.ForbiddenException' imported but unused
+app/api/v1/auth.py:20:80: E501 line too long (90 > 79 characters)
+app/api/v1/auth.py:78:80: E501 line too long (84 > 79 characters)
+app/api/v1/auth.py:155:5: F821 undefined name 'logger'
+app/api/v1/campaigns.py:1:1: F401 'fastapi.HTTPException' imported but unused
+app/api/v1/campaigns.py:43:80: E501 line too long (102 > 79 characters)
+app/api/v1/campaigns.py:45:80: E501 line too long (86 > 79 characters)
+app/api/v1/campaigns.py:111:80: E501 line too long (94 > 79 characters)
+app/api/v1/campaigns.py:127:80: E501 line too long (94 > 79 characters)
+app/api/v1/campaigns.py:147:80: E501 line too long (94 > 79 characters)
+app/api/v1/campaigns.py:165:80: E501 line too long (94 > 79 characters)
+app/api/v1/campaigns.py:183:80: E501 line too long (94 > 79 characters)
+app/api/v1/campaigns.py:201:80: E501 line too long (94 > 79 characters)
+app/api/v1/campaigns.py:231:80: E501 line too long (95 > 79 characters)
+app/api/v1/campaigns.py:271:80: E501 line too long (94 > 79 characters)
+app/api/v1/customers.py:18:80: E501 line too long (119 > 79 characters)
+app/api/v1/customers.py:32:1: E305 expected 2 blank lines after class or function definition, found 1
+app/api/v1/customers.py:76:80: E501 line too long (102 > 79 characters)
+app/api/v1/customers.py:78:80: E501 line too long (86 > 79 characters)
+app/api/v1/customers.py:103:80: E501 line too long (84 > 79 characters)
+app/api/v1/customers.py:110:80: E501 line too long (81 > 79 characters)
+app/api/v1/customers.py:112:80: E501 line too long (83 > 79 characters)
+app/api/v1/customers.py:122:80: E501 line too long (86 > 79 characters)
+app/api/v1/customers.py:139:80: E501 line too long (106 > 79 characters)
+app/api/v1/customers.py:140:80: E501 line too long (97 > 79 characters)
+app/api/v1/customers.py:142:80: E501 line too long (89 > 79 characters)
+app/api/v1/customers.py:167:80: E501 line too long (99 > 79 characters)
+app/api/v1/customers.py:170:80: E501 line too long (94 > 79 characters)
+app/api/v1/customers.py:172:80: E501 line too long (94 > 79 characters)
+app/api/v1/customers.py:186:5: E303 too many blank lines (2)
+app/api/v1/customers.py:214:80: E501 line too long (94 > 79 characters)
+app/api/v1/customers.py:240:80: E501 line too long (103 > 79 characters)
+app/api/v1/customers.py:257:80: E501 line too long (102 > 79 characters)
+app/api/v1/customers.py:258:80: E501 line too long (93 > 79 characters)
+app/api/v1/customers.py:260:80: E501 line too long (85 > 79 characters)
+app/api/v1/customers.py:274:80: E501 line too long (94 > 79 characters)
+app/api/v1/customers.py:280:80: E501 line too long (81 > 79 characters)
+app/api/v1/customers.py:294:5: E303 too many blank lines (2)
+app/api/v1/customers.py:306:80: E501 line too long (94 > 79 characters)
+app/api/v1/customers.py:325:80: E501 line too long (94 > 79 characters)
+app/api/v1/customers.py:336:80: E501 line too long (84 > 79 characters)
+app/api/v1/customers.py:355:80: E501 line too long (84 > 79 characters)
+app/api/v1/customers.py:371:80: E501 line too long (82 > 79 characters)
+app/api/v1/customers.py:381:80: E501 line too long (86 > 79 characters)
+app/api/v1/customers.py:398:80: E501 line too long (85 > 79 characters)
+app/api/v1/customers.py:432:80: E501 line too long (84 > 79 characters)
+app/api/v1/customers.py:462:32: E712 comparison to True should be 'if cond is True:' or 'if cond:'
+app/api/v1/events.py:1:1: F401 'fastapi.HTTPException' imported but unused
+app/api/v1/events.py:4:1: F401 'datetime.datetime' imported but unused
+app/api/v1/events.py:6:1: F401 'app.schemas.event.EventSearchParams' imported but unused
+app/api/v1/events.py:92:80: E501 line too long (93 > 79 characters)
+app/api/v1/events.py:94:80: E501 line too long (86 > 79 characters)
+app/api/v1/events.py:119:80: E501 line too long (82 > 79 characters)
+app/api/v1/events.py:138:80: E501 line too long (90 > 79 characters)
+app/api/v1/notifications.py:1:1: F401 'fastapi.HTTPException' imported but unused
+app/api/v1/notifications.py:43:80: E501 line too long (114 > 79 characters)
+app/api/v1/notifications.py:45:80: E501 line too long (86 > 79 characters)
+app/api/v1/notifications.py:125:80: E501 line too long (85 > 79 characters)
+app/api/v1/recommendations.py:1:1: F401 'fastapi.HTTPException' imported but unused
+app/api/v1/recommendations.py:10:80: E501 line too long (91 > 79 characters)
+app/api/v1/recommendations.py:31:80: E501 line too long (82 > 79 characters)
+app/api/v1/recommendations.py:36:80: E501 line too long (86 > 79 characters)
+app/api/v1/recommendations.py:43:80: E501 line too long (120 > 79 characters)
+app/api/v1/recommendations.py:45:80: E501 line too long (86 > 79 characters)
+app/api/v1/recommendations.py:52:80: E501 line too long (81 > 79 characters)
+app/api/v1/recommendations.py:63:80: E501 line too long (87 > 79 characters)
+app/api/v1/recommendations.py:80:80: E501 line too long (80 > 79 characters)
+app/api/v1/recommendations.py:113:80: E501 line too long (80 > 79 characters)
+app/api/v1/router.py:13:80: E501 line too long (84 > 79 characters)
+app/api/v1/router.py:14:80: E501 line too long (80 > 79 characters)
+app/api/v1/router.py:16:80: E501 line too long (84 > 79 characters)
+app/api/v1/router.py:17:80: E501 line too long (90 > 79 characters)
+app/api/v1/router.py:18:80: E501 line too long (102 > 79 characters)
+app/api/v1/router.py:19:80: E501 line too long (96 > 79 characters)
+app/api/v1/router.py:20:80: E501 line too long (84 > 79 characters)
+app/api/v1/router.py:21:80: E501 line too long (81 > 79 characters)
+app/api/v1/router.py:22:80: E501 line too long (81 > 79 characters)
+app/api/v1/segments.py:1:1: F401 'fastapi.HTTPException' imported but unused
+app/api/v1/segments.py:7:80: E501 line too long (81 > 79 characters)
+app/api/v1/segments.py:25:80: E501 line too long (84 > 79 characters)
+app/api/v1/segments.py:33:80: E501 line too long (123 > 79 characters)
+app/api/v1/segments.py:35:80: E501 line too long (86 > 79 characters)
+app/api/v1/segments.py:154:80: E501 line too long (90 > 79 characters)
+app/api/v1/segments.py:191:80: E501 line too long (92 > 79 characters)
+app/api/v1/simulations.py:2:1: F401 'fastapi.HTTPException' imported but unused
+app/api/v1/simulations.py:47:80: E501 line too long (108 > 79 characters)
+app/api/v1/simulations.py:49:80: E501 line too long (86 > 79 characters)
+app/api/v1/simulations.py:73:80: E501 line too long (113 > 79 characters)
+app/api/v1/simulations.py:107:80: E501 line too long (91 > 79 characters)
+app/api/v1/simulations.py:208:80: E501 line too long (80 > 79 characters)
+app/api/v1/simulations.py:227:80: E501 line too long (83 > 79 characters)
+app/api/v1/simulations.py:240:80: E501 line too long (80 > 79 characters)
+app/api/v1/simulations.py:258:80: E501 line too long (83 > 79 characters)
+app/api/v1/twins.py:3:1: F401 'fastapi.HTTPException' imported but unused
+app/api/v1/twins.py:7:1: F401 'app.schemas.twin.CustomerTwinResponse' imported but unused
+app/api/v1/twins.py:42:80: E501 line too long (87 > 79 characters)
+app/api/v1/twins.py:50:80: E501 line too long (110 > 79 characters)
+app/api/v1/twins.py:51:80: E501 line too long (108 > 79 characters)
+app/api/v1/twins.py:76:80: E501 line too long (100 > 79 characters)
+app/api/v1/twins.py:77:80: E501 line too long (102 > 79 characters)
+app/api/v1/twins.py:120:80: E501 line too long (80 > 79 characters)
+app/api/v1/twins.py:142:80: E501 line too long (82 > 79 characters)
+app/api/v1/twins.py:166:80: E501 line too long (94 > 79 characters)
+app/api/v1/twins.py:187:80: E501 line too long (84 > 79 characters)
+app/api/v1/users.py:31:80: E501 line too long (88 > 79 characters)
+app/api/v1/users.py:35:80: E501 line too long (81 > 79 characters)
+app/api/v1/users.py:41:80: E501 line too long (90 > 79 characters)
+app/api/v1/users.py:43:80: E501 line too long (86 > 79 characters)
+app/api/v1/users.py:68:80: E501 line too long (87 > 79 characters)
+app/api/v1/users.py:71:80: E501 line too long (90 > 79 characters)
+app/api/v1/users.py:73:80: E501 line too long (80 > 79 characters)
+app/api/v1/users.py:79:80: E501 line too long (90 > 79 characters)
+app/api/v1/users.py:84:5: E303 too many blank lines (2)
+app/api/v1/users.py:123:80: E501 line too long (90 > 79 characters)
+app/api/v1/users.py:128:5: E303 too many blank lines (2)
+app/api/v1/users.py:169:80: E501 line too long (85 > 79 characters)
+app/api/v1/users.py:172:80: E501 line too long (89 > 79 characters)
+app/api/v1/users.py:235:80: E501 line too long (81 > 79 characters)
+app/core/config.py:4:1: F401 'os' imported but unused
+app/core/config.py:8:80: E501 line too long (95 > 79 characters)
+app/core/config.py:19:80: E501 line too long (104 > 79 characters)
+app/core/config.py:23:80: E501 line too long (82 > 79 characters)
+app/core/config.py:33:80: E501 line too long (149 > 79 characters)
+app/core/config.py:47:80: E501 line too long (104 > 79 characters)
+app/core/config.py:67:80: E501 line too long (90 > 79 characters)
+app/core/config.py:158:80: E501 line too long (96 > 79 characters)
+app/core/database.py:37:1: W391 blank line at end of file
+app/core/exceptions.py:12:80: E501 line too long (81 > 79 characters)
+app/core/kafka.py:46:80: E501 line too long (80 > 79 characters)
+app/core/kafka.py:98:80: E501 line too long (102 > 79 characters)
+app/core/kafka.py:102:80: E501 line too long (104 > 79 characters)
+app/core/kafka.py:121:80: E501 line too long (88 > 79 characters)
+app/core/qdrant.py:42:80: E501 line too long (85 > 79 characters)
+app/core/qdrant.py:72:80: E501 line too long (97 > 79 characters)
+app/core/redis.py:37:80: E501 line too long (85 > 79 characters)
+app/core/security.py:3:1: F401 'typing.Optional' imported but unused
+app/core/security.py:45:80: E501 line too long (89 > 79 characters)
+app/core/security.py:61:80: E501 line too long (89 > 79 characters)
+app/main.py:5:1: F401 'fastapi.middleware.trustedhost.TrustedHostMiddleware' imported but unused
+app/main.py:11:1: F401 'app.models.base.Base' imported but unused
+app/main.py:120:80: E501 line too long (87 > 79 characters)
+app/main.py:121:80: E501 line too long (89 > 79 characters)
+app/main.py:122:80: E501 line too long (89 > 79 characters)
+app/middleware/auth.py:3:1: F401 'fastapi.security.HTTPAuthorizationCredentials' imported but unused
+app/middleware/auth.py:6:1: F401 'app.core.config.settings' imported but unused
+app/middleware/auth.py:22:80: E501 line too long (117 > 79 characters)
+app/middleware/auth.py:27:80: E501 line too long (121 > 79 characters)
+app/middleware/auth.py:31:80: E501 line too long (111 > 79 characters)
+app/middleware/auth.py:34:80: E501 line too long (99 > 79 characters)
+app/middleware/auth.py:37:80: E501 line too long (88 > 79 characters)
+app/middleware/auth.py:41:80: E501 line too long (93 > 79 characters)
+app/middleware/auth.py:44:80: E501 line too long (102 > 79 characters)
+app/middleware/logging_middleware.py:35:80: E501 line too long (82 > 79 characters)
+app/middleware/rate_limit.py:1:1: F401 'time' imported but unused
+app/middleware/rate_limit.py:39:80: E501 line too long (85 > 79 characters)
+app/middleware/rate_limit.py:47:80: E501 line too long (80 > 79 characters)
+app/models/audit.py:2:1: F401 'sqlalchemy.DateTime' imported but unused
+app/models/audit.py:2:1: F401 'sqlalchemy.func' imported but unused
+app/models/audit.py:12:80: E501 line too long (94 > 79 characters)
+app/models/base.py:3:1: F401 'sqlalchemy.Column' imported but unused
+app/models/campaign.py:2:1: F401 'datetime.timezone' imported but unused
+app/models/campaign.py:3:1: F401 'sqlalchemy.Boolean' imported but unused
+app/models/campaign.py:3:1: F401 'sqlalchemy.func' imported but unused
+app/models/campaign.py:3:80: E501 line too long (113 > 79 characters)
+app/models/campaign.py:7:1: F401 'enum' imported but unused
+app/models/campaign.py:14:80: E501 line too long (94 > 79 characters)
+app/models/campaign.py:21:80: E501 line too long (126 > 79 characters)
+app/models/campaign.py:38:80: E501 line too long (81 > 79 characters)
+app/models/campaign.py:39:80: E501 line too long (82 > 79 characters)
+app/models/campaign.py:52:80: E501 line too long (90 > 79 characters)
+app/models/campaign.py:55:80: E501 line too long (90 > 79 characters)
+app/models/campaign.py:58:80: E501 line too long (94 > 79 characters)
+app/models/campaign.py:61:80: E501 line too long (83 > 79 characters)
+app/models/campaign.py:67:80: E501 line too long (82 > 79 characters)
+app/models/campaign.py:69:80: E501 line too long (80 > 79 characters)
+app/models/campaign.py:70:80: E501 line too long (82 > 79 characters)
+app/models/campaign.py:79:80: E501 line too long (103 > 79 characters)
+app/models/campaign.py:82:80: E501 line too long (94 > 79 characters)
+app/models/campaign.py:105:80: E501 line too long (81 > 79 characters)
+app/models/customer.py:3:1: F401 'sqlalchemy.BigInteger' imported but unused
+app/models/customer.py:3:80: E501 line too long (115 > 79 characters)
+app/models/customer.py:13:80: E501 line too long (94 > 79 characters)
+app/models/customer.py:20:80: E501 line too long (83 > 79 characters)
+app/models/customer.py:34:80: E501 line too long (83 > 79 characters)
+app/models/customer.py:35:80: E501 line too long (82 > 79 characters)
+app/models/customer.py:42:80: E501 line too long (103 > 79 characters)
+app/models/customer.py:45:80: E501 line too long (94 > 79 characters)
+app/models/customer.py:63:80: E501 line too long (86 > 79 characters)
+app/models/customer.py:68:1: E303 too many blank lines (4)
+app/models/customer.py:72:80: E501 line too long (94 > 79 characters)
+app/models/customer.py:75:80: E501 line too long (90 > 79 characters)
+app/models/customer.py:80:80: E501 line too long (81 > 79 characters)
+app/models/customer.py:106:80: E501 line too long (103 > 79 characters)
+app/models/customer.py:109:80: E501 line too long (94 > 79 characters)
+app/models/customer.py:123:80: E501 line too long (81 > 79 characters)
+app/models/customer.py:125:80: E501 line too long (80 > 79 characters)
+app/models/customer.py:134:80: E501 line too long (90 > 79 characters)
+app/models/customer.py:137:80: E501 line too long (94 > 79 characters)
+app/models/customer.py:144:80: E501 line too long (89 > 79 characters)
+app/models/customer.py:145:80: E501 line too long (87 > 79 characters)
+app/models/customer.py:155:80: E501 line too long (103 > 79 characters)
+app/models/customer.py:158:80: E501 line too long (94 > 79 characters)
+app/models/customer.py:168:1: E303 too many blank lines (3)
+app/models/customer.py:172:80: E501 line too long (94 > 79 characters)
+app/models/customer.py:185:80: E501 line too long (87 > 79 characters)
+app/models/customer.py:195:80: E501 line too long (92 > 79 characters)
+app/models/customer.py:198:80: E501 line too long (100 > 79 characters)
+app/models/customer.py:201:80: E501 line too long (94 > 79 characters)
+app/models/event.py:3:80: E501 line too long (139 > 79 characters)
+app/models/event.py:13:80: E501 line too long (85 > 79 characters)
+app/models/event.py:16:80: E501 line too long (94 > 79 characters)
+app/models/event.py:19:80: E501 line too long (90 > 79 characters)
+app/models/event.py:22:80: E501 line too long (398 > 79 characters)
+app/models/event.py:39:80: E501 line too long (83 > 79 characters)
+app/models/event.py:46:80: E501 line too long (118 > 79 characters)
+app/models/event.py:49:80: E501 line too long (118 > 79 characters)
+app/models/event.py:55:80: E501 line too long (157 > 79 characters)
+app/models/notification.py:2:1: F401 'datetime.timezone' imported but unused
+app/models/notification.py:3:1: F401 'sqlalchemy.Boolean' imported but unused
+app/models/notification.py:3:1: F401 'sqlalchemy.func' imported but unused
+app/models/notification.py:3:80: E501 line too long (97 > 79 characters)
+app/models/notification.py:13:80: E501 line too long (94 > 79 characters)
+app/models/notification.py:24:80: E501 line too long (157 > 79 characters)
+app/models/notification.py:25:80: E501 line too long (187 > 79 characters)
+app/models/notification.py:33:80: E501 line too long (82 > 79 characters)
+app/models/notification.py:35:80: E501 line too long (82 > 79 characters)
+app/models/notification.py:37:80: E501 line too long (80 > 79 characters)
+app/models/organization.py:1:1: F401 'sqlalchemy.Column' imported but unused
+app/models/recommendation.py:3:80: E501 line too long (88 > 79 characters)
+app/models/recommendation.py:13:80: E501 line too long (90 > 79 characters)
+app/models/recommendation.py:16:80: E501 line too long (94 > 79 characters)
+app/models/recommendation.py:27:80: E501 line too long (80 > 79 characters)
+app/models/recommendation.py:29:80: E501 line too long (80 > 79 characters)
+app/models/recommendation.py:36:80: E501 line too long (94 > 79 characters)
+app/models/recommendation.py:39:80: E501 line too long (96 > 79 characters)
+app/models/role.py:3:80: E501 line too long (97 > 79 characters)
+app/models/role.py:13:80: E501 line too long (94 > 79 characters)
+app/models/role.py:31:80: E501 line too long (86 > 79 characters)
+app/models/role.py:33:80: E501 line too long (267 > 79 characters)
+app/models/role.py:34:80: E501 line too long (167 > 79 characters)
+app/models/role.py:48:80: E501 line too long (88 > 79 characters)
+app/models/role.py:51:80: E501 line too long (88 > 79 characters)
+app/models/simulation.py:2:1: F401 'datetime.timezone' imported but unused
+app/models/simulation.py:3:80: E501 line too long (116 > 79 characters)
+app/models/simulation.py:13:80: E501 line too long (94 > 79 characters)
+app/models/simulation.py:18:80: E501 line too long (165 > 79 characters)
+app/models/simulation.py:35:80: E501 line too long (80 > 79 characters)
+app/models/simulation.py:36:80: E501 line too long (82 > 79 characters)
+app/models/simulation.py:43:80: E501 line too long (92 > 79 characters)
+app/models/simulation.py:46:80: E501 line too long (94 > 79 characters)
+app/models/simulation.py:49:80: E501 line too long (167 > 79 characters)
+app/models/simulation.py:67:80: E501 line too long (92 > 79 characters)
+app/models/simulation.py:70:80: E501 line too long (94 > 79 characters)
+app/models/simulation.py:73:80: E501 line too long (81 > 79 characters)
+app/models/twin.py:3:1: F401 'sqlalchemy.Text' imported but unused
+app/models/twin.py:3:80: E501 line too long (104 > 79 characters)
+app/models/twin.py:13:80: E501 line too long (103 > 79 characters)
+app/models/twin.py:16:80: E501 line too long (94 > 79 characters)
+app/models/twin.py:18:80: E501 line too long (149 > 79 characters)
+app/models/twin.py:26:80: E501 line too long (84 > 79 characters)
+app/models/twin.py:29:80: E501 line too long (80 > 79 characters)
+app/models/twin.py:31:80: E501 line too long (83 > 79 characters)
+app/models/twin.py:32:80: E501 line too long (88 > 79 characters)
+app/models/twin.py:36:80: E501 line too long (80 > 79 characters)
+app/models/twin.py:44:80: E501 line too long (95 > 79 characters)
+app/models/twin.py:47:80: E501 line too long (94 > 79 characters)
+app/models/twin.py:55:80: E501 line too long (81 > 79 characters)
+app/models/twin.py:62:80: E501 line too long (90 > 79 characters)
+app/models/twin.py:65:80: E501 line too long (94 > 79 characters)
+app/models/twin.py:67:80: E501 line too long (204 > 79 characters)
+app/models/twin.py:77:80: E501 line too long (81 > 79 characters)
+app/models/user.py:1:1: F401 'sqlalchemy.Column' imported but unused
+app/models/user.py:1:80: E501 line too long (83 > 79 characters)
+app/models/user.py:12:80: E501 line too long (94 > 79 characters)
+app/models/user.py:29:80: E501 line too long (80 > 79 characters)
+app/models/user.py:32:80: E501 line too long (82 > 79 characters)
+app/repositories/analytics_repository.py:2:1: F401 'datetime.datetime' imported but unused
+app/repositories/analytics_repository.py:2:1: F401 'datetime.date' imported but unused
+app/repositories/analytics_repository.py:3:1: F401 'typing.Any' imported but unused
+app/repositories/analytics_repository.py:5:1: F401 'sqlalchemy.extract' imported but unused
+app/repositories/analytics_repository.py:8:80: E501 line too long (81 > 79 characters)
+app/repositories/analytics_repository.py:11:1: F401 'app.models.campaign.CampaignTarget' imported but unused
+app/repositories/analytics_repository.py:11:1: F401 'app.models.campaign.CampaignResult' imported but unused
+app/repositories/analytics_repository.py:26:80: E501 line too long (85 > 79 characters)
+app/repositories/analytics_repository.py:41:80: E501 line too long (94 > 79 characters)
+app/repositories/analytics_repository.py:52:80: E501 line too long (99 > 79 characters)
+app/repositories/analytics_repository.py:60:80: E501 line too long (84 > 79 characters)
+app/repositories/analytics_repository.py:66:80: E501 line too long (83 > 79 characters)
+app/repositories/analytics_repository.py:68:80: E501 line too long (87 > 79 characters)
+app/repositories/analytics_repository.py:70:80: E501 line too long (88 > 79 characters)
+app/repositories/analytics_repository.py:71:80: E501 line too long (98 > 79 characters)
+app/repositories/analytics_repository.py:74:43: E712 comparison to True should be 'if cond is True:' or 'if cond:'
+app/repositories/analytics_repository.py:81:80: E501 line too long (95 > 79 characters)
+app/repositories/analytics_repository.py:91:80: E501 line too long (84 > 79 characters)
+app/repositories/analytics_repository.py:98:80: E501 line too long (104 > 79 characters)
+app/repositories/analytics_repository.py:105:32: E712 comparison to True should be 'if cond is True:' or 'if cond:'
+app/repositories/analytics_repository.py:110:80: E501 line too long (87 > 79 characters)
+app/repositories/analytics_repository.py:113:80: E501 line too long (82 > 79 characters)
+app/repositories/base.py:5:1: F401 'sqlalchemy.or_' imported but unused
+app/repositories/base.py:5:1: F401 'sqlalchemy.and_' imported but unused
+app/repositories/base.py:5:1: F401 'sqlalchemy.text' imported but unused
+app/repositories/base.py:17:80: E501 line too long (106 > 79 characters)
+app/repositories/base.py:18:80: E501 line too long (82 > 79 characters)
+app/repositories/base.py:22:80: E501 line too long (85 > 79 characters)
+app/repositories/base.py:63:80: E501 line too long (87 > 79 characters)
+app/repositories/base.py:71:80: E501 line too long (94 > 79 characters)
+app/repositories/base.py:74:80: E501 line too long (93 > 79 characters)
+app/repositories/base.py:90:80: E501 line too long (80 > 79 characters)
+app/repositories/base.py:105:80: E501 line too long (100 > 79 characters)
+app/repositories/base.py:110:80: E501 line too long (82 > 79 characters)
+app/repositories/base.py:118:80: E501 line too long (122 > 79 characters)
+app/repositories/base.py:133:80: E501 line too long (111 > 79 characters)
+app/repositories/customer_repository.py:2:1: F401 'datetime.datetime' imported but unused
+app/repositories/customer_repository.py:2:1: F401 'datetime.timedelta' imported but unused
+app/repositories/customer_repository.py:2:1: F401 'datetime.timezone' imported but unused
+app/repositories/customer_repository.py:3:1: F401 'typing.Any' imported but unused
+app/repositories/customer_repository.py:5:1: F401 'sqlalchemy.or_' imported but unused
+app/repositories/customer_repository.py:5:1: F401 'sqlalchemy.and_' imported but unused
+app/repositories/customer_repository.py:5:1: F401 'sqlalchemy.delete' imported but unused
+app/repositories/customer_repository.py:6:1: F401 'sqlalchemy.orm.selectinload' imported but unused
+app/repositories/customer_repository.py:9:1: F401 'app.models.customer.CustomerSegment' imported but unused
+app/repositories/customer_repository.py:9:80: E501 line too long (81 > 79 characters)
+app/repositories/customer_repository.py:19:80: E501 line too long (115 > 79 characters)
+app/repositories/customer_repository.py:22:80: E501 line too long (82 > 79 characters)
+app/repositories/customer_repository.py:27:80: E501 line too long (107 > 79 characters)
+app/repositories/customer_repository.py:35:80: E501 line too long (113 > 79 characters)
+app/repositories/customer_repository.py:71:80: E501 line too long (152 > 79 characters)
+app/repositories/customer_repository.py:95:80: E501 line too long (133 > 79 characters)
+app/repositories/customer_repository.py:114:80: E501 line too long (149 > 79 characters)
+app/repositories/customer_repository.py:128:80: E501 line too long (92 > 79 characters)
+app/repositories/customer_repository.py:142:80: E501 line too long (101 > 79 characters)
+app/repositories/customer_repository.py:154:80: E501 line too long (120 > 79 characters)
+app/repositories/event_repository.py:2:1: F401 'datetime.datetime' imported but unused
+app/repositories/event_repository.py:3:1: F401 'typing.Any' imported but unused
+app/repositories/event_repository.py:17:80: E501 line too long (96 > 79 characters)
+app/repositories/event_repository.py:39:80: E501 line too long (89 > 79 characters)
+app/repositories/event_repository.py:75:80: E501 line too long (97 > 79 characters)
+app/repositories/event_repository.py:80:33: E712 comparison to False should be 'if cond is False:' or 'if not cond:'
+app/repositories/notification_repository.py:3:1: F401 'typing.Any' imported but unused
+app/repositories/notification_repository.py:17:80: E501 line too long (96 > 79 characters)
+app/repositories/notification_repository.py:38:80: E501 line too long (96 > 79 characters)
+app/repositories/notification_repository.py:47:80: E501 line too long (94 > 79 characters)
+app/repositories/notification_repository.py:61:80: E501 line too long (93 > 79 characters)
+app/repositories/notification_repository.py:76:80: E501 line too long (100 > 79 characters)
+app/repositories/segment_repository.py:2:1: F401 'typing.Any' imported but unused
+app/repositories/segment_repository.py:7:80: E501 line too long (81 > 79 characters)
+app/repositories/segment_repository.py:15:80: E501 line too long (97 > 79 characters)
+app/repositories/segment_repository.py:23:80: E501 line too long (94 > 79 characters)
+app/repositories/segment_repository.py:26:40: E712 comparison to True should be 'if cond is True:' or 'if cond:'
+app/repositories/segment_repository.py:27:39: E712 comparison to True should be 'if cond is True:' or 'if cond:'
+app/repositories/segment_repository.py:33:80: E501 line too long (96 > 79 characters)
+app/repositories/segment_repository.py:47:80: E501 line too long (92 > 79 characters)
+app/repositories/segment_repository.py:59:80: E501 line too long (114 > 79 characters)
+app/repositories/segment_repository.py:76:80: E501 line too long (117 > 79 characters)
+app/repositories/segment_repository.py:88:80: E501 line too long (92 > 79 characters)
+app/schemas/__init__.py:1:1: F403 'from app.schemas.auth import *' used; unable to detect undefined names
+app/schemas/__init__.py:1:1: F401 'app.schemas.auth.*' imported but unused
+app/schemas/__init__.py:2:1: F403 'from app.schemas.user import *' used; unable to detect undefined names
+app/schemas/__init__.py:2:1: F401 'app.schemas.user.*' imported but unused
+app/schemas/__init__.py:3:1: F403 'from app.schemas.customer import *' used; unable to detect undefined names
+app/schemas/__init__.py:3:1: F401 'app.schemas.customer.*' imported but unused
+app/schemas/__init__.py:4:1: F403 'from app.schemas.twin import *' used; unable to detect undefined names
+app/schemas/__init__.py:4:1: F401 'app.schemas.twin.*' imported but unused
+app/schemas/__init__.py:5:1: F403 'from app.schemas.event import *' used; unable to detect undefined names
+app/schemas/__init__.py:5:1: F401 'app.schemas.event.*' imported but unused
+app/schemas/__init__.py:6:1: F403 'from app.schemas.campaign import *' used; unable to detect undefined names
+app/schemas/__init__.py:6:1: F401 'app.schemas.campaign.*' imported but unused
+app/schemas/__init__.py:7:1: F403 'from app.schemas.simulation import *' used; unable to detect undefined names
+app/schemas/__init__.py:7:1: F401 'app.schemas.simulation.*' imported but unused
+app/schemas/__init__.py:8:1: F403 'from app.schemas.recommendation import *' used; unable to detect undefined names
+app/schemas/__init__.py:8:1: F401 'app.schemas.recommendation.*' imported but unused
+app/schemas/__init__.py:9:1: F403 'from app.schemas.notification import *' used; unable to detect undefined names
+app/schemas/__init__.py:9:1: F401 'app.schemas.notification.*' imported but unused
+app/schemas/__init__.py:10:1: F403 'from app.schemas.analytics import *' used; unable to detect undefined names
+app/schemas/__init__.py:10:1: F401 'app.schemas.analytics.*' imported but unused
+app/schemas/__init__.py:11:1: F403 'from app.schemas.common import *' used; unable to detect undefined names
+app/schemas/__init__.py:11:1: F401 'app.schemas.common.*' imported but unused
+app/schemas/analytics.py:20:6: F821 undefined name 'model_validator'
+app/schemas/analytics.py:23:80: E501 line too long (82 > 79 characters)
+app/schemas/analytics.py:25:80: E501 line too long (126 > 79 characters)
+app/schemas/auth.py:1:1: F401 'datetime.datetime' imported but unused
+app/schemas/auth.py:3:1: F401 'typing.Any' imported but unused
+app/schemas/auth.py:5:80: E501 line too long (86 > 79 characters)
+app/schemas/campaign.py:5:1: F401 'pydantic.field_validator' imported but unused
+app/schemas/common.py:1:1: F401 'pydantic.ConfigDict' imported but unused
+app/schemas/common.py:3:1: F401 'datetime.datetime' imported but unused
+app/schemas/customer.py:5:1: F401 'pydantic.field_validator' imported but unused
+app/schemas/event.py:5:1: F401 'pydantic.field_validator' imported but unused
+app/schemas/simulation.py:106:80: E501 line too long (97 > 79 characters)
+app/schemas/simulation.py:107:80: E501 line too long (80 > 79 characters)
+app/schemas/simulation.py:115:80: E501 line too long (81 > 79 characters)
+app/schemas/simulation.py:117:80: E501 line too long (81 > 79 characters)
+app/schemas/twin.py:13:80: E501 line too long (80 > 79 characters)
+app/services/analytics_service.py:4:1: F401 'datetime.date' imported but unused
+app/services/analytics_service.py:7:1: F401 'sqlalchemy.case' imported but unused
+app/services/analytics_service.py:12:1: F401 'app.core.logging.logger' imported but unused
+app/services/analytics_service.py:19:1: F401 'app.models.twin.Prediction as CustomerPrediction' imported but unused
+app/services/analytics_service.py:20:1: F401 'app.models.campaign.CampaignResult' imported but unused
+app/services/analytics_service.py:29:80: E501 line too long (80 > 79 characters)
+app/services/analytics_service.py:33:80: E501 line too long (83 > 79 characters)
+app/services/analytics_service.py:41:9: F841 local variable 'today' is assigned to but never used
+app/services/analytics_service.py:45:80: E501 line too long (100 > 79 characters)
+app/services/analytics_service.py:48:80: E501 line too long (99 > 79 characters)
+app/services/analytics_service.py:49:9: F841 local variable 'avg_loyalty' is assigned to but never used
+app/services/analytics_service.py:49:80: E501 line too long (93 > 79 characters)
+app/services/analytics_service.py:51:80: E501 line too long (101 > 79 characters)
+app/services/analytics_service.py:52:80: E501 line too long (89 > 79 characters)
+app/services/analytics_service.py:66:9: F841 local variable 'conversion_rate_30d' is assigned to but never used
+app/services/analytics_service.py:69:80: E501 line too long (102 > 79 characters)
+app/services/analytics_service.py:70:80: E501 line too long (96 > 79 characters)
+app/services/analytics_service.py:71:80: E501 line too long (84 > 79 characters)
+app/services/analytics_service.py:93:80: E501 line too long (96 > 79 characters)
+app/services/analytics_service.py:97:80: E501 line too long (108 > 79 characters)
+app/services/analytics_service.py:111:80: E501 line too long (86 > 79 characters)
+app/services/analytics_service.py:113:80: E501 line too long (91 > 79 characters)
+app/services/analytics_service.py:132:80: E501 line too long (80 > 79 characters)
+app/services/analytics_service.py:139:80: E501 line too long (81 > 79 characters)
+app/services/analytics_service.py:144:80: E501 line too long (83 > 79 characters)
+app/services/analytics_service.py:145:80: E501 line too long (83 > 79 characters)
+app/services/analytics_service.py:180:80: E501 line too long (121 > 79 characters)
+app/services/analytics_service.py:185:80: E501 line too long (86 > 79 characters)
+app/services/analytics_service.py:202:9: F841 local variable 'thirty_days_ago' is assigned to but never used
+app/services/analytics_service.py:205:80: E501 line too long (105 > 79 characters)
+app/services/analytics_service.py:218:80: E501 line too long (84 > 79 characters)
+app/services/analytics_service.py:224:80: E501 line too long (100 > 79 characters)
+app/services/analytics_service.py:231:80: E501 line too long (97 > 79 characters)
+app/services/analytics_service.py:233:80: E501 line too long (86 > 79 characters)
+app/services/analytics_service.py:254:80: E501 line too long (84 > 79 characters)
+app/services/analytics_service.py:259:80: E501 line too long (86 > 79 characters)
+app/services/analytics_service.py:260:80: E501 line too long (81 > 79 characters)
+app/services/analytics_service.py:262:80: E501 line too long (95 > 79 characters)
+app/services/analytics_service.py:298:80: E501 line too long (123 > 79 characters)
+app/services/analytics_service.py:301:80: E501 line too long (84 > 79 characters)
+app/services/analytics_service.py:303:80: E501 line too long (91 > 79 characters)
+app/services/analytics_service.py:321:80: E501 line too long (100 > 79 characters)
+app/services/analytics_service.py:326:80: E501 line too long (116 > 79 characters)
+app/services/analytics_service.py:378:80: E501 line too long (86 > 79 characters)
+app/services/analytics_service.py:379:80: E501 line too long (87 > 79 characters)
+app/services/analytics_service.py:385:80: E501 line too long (86 > 79 characters)
+app/services/analytics_service.py:393:80: E501 line too long (98 > 79 characters)
+app/services/analytics_service.py:399:80: E501 line too long (89 > 79 characters)
+app/services/analytics_service.py:426:80: E501 line too long (81 > 79 characters)
+app/services/analytics_service.py:454:80: E501 line too long (91 > 79 characters)
+app/services/analytics_service.py:489:80: E501 line too long (92 > 79 characters)
+app/services/analytics_service.py:505:80: E501 line too long (92 > 79 characters)
+app/services/analytics_service.py:514:80: E501 line too long (123 > 79 characters)
+app/services/analytics_service.py:517:80: E501 line too long (105 > 79 characters)
+app/services/analytics_service.py:528:80: E501 line too long (116 > 79 characters)
+app/services/analytics_service.py:531:80: E501 line too long (105 > 79 characters)
+app/services/analytics_service.py:540:80: E501 line too long (114 > 79 characters)
+app/services/analytics_service.py:549:80: E501 line too long (101 > 79 characters)
+app/services/analytics_service.py:572:80: E501 line too long (92 > 79 characters)
+app/services/analytics_service.py:600:80: E501 line too long (113 > 79 characters)
+app/services/analytics_service.py:604:80: E501 line too long (80 > 79 characters)
+app/services/analytics_service.py:618:80: E501 line too long (88 > 79 characters)
+app/services/analytics_service.py:619:80: E501 line too long (83 > 79 characters)
+app/services/analytics_service.py:637:80: E501 line too long (80 > 79 characters)
+app/services/analytics_service.py:642:80: E501 line too long (88 > 79 characters)
+app/services/analytics_service.py:663:80: E501 line too long (102 > 79 characters)
+app/services/analytics_service.py:671:80: E501 line too long (101 > 79 characters)
+app/services/analytics_service.py:674:80: E501 line too long (105 > 79 characters)
+app/services/analytics_service.py:687:80: E501 line too long (108 > 79 characters)
+app/services/analytics_service.py:694:80: E501 line too long (80 > 79 characters)
+app/services/analytics_service.py:696:80: E501 line too long (109 > 79 characters)
+app/services/auth_service.py:28:80: E501 line too long (133 > 79 characters)
+app/services/auth_service.py:74:80: E501 line too long (94 > 79 characters)
+app/services/auth_service.py:77:80: E501 line too long (101 > 79 characters)
+app/services/auth_service.py:86:80: E501 line too long (80 > 79 characters)
+app/services/auth_service.py:87:80: E501 line too long (87 > 79 characters)
+app/services/auth_service.py:91:80: E501 line too long (82 > 79 characters)
+app/services/auth_service.py:147:80: E501 line too long (106 > 79 characters)
+app/services/auth_service.py:157:80: E501 line too long (95 > 79 characters)
+app/services/auth_service.py:177:9: F841 local variable 'totp_uri' is assigned to but never used
+app/services/auth_service.py:182:80: E501 line too long (93 > 79 characters)
+app/services/auth_service.py:217:80: E501 line too long (98 > 79 characters)
+app/services/auth_service.py:221:80: E501 line too long (85 > 79 characters)
+app/services/auth_service.py:224:80: E501 line too long (102 > 79 characters)
+app/services/auth_service.py:226:80: E501 line too long (82 > 79 characters)
+app/services/auth_service.py:234:80: E501 line too long (100 > 79 characters)
+app/services/auth_service.py:242:80: E501 line too long (95 > 79 characters)
+app/services/auth_service.py:251:80: E501 line too long (80 > 79 characters)
+app/services/auth_service.py:263:80: E501 line too long (82 > 79 characters)
+app/services/campaign_service.py:2:1: F401 'datetime.timedelta' imported but unused
+app/services/campaign_service.py:3:1: F401 'typing.Any' imported but unused
+app/services/campaign_service.py:5:1: F401 'sqlalchemy.func' imported but unused
+app/services/campaign_service.py:5:1: F401 'sqlalchemy.and_' imported but unused
+app/services/campaign_service.py:5:1: F401 'sqlalchemy.or_' imported but unused
+app/services/campaign_service.py:14:1: F401 'app.schemas.campaign.CampaignResponse' imported but unused
+app/services/campaign_service.py:22:80: E501 line too long (80 > 79 characters)
+app/services/campaign_service.py:29:80: E501 line too long (97 > 79 characters)
+app/services/campaign_service.py:48:80: E501 line too long (142 > 79 characters)
+app/services/campaign_service.py:69:80: E501 line too long (129 > 79 characters)
+app/services/campaign_service.py:75:80: E501 line too long (96 > 79 characters)
+app/services/campaign_service.py:79:80: E501 line too long (97 > 79 characters)
+app/services/campaign_service.py:85:80: E501 line too long (96 > 79 characters)
+app/services/campaign_service.py:113:80: E501 line too long (108 > 79 characters)
+app/services/campaign_service.py:119:80: E501 line too long (95 > 79 characters)
+app/services/campaign_service.py:126:80: E501 line too long (96 > 79 characters)
+app/services/campaign_service.py:130:80: E501 line too long (91 > 79 characters)
+app/services/campaign_service.py:161:80: E501 line too long (129 > 79 characters)
+app/services/campaign_service.py:162:80: E501 line too long (126 > 79 characters)
+app/services/campaign_service.py:209:80: E501 line too long (104 > 79 characters)
+app/services/campaign_service.py:212:80: E501 line too long (91 > 79 characters)
+app/services/campaign_service.py:253:80: E501 line too long (97 > 79 characters)
+app/services/campaign_service.py:254:9: F841 local variable 'channel' is assigned to but never used
+app/services/campaign_service.py:293:80: E501 line too long (106 > 79 characters)
+app/services/campaign_service.py:294:80: E501 line too long (90 > 79 characters)
+app/services/campaign_service.py:295:80: E501 line too long (81 > 79 characters)
+app/services/campaign_service.py:314:80: E501 line too long (80 > 79 characters)
+app/services/customer_service.py:2:1: F401 'datetime.datetime' imported but unused
+app/services/customer_service.py:2:1: F401 'datetime.timezone' imported but unused
+app/services/customer_service.py:3:1: F401 'typing.Any' imported but unused
+app/services/customer_service.py:5:1: F401 'sqlalchemy.or_' imported but unused
+app/services/customer_service.py:5:1: F401 'sqlalchemy.func' imported but unused
+app/services/customer_service.py:8:80: E501 line too long (89 > 79 characters)
+app/services/customer_service.py:23:80: E501 line too long (80 > 79 characters)
+app/services/customer_service.py:28:80: E501 line too long (97 > 79 characters)
+app/services/customer_service.py:50:80: E501 line too long (105 > 79 characters)
+app/services/customer_service.py:59:80: E501 line too long (90 > 79 characters)
+app/services/customer_service.py:61:80: E501 line too long (86 > 79 characters)
+app/services/customer_service.py:63:80: E501 line too long (90 > 79 characters)
+app/services/customer_service.py:65:80: E501 line too long (98 > 79 characters)
+app/services/customer_service.py:67:80: E501 line too long (80 > 79 characters)
+app/services/customer_service.py:69:80: E501 line too long (98 > 79 characters)
+app/services/customer_service.py:70:80: E501 line too long (112 > 79 characters)
+app/services/customer_service.py:73:80: E501 line too long (129 > 79 characters)
+app/services/customer_service.py:78:80: E501 line too long (98 > 79 characters)
+app/services/customer_service.py:79:80: E501 line too long (112 > 79 characters)
+app/services/customer_service.py:82:80: E501 line too long (115 > 79 characters)
+app/services/customer_service.py:86:80: E501 line too long (96 > 79 characters)
+app/services/customer_service.py:88:80: E501 line too long (98 > 79 characters)
+app/services/customer_service.py:89:80: E501 line too long (94 > 79 characters)
+app/services/customer_service.py:92:80: E501 line too long (108 > 79 characters)
+app/services/customer_service.py:99:80: E501 line too long (120 > 79 characters)
+app/services/customer_service.py:102:80: E501 line too long (124 > 79 characters)
+app/services/customer_service.py:103:80: E501 line too long (89 > 79 characters)
+app/services/customer_service.py:105:80: E501 line too long (83 > 79 characters)
+app/services/customer_service.py:109:80: E501 line too long (124 > 79 characters)
+app/services/customer_service.py:139:80: E501 line too long (81 > 79 characters)
+app/services/customer_service.py:145:80: E501 line too long (108 > 79 characters)
+app/services/customer_service.py:149:80: E501 line too long (102 > 79 characters)
+app/services/customer_service.py:150:80: E501 line too long (110 > 79 characters)
+app/services/customer_service.py:174:80: E501 line too long (96 > 79 characters)
+app/services/customer_service.py:191:80: E501 line too long (93 > 79 characters)
+app/services/customer_service.py:194:80: E501 line too long (98 > 79 characters)
+app/services/customer_service.py:207:80: E501 line too long (101 > 79 characters)
+app/services/customer_service.py:232:80: E501 line too long (98 > 79 characters)
+app/services/customer_service.py:250:80: E501 line too long (92 > 79 characters)
+app/services/customer_service.py:255:80: E501 line too long (100 > 79 characters)
+app/services/customer_service.py:256:80: E501 line too long (97 > 79 characters)
+app/services/customer_service.py:269:80: E501 line too long (137 > 79 characters)
+app/services/customer_service.py:318:80: E501 line too long (103 > 79 characters)
+app/services/event_service.py:2:1: F401 'datetime.timedelta' imported but unused
+app/services/event_service.py:3:1: F401 'typing.Any' imported but unused
+app/services/event_service.py:5:1: F401 'sqlalchemy.func' imported but unused
+app/services/event_service.py:5:1: F401 'sqlalchemy.and_' imported but unused
+app/services/event_service.py:8:1: F401 'app.core.config.settings' imported but unused
+app/services/event_service.py:9:1: F401 'app.core.exceptions.NotFoundException' imported but unused
+app/services/event_service.py:13:1: F401 'app.models.customer.Customer' imported but unused
+app/services/event_service.py:13:1: F401 'app.models.customer.CustomerSession' imported but unused
+app/services/event_service.py:15:1: F401 'app.models.twin.CustomerTwin' imported but unused
+app/services/event_service.py:22:80: E501 line too long (114 > 79 characters)
+app/services/event_service.py:29:80: E501 line too long (148 > 79 characters)
+app/services/event_service.py:73:80: E501 line too long (98 > 79 characters)
+app/services/event_service.py:95:80: E501 line too long (112 > 79 characters)
+app/services/event_service.py:106:80: E501 line too long (96 > 79 characters)
+app/services/event_service.py:114:80: E501 line too long (96 > 79 characters)
+app/services/event_service.py:144:80: E501 line too long (102 > 79 characters)
+app/services/event_service.py:147:80: E501 line too long (102 > 79 characters)
+app/services/event_service.py:154:80: E501 line too long (117 > 79 characters)
+app/services/event_service.py:157:80: E501 line too long (92 > 79 characters)
+app/services/event_service.py:167:80: E501 line too long (104 > 79 characters)
+app/services/event_service.py:169:80: E501 line too long (108 > 79 characters)
+app/services/event_service.py:190:78: E712 comparison to False should be 'if cond is False:' or 'if not cond:'
+app/services/event_service.py:190:80: E501 line too long (86 > 79 characters)
+app/services/event_service.py:200:80: E501 line too long (114 > 79 characters)
+app/services/event_service.py:201:80: E501 line too long (104 > 79 characters)
+app/services/event_service.py:205:80: E501 line too long (86 > 79 characters)
+app/services/event_service.py:209:80: E501 line too long (80 > 79 characters)
+app/services/event_service.py:220:80: E501 line too long (107 > 79 characters)
+app/services/event_service.py:225:80: E501 line too long (125 > 79 characters)
+app/services/event_service.py:227:80: E501 line too long (87 > 79 characters)
+app/services/event_service.py:230:80: E501 line too long (91 > 79 characters)
+app/services/event_service.py:234:80: E501 line too long (90 > 79 characters)
+app/services/event_service.py:239:80: E501 line too long (128 > 79 characters)
+app/services/event_service.py:242:80: E501 line too long (80 > 79 characters)
+app/services/event_service.py:248:80: E501 line too long (96 > 79 characters)
+app/services/event_service.py:255:80: E501 line too long (85 > 79 characters)
+app/services/event_service.py:263:80: E501 line too long (104 > 79 characters)
+app/services/event_service.py:264:80: E501 line too long (92 > 79 characters)
+app/services/event_service.py:266:80: E501 line too long (93 > 79 characters)
+app/services/event_service.py:268:80: E501 line too long (114 > 79 characters)
+app/services/export_service.py:9:1: F401 'app.models.campaign.CampaignResult' imported but unused
+app/services/export_service.py:21:80: E501 line too long (93 > 79 characters)
+app/services/export_service.py:32:80: E501 line too long (103 > 79 characters)
+app/services/export_service.py:34:80: E501 line too long (101 > 79 characters)
+app/services/export_service.py:48:80: E501 line too long (93 > 79 characters)
+app/services/export_service.py:58:80: E501 line too long (103 > 79 characters)
+app/services/export_service.py:60:80: E501 line too long (101 > 79 characters)
+app/services/export_service.py:72:80: E501 line too long (93 > 79 characters)
+app/services/export_service.py:86:80: E501 line too long (111 > 79 characters)
+app/services/export_service.py:88:80: E501 line too long (109 > 79 characters)
+app/services/export_service.py:108:80: E501 line too long (85 > 79 characters)
+app/services/export_service.py:118:80: E501 line too long (104 > 79 characters)
+app/services/export_service.py:120:80: E501 line too long (102 > 79 characters)
+app/services/export_service.py:128:80: E501 line too long (91 > 79 characters)
+app/services/export_service.py:139:80: E501 line too long (85 > 79 characters)
+app/services/notification_service.py:4:1: F401 'sqlalchemy.select' imported but unused
+app/services/notification_service.py:4:1: F401 'sqlalchemy.func' imported but unused
+app/services/notification_service.py:68:80: E501 line too long (82 > 79 characters)
+app/services/notification_service.py:72:80: E501 line too long (85 > 79 characters)
+app/services/notification_service.py:79:80: E501 line too long (94 > 79 characters)
+app/services/prediction_service.py:2:1: F401 'math' imported but unused
+app/services/prediction_service.py:3:1: F401 'random' imported but unused
+app/services/prediction_service.py:5:1: F401 'typing.Any' imported but unused
+app/services/prediction_service.py:7:1: F401 'sqlalchemy.and_' imported but unused
+app/services/prediction_service.py:7:1: F401 'sqlalchemy.or_' imported but unused
+app/services/prediction_service.py:13:1: F401 'app.models.customer.CustomerProfile' imported but unused
+app/services/prediction_service.py:20:80: E501 line too long (80 > 79 characters)
+app/services/prediction_service.py:25:80: E501 line too long (101 > 79 characters)
+app/services/prediction_service.py:26:80: E501 line too long (84 > 79 characters)
+app/services/prediction_service.py:30:80: E501 line too long (91 > 79 characters)
+app/services/prediction_service.py:31:80: E501 line too long (99 > 79 characters)
+app/services/prediction_service.py:60:80: E501 line too long (102 > 79 characters)
+app/services/prediction_service.py:61:80: E501 line too long (84 > 79 characters)
+app/services/prediction_service.py:65:80: E501 line too long (92 > 79 characters)
+app/services/prediction_service.py:66:80: E501 line too long (99 > 79 characters)
+app/services/prediction_service.py:107:80: E501 line too long (99 > 79 characters)
+app/services/prediction_service.py:108:80: E501 line too long (84 > 79 characters)
+app/services/prediction_service.py:112:80: E501 line too long (89 > 79 characters)
+app/services/prediction_service.py:113:80: E501 line too long (99 > 79 characters)
+app/services/prediction_service.py:127:80: E501 line too long (114 > 79 characters)
+app/services/prediction_service.py:131:80: E501 line too long (95 > 79 characters)
+app/services/prediction_service.py:146:80: E501 line too long (99 > 79 characters)
+app/services/prediction_service.py:158:80: E501 line too long (81 > 79 characters)
+app/services/prediction_service.py:160:80: E501 line too long (82 > 79 characters)
+app/services/prediction_service.py:166:80: E501 line too long (111 > 79 characters)
+app/services/prediction_service.py:169:80: E501 line too long (100 > 79 characters)
+app/services/prediction_service.py:172:80: E501 line too long (106 > 79 characters)
+app/services/prediction_service.py:191:80: E501 line too long (146 > 79 characters)
+app/services/prediction_service.py:206:80: E501 line too long (97 > 79 characters)
+app/services/prediction_service.py:226:80: E501 line too long (87 > 79 characters)
+app/services/prediction_service.py:234:80: E501 line too long (95 > 79 characters)
+app/services/prediction_service.py:242:80: E501 line too long (97 > 79 characters)
+app/services/prediction_service.py:250:80: E501 line too long (87 > 79 characters)
+app/services/prediction_service.py:290:80: E501 line too long (93 > 79 characters)
+app/services/prediction_service.py:300:80: E501 line too long (87 > 79 characters)
+app/services/prediction_service.py:310:80: E501 line too long (98 > 79 characters)
+app/services/prediction_service.py:329:80: E501 line too long (101 > 79 characters)
+app/services/prediction_service.py:335:80: E501 line too long (93 > 79 characters)
+app/services/prediction_service.py:379:80: E501 line too long (98 > 79 characters)
+app/services/prediction_service.py:381:80: E501 line too long (133 > 79 characters)
+app/services/recommendation_service.py:2:1: F401 'json' imported but unused
+app/services/recommendation_service.py:4:1: F401 'typing.Any' imported but unused
+app/services/recommendation_service.py:6:1: F401 'sqlalchemy.func' imported but unused
+app/services/recommendation_service.py:6:1: F401 'sqlalchemy.and_' imported but unused
+app/services/recommendation_service.py:9:80: E501 line too long (81 > 79 characters)
+app/services/recommendation_service.py:15:1: F401 'app.models.customer.Customer' imported but unused
+app/services/recommendation_service.py:19:1: F401 'app.schemas.recommendation.RecommendationResponse' imported but unused
+app/services/recommendation_service.py:35:80: E501 line too long (120 > 79 characters)
+app/services/recommendation_service.py:54:80: E501 line too long (125 > 79 characters)
+app/services/recommendation_service.py:55:80: E501 line too long (125 > 79 characters)
+app/services/recommendation_service.py:60:80: E501 line too long (99 > 79 characters)
+app/services/recommendation_service.py:64:80: E501 line too long (110 > 79 characters)
+app/services/recommendation_service.py:71:80: E501 line too long (82 > 79 characters)
+app/services/recommendation_service.py:73:80: E501 line too long (136 > 79 characters)
+app/services/recommendation_service.py:75:80: E501 line too long (80 > 79 characters)
+app/services/recommendation_service.py:77:80: E501 line too long (83 > 79 characters)
+app/services/recommendation_service.py:79:80: E501 line too long (80 > 79 characters)
+app/services/recommendation_service.py:101:80: E501 line too long (88 > 79 characters)
+app/services/recommendation_service.py:121:80: E501 line too long (102 > 79 characters)
+app/services/recommendation_service.py:130:80: E501 line too long (89 > 79 characters)
+app/services/recommendation_service.py:151:80: E501 line too long (97 > 79 characters)
+app/services/recommendation_service.py:175:80: E501 line too long (82 > 79 characters)
+app/services/recommendation_service.py:185:80: E501 line too long (94 > 79 characters)
+app/services/recommendation_service.py:200:80: E501 line too long (106 > 79 characters)
+app/services/recommendation_service.py:204:80: E501 line too long (126 > 79 characters)
+app/services/recommendation_service.py:208:80: E501 line too long (106 > 79 characters)
+app/services/recommendation_service.py:231:80: E501 line too long (109 > 79 characters)
+app/services/recommendation_service.py:236:80: E501 line too long (107 > 79 characters)
+app/services/recommendation_service.py:253:80: E501 line too long (94 > 79 characters)
+app/services/recommendation_service.py:260:80: E501 line too long (103 > 79 characters)
+app/services/recommendation_service.py:285:80: E501 line too long (112 > 79 characters)
+app/services/recommendation_service.py:304:80: E501 line too long (90 > 79 characters)
+app/services/recommendation_service.py:324:80: E501 line too long (81 > 79 characters)
+app/services/segment_service.py:9:1: F401 'app.core.logging.logger' imported but unused
+app/services/segment_service.py:43:80: E501 line too long (93 > 79 characters)
+app/services/segment_service.py:64:80: E501 line too long (85 > 79 characters)
+app/services/segment_service.py:82:16: F821 undefined name 'stmt'
+app/services/segment_service.py:86:32: F821 undefined name 'total'
+app/services/segment_service.py:94:80: E501 line too long (92 > 79 characters)
+app/services/segment_service.py:115:80: E501 line too long (92 > 79 characters)
+app/services/segment_service.py:128:80: E501 line too long (84 > 79 characters)
+app/services/segment_service.py:168:80: E501 line too long (89 > 79 characters)
+app/services/segment_service.py:170:80: E501 line too long (84 > 79 characters)
+app/services/segment_service.py:172:80: E501 line too long (86 > 79 characters)
+app/services/segment_service.py:205:80: E501 line too long (84 > 79 characters)
+app/services/simulation_service.py:5:1: F401 'datetime.timedelta' imported but unused
+app/services/simulation_service.py:6:1: F401 'typing.Any' imported but unused
+app/services/simulation_service.py:8:1: F401 'sqlalchemy.and_' imported but unused
+app/services/simulation_service.py:8:1: F401 'sqlalchemy.or_' imported but unused
+app/services/simulation_service.py:16:1: F401 'app.schemas.simulation.SimulationResponse' imported but unused
+app/services/simulation_service.py:23:80: E501 line too long (80 > 79 characters)
+app/services/simulation_service.py:27:80: E501 line too long (150 > 79 characters)
+app/services/simulation_service.py:52:80: E501 line too long (83 > 79 characters)
+app/services/simulation_service.py:64:80: E501 line too long (91 > 79 characters)
+app/services/simulation_service.py:82:80: E501 line too long (113 > 79 characters)
+app/services/simulation_service.py:83:80: E501 line too long (102 > 79 characters)
+app/services/simulation_service.py:98:80: E501 line too long (100 > 79 characters)
+app/services/simulation_service.py:101:80: E501 line too long (86 > 79 characters)
+app/services/simulation_service.py:112:80: E501 line too long (90 > 79 characters)
+app/services/simulation_service.py:129:80: E501 line too long (89 > 79 characters)
+app/services/simulation_service.py:131:80: E501 line too long (93 > 79 characters)
+app/services/simulation_service.py:134:80: E501 line too long (90 > 79 characters)
+app/services/simulation_service.py:177:80: E501 line too long (91 > 79 characters)
+app/services/simulation_service.py:181:80: E501 line too long (83 > 79 characters)
+app/services/simulation_service.py:195:80: E501 line too long (120 > 79 characters)
+app/services/simulation_service.py:208:80: E501 line too long (93 > 79 characters)
+app/services/simulation_service.py:209:80: E501 line too long (96 > 79 characters)
+app/services/simulation_service.py:210:80: E501 line too long (100 > 79 characters)
+app/services/simulation_service.py:211:80: E501 line too long (88 > 79 characters)
+app/services/simulation_service.py:218:80: E501 line too long (86 > 79 characters)
+app/services/simulation_service.py:254:80: E501 line too long (112 > 79 characters)
+app/services/simulation_service.py:266:80: E501 line too long (85 > 79 characters)
+app/services/simulation_service.py:271:80: E501 line too long (83 > 79 characters)
+app/services/simulation_service.py:272:80: E501 line too long (110 > 79 characters)
+app/services/simulation_service.py:281:80: E501 line too long (91 > 79 characters)
+app/services/simulation_service.py:282:80: E501 line too long (118 > 79 characters)
+app/services/simulation_service.py:288:80: E501 line too long (85 > 79 characters)
+app/services/simulation_service.py:294:80: E501 line too long (91 > 79 characters)
+app/services/simulation_service.py:296:80: E501 line too long (97 > 79 characters)
+app/services/simulation_service.py:307:80: E501 line too long (80 > 79 characters)
+app/services/simulation_service.py:308:80: E501 line too long (84 > 79 characters)
+app/services/simulation_service.py:316:80: E501 line too long (92 > 79 characters)
+app/services/simulation_service.py:317:80: E501 line too long (130 > 79 characters)
+app/services/simulation_service.py:326:80: E501 line too long (84 > 79 characters)
+app/services/simulation_service.py:327:80: E501 line too long (120 > 79 characters)
+app/services/simulation_service.py:328:80: E501 line too long (117 > 79 characters)
+app/services/simulation_service.py:333:80: E501 line too long (83 > 79 characters)
+app/services/simulation_service.py:340:80: E501 line too long (94 > 79 characters)
+app/services/simulation_service.py:341:80: E501 line too long (130 > 79 characters)
+app/services/simulation_service.py:348:80: E501 line too long (104 > 79 characters)
+app/services/simulation_service.py:349:80: E501 line too long (104 > 79 characters)
+app/services/simulation_service.py:356:80: E501 line too long (89 > 79 characters)
+app/services/simulation_service.py:357:80: E501 line too long (89 > 79 characters)
+app/services/simulation_service.py:367:80: E501 line too long (81 > 79 characters)
+app/services/simulation_service.py:372:80: E501 line too long (82 > 79 characters)
+app/services/simulation_service.py:375:80: E501 line too long (95 > 79 characters)
+app/services/simulation_service.py:383:80: E501 line too long (81 > 79 characters)
+app/services/simulation_service.py:399:80: E501 line too long (94 > 79 characters)
+app/services/simulation_service.py:402:80: E501 line too long (122 > 79 characters)
+app/services/simulation_service.py:404:80: E501 line too long (106 > 79 characters)
+app/services/simulation_service.py:405:80: E501 line too long (118 > 79 characters)
+app/services/simulation_service.py:406:80: E501 line too long (117 > 79 characters)
+app/services/simulation_service.py:408:80: E501 line too long (99 > 79 characters)
+app/services/simulation_service.py:410:80: E501 line too long (103 > 79 characters)
+app/services/twin_service.py:6:1: F401 'sqlalchemy.and_' imported but unused
+app/services/twin_service.py:26:80: E501 line too long (80 > 79 characters)
+app/services/twin_service.py:31:80: E501 line too long (114 > 79 characters)
+app/services/twin_service.py:32:80: E501 line too long (84 > 79 characters)
+app/services/twin_service.py:41:80: E501 line too long (109 > 79 characters)
+app/services/twin_service.py:53:80: E501 line too long (85 > 79 characters)
+app/services/twin_service.py:54:80: E501 line too long (84 > 79 characters)
+app/services/twin_service.py:55:80: E501 line too long (93 > 79 characters)
+app/services/twin_service.py:56:80: E501 line too long (86 > 79 characters)
+app/services/twin_service.py:57:80: E501 line too long (80 > 79 characters)
+app/services/twin_service.py:58:80: E501 line too long (93 > 79 characters)
+app/services/twin_service.py:62:80: E501 line too long (82 > 79 characters)
+app/services/twin_service.py:94:80: E501 line too long (90 > 79 characters)
+app/services/twin_service.py:95:80: E501 line too long (101 > 79 characters)
+app/services/twin_service.py:98:80: E501 line too long (125 > 79 characters)
+app/services/twin_service.py:115:80: E501 line too long (84 > 79 characters)
+app/services/twin_service.py:122:80: E501 line too long (97 > 79 characters)
+app/services/twin_service.py:123:80: E501 line too long (89 > 79 characters)
+app/services/twin_service.py:127:80: E501 line too long (115 > 79 characters)
+app/services/twin_service.py:152:80: E501 line too long (81 > 79 characters)
+app/services/twin_service.py:181:80: E501 line too long (86 > 79 characters)
+app/services/twin_service.py:198:80: E501 line too long (106 > 79 characters)
+app/services/twin_service.py:203:80: E501 line too long (91 > 79 characters)
+app/services/twin_service.py:204:80: E501 line too long (91 > 79 characters)
+app/services/twin_service.py:206:80: E501 line too long (98 > 79 characters)
+app/services/twin_service.py:208:80: E501 line too long (112 > 79 characters)
+app/services/twin_service.py:222:80: E501 line too long (103 > 79 characters)
+app/services/twin_service.py:226:80: E501 line too long (105 > 79 characters)
+app/services/twin_service.py:227:80: E501 line too long (103 > 79 characters)
+app/services/twin_service.py:228:80: E501 line too long (101 > 79 characters)
+app/services/twin_service.py:229:80: E501 line too long (105 > 79 characters)
+app/services/twin_service.py:248:80: E501 line too long (127 > 79 characters)
+app/services/twin_service.py:295:80: E501 line too long (99 > 79 characters)
+app/services/twin_service.py:296:80: E501 line too long (82 > 79 characters)
+app/services/twin_service.py:305:80: E501 line too long (116 > 79 characters)
+app/services/twin_service.py:308:80: E501 line too long (95 > 79 characters)
+app/services/twin_service.py:316:80: E501 line too long (120 > 79 characters)
+app/services/twin_service.py:317:80: E501 line too long (124 > 79 characters)
+app/services/twin_service.py:319:80: E501 line too long (112 > 79 characters)
+app/services/twin_service.py:320:80: E501 line too long (118 > 79 characters)
+app/services/twin_service.py:322:80: E501 line too long (120 > 79 characters)
+app/services/twin_service.py:323:80: E501 line too long (122 > 79 characters)
+app/services/twin_service.py:324:80: E501 line too long (124 > 79 characters)
+app/services/twin_service.py:326:80: E501 line too long (124 > 79 characters)
+app/services/twin_service.py:333:80: E501 line too long (88 > 79 characters)
+app/services/twin_service.py:334:80: E501 line too long (82 > 79 characters)
+app/services/twin_service.py:336:80: E501 line too long (96 > 79 characters)
+app/services/twin_service.py:337:80: E501 line too long (122 > 79 characters)
+app/services/twin_service.py:338:80: E501 line too long (89 > 79 characters)
+app/services/twin_service.py:339:80: E501 line too long (93 > 79 characters)
+app/services/twin_service.py:340:80: E501 line too long (122 > 79 characters)
+app/services/twin_service.py:341:80: E501 line too long (119 > 79 characters)
+app/services/twin_service.py:342:80: E501 line too long (114 > 79 characters)
+app/services/twin_service.py:345:80: E501 line too long (114 > 79 characters)
+app/services/twin_service.py:348:80: E501 line too long (102 > 79 characters)
+app/services/twin_service.py:356:80: E501 line too long (100 > 79 characters)
+app/services/twin_service.py:358:80: E501 line too long (100 > 79 characters)
+app/services/twin_service.py:362:80: E501 line too long (114 > 79 characters)
+app/services/twin_service.py:398:80: E501 line too long (116 > 79 characters)
+app/services/twin_service.py:402:80: E501 line too long (91 > 79 characters)
+app/services/twin_service.py:412:80: E501 line too long (105 > 79 characters)
+app/services/twin_service.py:422:80: E501 line too long (112 > 79 characters)
+app/services/twin_service.py:435:80: E501 line too long (110 > 79 characters)
+app/services/twin_service.py:444:80: E501 line too long (131 > 79 characters)
+app/services/twin_service.py:454:80: E501 line too long (132 > 79 characters)
+app/services/twin_service.py:464:80: E501 line too long (115 > 79 characters)
+app/services/twin_service.py:473:80: E501 line too long (112 > 79 characters)
+app/services/twin_service.py:482:80: E501 line too long (96 > 79 characters)
+app/services/twin_service.py:501:80: E501 line too long (88 > 79 characters)
+app/services/twin_service.py:510:80: E501 line too long (82 > 79 characters)
+app/services/twin_service.py:511:80: E501 line too long (86 > 79 characters)
+app/services/twin_service.py:542:80: E501 line too long (80 > 79 characters)
+app/services/twin_service.py:550:80: E501 line too long (82 > 79 characters)
+app/services/twin_service.py:552:80: E501 line too long (81 > 79 characters)
+app/tasks/notification_worker.py:13:1: F401 'app.models.notification.Notification' imported but unused
+app/tasks/notification_worker.py:26:80: E501 line too long (104 > 79 characters)
+app/tasks/prediction_worker.py:23:17: F841 local variable 'result' is assigned to but never used
+app/tasks/prediction_worker.py:27:80: E501 line too long (92 > 79 characters)
+app/tasks/simulation_worker.py:6:1: F401 'json' imported but unused
+app/tasks/simulation_worker.py:28:80: E501 line too long (88 > 79 characters)
+app/tasks/simulation_worker.py:30:80: E501 line too long (82 > 79 characters)
+app/tasks/twin_builder.py:7:1: F401 'json' imported but unused
+app/tasks/twin_builder.py:33:80: E501 line too long (83 > 79 characters)
+app/tasks/twin_builder.py:39:80: E501 line too long (84 > 79 characters)
+app/tasks/twin_builder.py:42:80: E501 line too long (95 > 79 characters)

@@ -1,0 +1,68 @@
+WARNING    Length of file '001_schema.sql' is 44447 bytes which is over the limit of 20000 bytes. Skipping to avoid parser lock. Users can increase this limit in their config by setting the 'large_file_skip_byte_limit' value, or disable by setting it to zero. 
+== [002_missing_indexes.sql] FAIL
+L:   6 | P:   1 | LT05 | Line is too long (84 > 80). [layout.long_lines]
+L:   7 | P:   1 | LT05 | Line is too long (95 > 80). [layout.long_lines]
+L:   7 | P:   1 | PG01 | CREATE INDEX should use CONCURRENTLY to avoid locking
+                       | the table during the build. [postgres.excessive_locks]
+L:   7 | P:  66 | LT01 | Expected single whitespace between naked identifier and
+                       | start bracket '('. [layout.spacing]
+L:   8 | P:   1 | LT02 | Line should not be indented. [layout.indent]
+L:  10 | P:   1 | LT05 | Line is too long (117 > 80). [layout.long_lines]
+L:  11 | P:   1 | LT05 | Line is too long (107 > 80). [layout.long_lines]
+L:  11 | P:   1 | PG01 | CREATE INDEX should use CONCURRENTLY to avoid locking
+                       | the table during the build. [postgres.excessive_locks]
+L:  11 | P:  77 | LT01 | Expected single whitespace between naked identifier and
+                       | start bracket '('. [layout.spacing]
+L:  14 | P:   1 | LT05 | Line is too long (109 > 80). [layout.long_lines]
+L:  14 | P:   1 | PG01 | CREATE INDEX should use CONCURRENTLY to avoid locking
+                       | the table during the build. [postgres.excessive_locks]
+L:  14 | P:  75 | LT01 | Expected single whitespace between naked identifier and
+                       | start bracket '('. [layout.spacing]
+L:  17 | P:   1 | LT05 | Line is too long (83 > 80). [layout.long_lines]
+L:  17 | P:   1 | PG01 | CREATE INDEX should use CONCURRENTLY to avoid locking
+                       | the table during the build. [postgres.excessive_locks]
+L:  17 | P:  72 | LT01 | Expected single whitespace between naked identifier and
+                       | start bracket '('. [layout.spacing]
+L:  18 | P:   1 | LT02 | Line should not be indented. [layout.indent]
+L:  21 | P:   1 | LT05 | Line is too long (129 > 80). [layout.long_lines]
+L:  21 | P:   1 | PG01 | CREATE INDEX should use CONCURRENTLY to avoid locking
+                       | the table during the build. [postgres.excessive_locks]
+L:  21 | P:  86 | LT01 | Expected single whitespace between naked identifier and
+                       | start bracket '('. [layout.spacing]
+L:  23 | P:   1 | LT05 | Line is too long (83 > 80). [layout.long_lines]
+L:  24 | P:   1 | LT05 | Line is too long (126 > 80). [layout.long_lines]
+L:  24 | P:   1 | PG01 | CREATE INDEX should use CONCURRENTLY to avoid locking
+                       | the table during the build. [postgres.excessive_locks]
+L:  24 | P:  79 | LT01 | Expected single whitespace between naked identifier and
+                       | start bracket '('. [layout.spacing]
+L:  26 | P:   1 | LT05 | Line is too long (87 > 80). [layout.long_lines]
+L:  27 | P:   1 | LT05 | Line is too long (124 > 80). [layout.long_lines]
+L:  27 | P:   1 | PG01 | CREATE INDEX should use CONCURRENTLY to avoid locking
+                       | the table during the build. [postgres.excessive_locks]
+L:  27 | P:  83 | LT01 | Expected single whitespace between naked identifier and
+                       | start bracket '('. [layout.spacing]
+L:  28 | P:   1 | LT02 | Line should not be indented. [layout.indent]
+L:  28 | P:  24 | CP04 | Boolean/null literals must be consistently upper case.
+                       | [capitalisation.literals]
+L:  31 | P:   1 | LT05 | Line is too long (100 > 80). [layout.long_lines]
+L:  31 | P:   1 | PG01 | CREATE INDEX should use CONCURRENTLY to avoid locking
+                       | the table during the build. [postgres.excessive_locks]
+L:  31 | P:  66 | LT01 | Expected single whitespace between naked identifier and
+                       | start bracket '('. [layout.spacing]
+L:  33 | P:   1 | LT05 | Line is too long (89 > 80). [layout.long_lines]
+L:  34 | P:   1 | LT05 | Line is too long (114 > 80). [layout.long_lines]
+L:  34 | P:   1 | PG01 | CREATE INDEX should use CONCURRENTLY to avoid locking
+                       | the table during the build. [postgres.excessive_locks]
+L:  34 | P:  81 | LT01 | Expected single whitespace between naked identifier and
+                       | start bracket '('. [layout.spacing]
+L:  35 | P:   1 | LT02 | Line should not be indented. [layout.indent]
+== [kafka_topics.sql] FAIL
+L:  15 | P:   1 |  PRS | Line 15, Position 1: Found unparsable section: '{\n 
+                       | "type": "record",\n  "name": "RawEven...'
+L:  97 | P:   1 | LT05 | Line is too long (158 > 80). [layout.long_lines]
+L: 164 | P:   1 | LT05 | Line is too long (156 > 80). [layout.long_lines]
+L: 180 | P:   1 | LT05 | Line is too long (161 > 80). [layout.long_lines]
+L: 204 | P:   1 | LT05 | Line is too long (181 > 80). [layout.long_lines]
+L: 206 | P:   1 | LT05 | Line is too long (84 > 80). [layout.long_lines]
+WARNING: Parsing errors found and dialect is set to 'postgres'. Have you configured your dialect correctly?
+All Finished!

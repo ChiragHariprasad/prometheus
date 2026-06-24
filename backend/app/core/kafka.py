@@ -83,12 +83,24 @@ class KafkaClient:
 
         try:
             async for msg in consumer:
-                try:
-                    data = json.loads(msg.value.decode())
-                    await handler(data)
-                except Exception as e:
-                    logger.error(f"Error processing message from {topic}: {e}", exc_info=True)
-                    await self._send_to_dlq(topic, msg, str(e))
+                data = json.loads(msg.value.decode())
+                retries = 0
+                max_retries = 3
+                while retries <= max_retries:
+                    try:
+                        await handler(data)
+                        if not auto_commit:
+                            await consumer.commit()
+                        break
+                    except Exception as e:
+                        retries += 1
+                        if retries > max_retries:
+                            logger.error(f"Error processing message from {topic}: {e}", exc_info=True)
+                            await self._send_to_dlq(topic, msg, str(e))
+                        else:
+                            wait = 2 ** retries
+                            logger.warning(f"Retry {retries}/{max_retries} for {topic} in {wait}s: {e}")
+                            await asyncio.sleep(wait)
         finally:
             await consumer.stop()
 

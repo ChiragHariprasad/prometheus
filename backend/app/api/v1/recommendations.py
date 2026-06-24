@@ -89,7 +89,7 @@ async def submit_recommendation_feedback(
 ):
     feedback = RecFeedback(organization_id=org_id, **payload.model_dump())
     session.add(feedback)
-    await session.commit()
+
     return APIResponse(message="Feedback recorded successfully")
 
 

@@ -17,7 +17,7 @@ from app.schemas.auth import (
 from app.schemas.common import APIResponse
 from app.models.user import User
 from app.middleware.auth import get_current_user
-from app.core.exceptions import NotFoundException, ForbiddenException
+from app.core.exceptions import NotFoundException, ForbiddenException, ValidationException
 from app.core.config import settings
 from app.services.auth_service import AuthService
 
@@ -142,5 +142,15 @@ async def verify_mfa(
     current_user: User = Depends(get_current_user),
 ):
     service = AuthService(session)
-    await service.verify_mfa(current_user.id, payload.code)
+    valid = await service.verify_mfa(current_user.id, payload.code)
+    if not valid:
+        raise ValidationException("Invalid MFA code")
     return APIResponse(message="MFA verified successfully")
+
+
+@router.post("/logout", response_model=APIResponse)
+async def logout(
+    current_user: User = Depends(get_current_user),
+):
+    logger.info("User logged out", extra={"user_id": str(current_user.id)})
+    return APIResponse(message="Logged out successfully")

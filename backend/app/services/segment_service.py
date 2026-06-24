@@ -1,4 +1,5 @@
 import uuid
+import asyncio
 from datetime import datetime, timezone
 
 from sqlalchemy import select, delete, func
@@ -11,11 +12,13 @@ from app.models.customer import (
 )
 from app.models.twin import CustomerTwin
 from app.models.event import Event
+from app.repositories.segment_repository import SegmentRepository
 
 
 class SegmentService:
     def __init__(self, session: AsyncSession):
         self.session = session
+        self.repo = SegmentRepository(session)
 
     async def create_segment(
         self, org_id: uuid.UUID, name: str, description: str | None = None,
@@ -38,13 +41,7 @@ class SegmentService:
         return segment
 
     async def get_segment(self, segment_id: uuid.UUID, org_id: uuid.UUID) -> CustomerSegment:
-        result = await self.session.execute(
-            select(CustomerSegment).where(
-                CustomerSegment.id == segment_id,
-                CustomerSegment.organization_id == org_id,
-            )
-        )
-        segment = result.scalar_one_or_none()
+        segment = await self.repo.get(segment_id, org_id)
         if not segment:
             raise NotFoundException("Segment", str(segment_id))
         return segment
@@ -52,18 +49,22 @@ class SegmentService:
     async def update_segment(
         self, segment_id: uuid.UUID, org_id: uuid.UUID, **kwargs,
     ) -> CustomerSegment:
-        segment = await self.get_segment(segment_id, org_id)
+        segment = await self.repo.get(segment_id, org_id)
+        if not segment:
+            raise NotFoundException("Segment", str(segment_id))
         for field, value in kwargs.items():
             if hasattr(segment, field):
                 setattr(segment, field, value)
         await self.session.flush()
         if kwargs.get("rules") is not None:
-            await self._apply_rules(segment, org_id)
+            await self.recalculate_membership(segment.id, org_id)
         await self.session.refresh(segment)
         return segment
 
     async def delete_segment(self, segment_id: uuid.UUID, org_id: uuid.UUID) -> None:
-        segment = await self.get_segment(segment_id, org_id)
+        segment = await self.repo.get(segment_id, org_id)
+        if not segment:
+            raise NotFoundException("Segment", str(segment_id))
         await self.session.delete(segment)
         await self.session.flush()
 
@@ -71,15 +72,13 @@ class SegmentService:
         self, org_id: uuid.UUID, page: int = 1, page_size: int = 20,
         search: str | None = None,
     ) -> tuple[list[CustomerSegment], int]:
-        stmt = select(CustomerSegment).where(CustomerSegment.organization_id == org_id)
-        count_stmt = select(func.count()).select_from(CustomerSegment).where(
-            CustomerSegment.organization_id == org_id,
-        )
+        filters = {}
         if search:
-            stmt = stmt.where(CustomerSegment.name.ilike(f"%{search}%"))
-            count_stmt = count_stmt.where(CustomerSegment.name.ilike(f"%{search}%"))
-        total_result = await self.session.execute(count_stmt)
-        total = total_result.scalar() or 0
+            filters["name"] = {"op": "ilike", "value": f"%{search}%"}
+        return await self.repo.get_multi(
+            skip=(page - 1) * page_size, limit=page_size,
+            filters=filters, organization_id=org_id,
+        )
         stmt = stmt.order_by(CustomerSegment.created_at.desc())
         stmt = stmt.offset((page - 1) * page_size).limit(page_size)
         result = await self.session.execute(stmt)
@@ -166,11 +165,9 @@ class SegmentService:
             )
         )
         segments = result.scalars().all()
-        counts = {}
-        for segment in segments:
-            count = await self.recalculate_membership(segment.id, org_id)
-            counts[str(segment.id)] = count
-        return counts
+        tasks = [self.recalculate_membership(segment.id, org_id) for segment in segments]
+        results = await asyncio.gather(*tasks)
+        return {str(segment.id): count for segment, count in zip(segments, results)}
 
     async def _apply_rules(self, segment: CustomerSegment, org_id: uuid.UUID) -> None:
         rules = segment.rules or {}

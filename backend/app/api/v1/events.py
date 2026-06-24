@@ -38,7 +38,7 @@ async def create_event(
 
     event = Event(organization_id=org_id, **payload.model_dump())
     session.add(event)
-    await session.commit()
+
     await session.refresh(event)
     return APIResponse(data=EventResponse.model_validate(event))
 
