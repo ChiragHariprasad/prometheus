@@ -2,7 +2,7 @@ from datetime import datetime
 from uuid import UUID
 from typing import Any
 
-from pydantic import BaseModel, ConfigDict, field_validator, model_validator
+from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
 
 
 class SimulationCreate(BaseModel):
@@ -159,7 +159,10 @@ class SimulationResultResponse(BaseModel):
     campaign_impact: dict[str, Any] = {}
     confidence_intervals: dict[str, Any] = {}
     monte_carlo_distribution: dict[str, Any] = {}
-    expected_outcomes: dict[str, Any] = {}
+    expected_outcomes: dict[str, Any] = Field(default_factory=lambda: {
+        "expected_revenue": 0.0, "expected_roi": 0.0, "expected_churns": 0,
+        "ltv_impact": 0.0, "expected_conversions": 0,
+    })
     risk_assessment: dict[str, Any] = {}
     recommendations: list[str] = []
 
@@ -168,9 +171,12 @@ class SimulationResultResponse(BaseModel):
 
 class SimulationForecastResponse(BaseModel):
     expected_revenue: float | None = None
+    expected_roi: float | None = None
+    expected_churns: float | None = None
     expected_conversions: float | None = None
     expected_open_rate: float | None = None
     expected_click_rate: float | None = None
+    ltv_impact: float | None = None
     revenue_confidence_interval: list[float] = []
     conversion_confidence_interval: list[float] = []
     scenarios: dict[str, Any] = {}
@@ -187,10 +193,14 @@ class SimulationStatusResponse(BaseModel):
     started_at: datetime | None = None
     completed_at: datetime | None = None
 
+    model_config = ConfigDict(from_attributes=True)
+
 
 class SimulationProgressResponse(BaseModel):
     progress: float = 0.0
     status: str
+
+    model_config = ConfigDict(from_attributes=True)
 
 
 class SimulationListResponse(SimulationResponse):

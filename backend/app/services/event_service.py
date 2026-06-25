@@ -110,6 +110,8 @@ class EventService:
 
         await self._produce_to_kafka(organization_id, event)
 
+        await self._compute_embedding(event)
+
         logger.info("Event ingested", extra={
             "event_id": str(event.id), "event_type": event_type, "org_id": str(organization_id),
         })
@@ -244,6 +246,14 @@ class EventService:
             if not customer.last_seen_at or timestamp > customer.last_seen_at:
                 customer.last_seen_at = timestamp
             await self.session.flush()
+
+    async def _compute_embedding(self, event: CustomerEvent) -> None:
+        try:
+            from app.services.embedding_service import EmbeddingService
+            svc = EmbeddingService(self.session)
+            await svc.embed_event(event)
+        except Exception as e:
+            logger.warning("Event embedding skipped", extra={"error": str(e), "event_id": str(event.id)})
 
     async def _produce_to_kafka(self, organization_id: uuid.UUID, event: CustomerEvent) -> None:
         if not self.kafka:

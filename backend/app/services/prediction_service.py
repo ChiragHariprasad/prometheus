@@ -1,19 +1,80 @@
 import uuid
 import math
-import random
+import asyncio
 from datetime import datetime, timezone, timedelta
 from typing import Any
 
-from sqlalchemy import select, func, and_, or_
+from sqlalchemy import select, func
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.core.config import settings
 from app.core.exceptions import NotFoundException
 from app.core.logging import logger
 from app.core.redis import RedisClient
-from app.models.customer import Customer, CustomerProfile
+from app.models.customer import Customer
 from app.models.event import Event as CustomerEvent
 from app.models.twin import CustomerTwin, Prediction as CustomerPrediction
 from app.repositories.customer_repository import CustomerRepository
+
+
+_CHURN_MODEL = [None]
+_INTENT_MODEL = [None]
+_LTV_MODEL = [None]
+_MODEL_LOCK = asyncio.Lock()
+_ML_AVAILABLE = False
+
+
+try:
+    import numpy as np
+    _ML_AVAILABLE = True
+except ImportError:
+    np = None
+
+
+async def _load_model(mlflow_name: str, model_var: list, local_path: str | None = None):
+    if model_var[0] is not None:
+        return model_var[0]
+    async with _MODEL_LOCK:
+        if model_var[0] is not None:
+            return model_var[0]
+        try:
+            import mlflow.pyfunc
+            mlflow.set_tracking_uri(settings.MLFLOW_TRACKING_URI)
+            model_var[0] = mlflow.pyfunc.load_model(f"models:/{mlflow_name}/Production")
+            logger.info(f"Loaded MLflow model: {mlflow_name}")
+        except Exception:
+            try:
+                if local_path:
+                    import joblib
+                    model_var[0] = joblib.load(local_path)
+                    logger.info(f"Loaded local model: {local_path}")
+            except Exception:
+                logger.warning(f"ML model not available: {mlflow_name}, using fallback")
+        return model_var[0]
+
+
+def _build_feature_vector(twin: CustomerTwin | None, features: dict) -> list[float]:
+    raw = features.get("raw", {})
+    vec = [
+        float(twin.engagement_score or 0),
+        float(twin.loyalty_score or 0),
+        float(twin.staleness_score or 0),
+        float(twin.lifetime_value or 0),
+        float(raw.get("events_30d", 0)),
+        float(raw.get("events_90d", 0)),
+        float(raw.get("purchases_90d", 0)),
+        float(raw.get("purchase_value_90d", 0)),
+    ]
+    sentiment = twin.sentiment_trend or []
+    avg_sent = sum(sentiment) / len(sentiment) if sentiment else 0.0
+    vec.append(float(avg_sent))
+    vec.append(float(len(sentiment)))
+    vec.append(float((twin.behavior_profile or {}).get("behavior_score", 0)))
+    behavior = twin.behavior_profile or {}
+    subs = behavior.get("sub_scores", {}) or {}
+    for key in ("engagement", "purchase_activity", "session_depth", "communication_response", "recency"):
+        vec.append(float(subs.get(key, 0)))
+    return vec
 
 
 class PredictionService:
@@ -31,10 +92,10 @@ class PredictionService:
         if existing and existing.valid_until and existing.valid_until > datetime.now(timezone.utc):
             return self._prediction_to_dict(existing)
 
-        churn_prob = self._compute_churn_probability(twin, customer)
+        features = await self._collect_features(customer_id, organization_id)
+        churn_prob = await self._compute_churn_probability(twin, customer, features)
         risk_level = self._risk_level(churn_prob)
 
-        features = await self._collect_features(customer_id, organization_id)
         explanation = self._explain_churn(churn_prob, twin, features)
 
         prediction = CustomerPrediction(
@@ -66,8 +127,9 @@ class PredictionService:
         if existing and existing.valid_until and existing.valid_until > datetime.now(timezone.utc):
             return self._prediction_to_dict(existing)
 
-        purchase_intent = self._compute_purchase_intent(twin, customer)
-        engagement_intent = self._compute_engagement_intent(twin, customer)
+        features = await self._collect_features(customer_id, organization_id)
+        purchase_intent = await self._compute_purchase_intent(twin, customer, features)
+        engagement_intent = await self._compute_engagement_intent(twin, customer, features)
 
         avg_intent = (purchase_intent + engagement_intent) / 2.0
 
@@ -77,8 +139,6 @@ class PredictionService:
             label = "medium_intent"
         else:
             label = "low_intent"
-
-        features = await self._collect_features(customer_id, organization_id)
 
         prediction = CustomerPrediction(
             customer_id=customer_id,
@@ -113,10 +173,9 @@ class PredictionService:
         if existing and existing.valid_until and existing.valid_until > datetime.now(timezone.utc):
             return self._prediction_to_dict(existing)
 
-        ltv_90d = self._compute_ltv_90d(twin, customer)
-        confidence = self._compute_confidence(twin)
-
         features = await self._collect_features(customer_id, organization_id)
+        ltv_90d = await self._compute_ltv_90d(twin, customer, features)
+        confidence = self._compute_confidence(twin)
 
         prediction = CustomerPrediction(
             customer_id=customer_id,
@@ -203,10 +262,34 @@ class PredictionService:
         result = await self.session.execute(stmt)
         return result.scalar_one_or_none()
 
-    def _compute_churn_probability(self, twin: CustomerTwin | None, customer: Customer) -> float:
+    async def _predict_with_model(self, model_name: str, model_var: list, twin: CustomerTwin | None, features: dict) -> float | None:
+        if not _ML_AVAILABLE or not twin:
+            return None
+        model = model_var[0]
+        if model is None:
+            await _load_model(model_name, model_var)
+            model = model_var[0]
+        if model is None:
+            return None
+        try:
+            vec = _build_feature_vector(twin, features)
+            import numpy as np
+            pred = await asyncio.to_thread(model.predict, np.array([vec]))
+            return float(pred[0])
+        except Exception as e:
+            logger.warning(f"ML prediction failed for {model_name}", extra={"error": str(e)})
+            return None
+
+    async def _compute_churn_probability(self, twin: CustomerTwin | None, customer: Customer, features: dict | None = None) -> float:
+        if features:
+            ml_pred = await self._predict_with_model("prometheus_churn", _CHURN_MODEL, twin, features)
+            if ml_pred is not None:
+                return min(max(ml_pred, 0.01), 0.99)
+        return self._fallback_churn(twin, customer)
+
+    def _fallback_churn(self, twin: CustomerTwin | None, customer: Customer) -> float:
         if not twin:
             return 0.5
-
         prob = 0.0
         staleness = twin.staleness_score or 0
         engagement = twin.engagement_score or 0
@@ -231,7 +314,14 @@ class PredictionService:
 
         return min(max(prob, 0.01), 0.99)
 
-    def _compute_purchase_intent(self, twin: CustomerTwin | None, customer: Customer) -> float:
+    async def _compute_purchase_intent(self, twin: CustomerTwin | None, customer: Customer, features: dict | None = None) -> float:
+        if features:
+            ml_pred = await self._predict_with_model("prometheus_intent", _INTENT_MODEL, twin, features)
+            if ml_pred is not None:
+                return min(max(ml_pred, 0.01), 0.99)
+        return self._fallback_purchase_intent(twin, customer)
+
+    def _fallback_purchase_intent(self, twin: CustomerTwin | None, customer: Customer) -> float:
         if not twin:
             return 0.3
         engagement = twin.engagement_score or 0
@@ -239,7 +329,14 @@ class PredictionService:
         intent = engagement * 0.4 + loyalty * 0.3 + 0.1
         return min(max(intent, 0.01), 0.99)
 
-    def _compute_engagement_intent(self, twin: CustomerTwin | None, customer: Customer) -> float:
+    async def _compute_engagement_intent(self, twin: CustomerTwin | None, customer: Customer, features: dict | None = None) -> float:
+        if features:
+            ml_pred = await self._predict_with_model("prometheus_intent", _INTENT_MODEL, twin, features)
+            if ml_pred is not None:
+                return min(max(ml_pred, 0.01), 0.99)
+        return self._fallback_engagement_intent(twin, customer)
+
+    def _fallback_engagement_intent(self, twin: CustomerTwin | None, customer: Customer) -> float:
         if not twin:
             return 0.4
         staleness = 1 - (twin.staleness_score or 0)
@@ -247,13 +344,19 @@ class PredictionService:
         intent = engagement * 0.5 + staleness * 0.3 + 0.1
         return min(max(intent, 0.01), 0.99)
 
-    def _compute_ltv_90d(self, twin: CustomerTwin | None, customer: Customer) -> float:
+    async def _compute_ltv_90d(self, twin: CustomerTwin | None, customer: Customer, features: dict | None = None) -> float:
+        if features:
+            ml_pred = await self._predict_with_model("prometheus_ltv", _LTV_MODEL, twin, features)
+            if ml_pred is not None:
+                return max(ml_pred, 0.0)
+        return self._fallback_ltv(twin, customer)
+
+    def _fallback_ltv(self, twin: CustomerTwin | None, customer: Customer) -> float:
         if not twin:
             return 0.0
         current_ltv = twin.lifetime_value or 0
         engagement = twin.engagement_score or 0
         loyalty = twin.loyalty_score or 0
-
         growth_rate = (engagement + loyalty) / 2.0
         projected = current_ltv + (growth_rate * 500)
         return round(max(projected, 0), 2)

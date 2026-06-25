@@ -138,9 +138,12 @@ class SimulationService:
 
         return SimulationForecastResponse(
             expected_revenue=outcomes.get("expected_revenue"),
+            expected_roi=outcomes.get("expected_roi"),
+            expected_churns=outcomes.get("expected_churns"),
             expected_conversions=outcomes.get("expected_conversions"),
             expected_open_rate=outcomes.get("expected_open_rate"),
             expected_click_rate=outcomes.get("expected_click_rate"),
+            ltv_impact=outcomes.get("ltv_impact"),
             revenue_confidence_interval=intervals.get("revenue", []),
             conversion_confidence_interval=intervals.get("conversions", []),
             scenarios=result_obj.monte_carlo_distribution or {},

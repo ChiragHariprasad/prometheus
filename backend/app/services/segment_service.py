@@ -169,6 +169,149 @@ class SegmentService:
         results = await asyncio.gather(*tasks)
         return {str(segment.id): count for segment, count in zip(segments, results)}
 
+    async def discover_ml_segments(self, org_id: uuid.UUID) -> list[CustomerSegment]:
+        try:
+            import numpy as np
+        except ImportError:
+            logger.warning("NumPy not available for ML clustering")
+            return []
+
+        stmt = select(CustomerTwin).where(
+            CustomerTwin.organization_id == org_id,
+            CustomerTwin.status == "built",
+        )
+        result = await self.session.execute(stmt)
+        twins = list(result.scalars().all())
+
+        if len(twins) < 10:
+            logger.info("Not enough twins for clustering", extra={"org_id": str(org_id), "count": len(twins)})
+            return []
+
+        features = []
+        customer_ids = []
+        for twin in twins:
+            if twin.engagement_score is None:
+                continue
+            vec = [
+                twin.engagement_score or 0,
+                twin.loyalty_score or 0,
+                twin.staleness_score or 0,
+                min((twin.lifetime_value or 0) / 10000.0, 1.0),
+            ]
+            sentiment = twin.sentiment_trend or []
+            avg_s = sum(sentiment) / len(sentiment) if sentiment else 0.0
+            vec.append(float(avg_s))
+            profile = twin.behavior_profile or {}
+            subs = profile.get("sub_scores", {}) or {}
+            for key in ("purchase_activity", "session_depth", "recency"):
+                vec.append(float(subs.get(key, 0)))
+            features.append(vec)
+            customer_ids.append(twin.customer_id)
+
+        if len(features) < 10:
+            return []
+
+        X = np.array(features)
+        segments_created = []
+
+        try:
+            from sklearn.preprocessing import StandardScaler
+            from sklearn.cluster import KMeans
+            from sklearn.metrics import silhouette_score
+
+            scaler = StandardScaler()
+            X_scaled = scaler.fit_transform(X)
+
+            best_k = 0
+            best_score = -1
+            for k in range(max(2, min(len(X_scaled) // 10, 3)), min(8, len(X_scaled) // 5) + 1):
+                km = KMeans(n_clusters=k, random_state=42, n_init="auto")
+                labels = km.fit_predict(X_scaled)
+                if len(set(labels)) > 1:
+                    score = silhouette_score(X_scaled, labels)
+                    if score > best_score:
+                        best_score = score
+                        best_k = k
+
+            if best_k < 2:
+                return []
+
+            final_kmeans = KMeans(n_clusters=best_k, random_state=42, n_init="auto")
+            cluster_labels = final_kmeans.fit_predict(X_scaled).tolist()
+
+            cluster_profiles: dict[int, dict] = {}
+            for cid, label in zip(customer_ids, cluster_labels):
+                if label not in cluster_profiles:
+                    cluster_profiles[label] = {"customer_ids": [], "engagement": [], "loyalty": [], "ltv": []}
+                cluster_profiles[label]["customer_ids"].append(cid)
+
+            for label, profile in cluster_profiles.items():
+                name = self._cluster_name(label, profile, twins, customer_ids)
+                segment = CustomerSegment(
+                    organization_id=org_id,
+                    name=name,
+                    description=f"ML-discovered segment (cluster {label}) from KMeans",
+                    source="ml_auto",
+                    cluster_id=int(label),
+                    ml_model_id="kmeans_v1",
+                    segment_metadata={
+                        "algorithm": "kmeans",
+                        "cluster_label": int(label),
+                        "customer_count": len(profile["customer_ids"]),
+                        "silhouette_score": round(float(best_score), 4),
+                    },
+                    is_dynamic=True,
+                )
+                self.session.add(segment)
+                await self.session.flush()
+
+                for cid in profile["customer_ids"]:
+                    mapping = CustomerSegmentMapping(
+                        customer_id=cid,
+                        segment_id=segment.id,
+                        organization_id=org_id,
+                        assigned_by="ml_clustering",
+                    )
+                    self.session.add(mapping)
+                await self.session.flush()
+                segment.customer_count = len(profile["customer_ids"])
+                segments_created.append(segment)
+
+            logger.info("ML segments discovered", extra={
+                "org_id": str(org_id), "count": len(segments_created), "k": best_k,
+            })
+
+        except Exception as e:
+            logger.warning("ML clustering failed, using fallback", extra={"error": str(e)})
+
+        await self.session.flush()
+        return segments_created
+
+    def _cluster_name(self, label: int, profile: dict, twins: list, customer_ids: list) -> str:
+        twin_map = {str(t.customer_id): t for t in twins}
+        eng, loy, ltv = [], [], []
+        for cid in profile["customer_ids"]:
+            t = twin_map.get(str(cid))
+            if t:
+                eng.append(t.engagement_score or 0)
+                loy.append(t.loyalty_score or 0)
+                ltv.append(t.lifetime_value or 0)
+
+        avg_eng = sum(eng) / len(eng) if eng else 0
+        avg_loy = sum(loy) / len(loy) if loy else 0
+        avg_ltv = sum(ltv) / len(ltv) if ltv else 0
+
+        if avg_eng > 0.7 and avg_loy > 0.7:
+            return f"Champions (Cluster {label})"
+        elif avg_eng > 0.5 and avg_loy > 0.5:
+            return f"Loyal Members (Cluster {label})"
+        elif avg_eng > 0.3:
+            return f"Active Users (Cluster {label})"
+        elif avg_ltv > 1000:
+            return f"High Value (Cluster {label})"
+        else:
+            return f"Needs Attention (Cluster {label})"
+
     async def _apply_rules(self, segment: CustomerSegment, org_id: uuid.UUID) -> None:
         rules = segment.rules or {}
         query = select(Customer.id).where(Customer.organization_id == org_id)

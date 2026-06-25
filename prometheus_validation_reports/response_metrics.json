@@ -1,998 +1,998 @@
 {
-  "p50_ms": 6.23774528503418,
-  "p90_ms": 79.99968528747559,
-  "p95_ms": 139.3873691558838,
-  "p99_ms": 845.3872203826904,
+  "p50_ms": 5.547046661376953,
+  "p90_ms": 20.9200382232666,
+  "p95_ms": 58.80904197692871,
+  "p99_ms": 127.66265869140625,
   "metrics": [
     {
       "path": "/openapi.json",
       "method": "GET",
       "status_code": 200,
-      "total_response_time": 2.070406913757324,
-      "server_processing_time": 2.066782,
+      "total_response_time": 2.1886258125305176,
+      "server_processing_time": 2.183481,
       "payload_size": 136135,
-      "timestamp": "2026-06-24T20:21:28.102677+00:00"
+      "timestamp": "2026-06-24T22:38:51.286110+00:00"
     },
     {
       "path": "/health",
       "method": "GET",
       "status_code": 200,
-      "total_response_time": 0.002674579620361328,
-      "server_processing_time": 0.001846,
+      "total_response_time": 0.0025413036346435547,
+      "server_processing_time": 0.001881,
       "payload_size": 147,
-      "timestamp": "2026-06-24T20:21:28.107580+00:00"
+      "timestamp": "2026-06-24T22:38:51.290528+00:00"
     },
     {
       "path": "/ready",
       "method": "GET",
       "status_code": 200,
-      "total_response_time": 0.0018384456634521484,
-      "server_processing_time": 0.001163,
+      "total_response_time": 0.0015566349029541016,
+      "server_processing_time": 0.001109,
       "payload_size": 18,
-      "timestamp": "2026-06-24T20:21:28.109434+00:00"
+      "timestamp": "2026-06-24T22:38:51.292096+00:00"
     },
     {
       "path": "/api/v1/auth/me",
       "method": "GET",
       "status_code": 200,
-      "total_response_time": 0.002343893051147461,
-      "server_processing_time": 0.001981,
+      "total_response_time": 0.0023424625396728516,
+      "server_processing_time": 0.001937,
       "payload_size": 233,
-      "timestamp": "2026-06-24T20:21:28.111792+00:00"
+      "timestamp": "2026-06-24T22:38:51.294452+00:00"
     },
     {
       "path": "/api/v1/users",
       "method": "GET",
       "status_code": 200,
-      "total_response_time": 0.006735563278198242,
-      "server_processing_time": 0.006318,
+      "total_response_time": 0.011194467544555664,
+      "server_processing_time": 0.010795,
       "payload_size": 106,
-      "timestamp": "2026-06-24T20:21:28.118541+00:00"
+      "timestamp": "2026-06-24T22:38:51.305681+00:00"
     },
     {
       "path": "/api/v1/users/roles",
       "method": "GET",
       "status_code": 200,
-      "total_response_time": 0.004700183868408203,
-      "server_processing_time": 0.004035,
+      "total_response_time": 0.009348869323730469,
+      "server_processing_time": 0.008738,
       "payload_size": 2,
-      "timestamp": "2026-06-24T20:21:28.123265+00:00"
+      "timestamp": "2026-06-24T22:38:51.315053+00:00"
     },
     {
       "path": "/api/v1/customers",
       "method": "GET",
       "status_code": 200,
-      "total_response_time": 0.011651277542114258,
-      "server_processing_time": 0.011097,
-      "payload_size": 14032,
-      "timestamp": "2026-06-24T20:21:28.134935+00:00"
+      "total_response_time": 0.011028289794921875,
+      "server_processing_time": 0.010362,
+      "payload_size": 14033,
+      "timestamp": "2026-06-24T22:38:51.326104+00:00"
     },
     {
       "path": "/api/v1/customers/search",
       "method": "GET",
       "status_code": 200,
-      "total_response_time": 0.002916574478149414,
-      "server_processing_time": 0.002243,
+      "total_response_time": 0.003467559814453125,
+      "server_processing_time": 0.002648,
       "payload_size": 2,
-      "timestamp": "2026-06-24T20:21:28.137873+00:00"
+      "timestamp": "2026-06-24T22:38:51.329602+00:00"
     },
     {
       "path": "/api/v1/customers/new",
       "method": "GET",
       "status_code": 200,
-      "total_response_time": 0.0018656253814697266,
-      "server_processing_time": 0.00142,
+      "total_response_time": 0.002184152603149414,
+      "server_processing_time": 0.001727,
       "payload_size": 35,
-      "timestamp": "2026-06-24T20:21:28.139755+00:00"
+      "timestamp": "2026-06-24T22:38:51.331801+00:00"
     },
     {
       "path": "/api/v1/twins/summary",
       "method": "GET",
       "status_code": 200,
-      "total_response_time": 0.0035588741302490234,
-      "server_processing_time": 0.003191,
+      "total_response_time": 0.0038352012634277344,
+      "server_processing_time": 0.003465,
       "payload_size": 155,
-      "timestamp": "2026-06-24T20:21:28.143329+00:00"
+      "timestamp": "2026-06-24T22:38:51.335652+00:00"
     },
     {
       "path": "/api/v1/events",
       "method": "GET",
       "status_code": 200,
-      "total_response_time": 0.008174419403076172,
-      "server_processing_time": 0.007746,
-      "payload_size": 12126,
-      "timestamp": "2026-06-24T20:21:28.151518+00:00"
+      "total_response_time": 0.009978294372558594,
+      "server_processing_time": 0.009423,
+      "payload_size": 12132,
+      "timestamp": "2026-06-24T22:38:51.345648+00:00"
     },
     {
       "path": "/api/v1/events/types",
       "method": "GET",
       "status_code": 200,
-      "total_response_time": 0.004483222961425781,
-      "server_processing_time": 0.004011,
+      "total_response_time": 0.005547046661376953,
+      "server_processing_time": 0.004924,
       "payload_size": 379,
-      "timestamp": "2026-06-24T20:21:28.156019+00:00"
+      "timestamp": "2026-06-24T22:38:51.351217+00:00"
     },
     {
       "path": "/api/v1/events/summary",
       "method": "GET",
       "status_code": 200,
-      "total_response_time": 0.004984378814697266,
-      "server_processing_time": 0.004508,
+      "total_response_time": 0.0063915252685546875,
+      "server_processing_time": 0.00592,
       "payload_size": 379,
-      "timestamp": "2026-06-24T20:21:28.161020+00:00"
+      "timestamp": "2026-06-24T22:38:51.357627+00:00"
     },
     {
       "path": "/api/v1/campaigns",
       "method": "GET",
       "status_code": 200,
-      "total_response_time": 0.006706953048706055,
-      "server_processing_time": 0.006186,
+      "total_response_time": 0.01208043098449707,
+      "server_processing_time": 0.011562,
       "payload_size": 6891,
-      "timestamp": "2026-06-24T20:21:28.167750+00:00"
+      "timestamp": "2026-06-24T22:38:51.369729+00:00"
     },
     {
       "path": "/api/v1/simulations",
       "method": "GET",
       "status_code": 200,
-      "total_response_time": 0.009546995162963867,
-      "server_processing_time": 0.009021,
-      "payload_size": 5853,
-      "timestamp": "2026-06-24T20:21:28.177320+00:00"
+      "total_response_time": 0.005541086196899414,
+      "server_processing_time": 0.004983,
+      "payload_size": 5986,
+      "timestamp": "2026-06-24T22:38:51.375293+00:00"
     },
     {
       "path": "/api/v1/recommendations",
       "method": "GET",
       "status_code": 200,
-      "total_response_time": 0.0070455074310302734,
-      "server_processing_time": 0.006353,
+      "total_response_time": 0.009205102920532227,
+      "server_processing_time": 0.008647,
       "payload_size": 106,
-      "timestamp": "2026-06-24T20:21:28.184394+00:00"
+      "timestamp": "2026-06-24T22:38:51.384520+00:00"
     },
     {
       "path": "/api/v1/notifications",
       "method": "GET",
       "status_code": 200,
-      "total_response_time": 0.0059032440185546875,
-      "server_processing_time": 0.005307,
+      "total_response_time": 0.016127824783325195,
+      "server_processing_time": 0.015024,
       "payload_size": 106,
-      "timestamp": "2026-06-24T20:21:28.190325+00:00"
+      "timestamp": "2026-06-24T22:38:51.400672+00:00"
     },
     {
       "path": "/api/v1/notifications/stats",
       "method": "GET",
       "status_code": 200,
-      "total_response_time": 0.007752656936645508,
-      "server_processing_time": 0.007209,
+      "total_response_time": 0.013839244842529297,
+      "server_processing_time": 0.013207,
       "payload_size": 81,
-      "timestamp": "2026-06-24T20:21:28.198102+00:00"
+      "timestamp": "2026-06-24T22:38:51.414535+00:00"
     },
     {
       "path": "/api/v1/analytics/dashboard",
       "method": "GET",
       "status_code": 200,
-      "total_response_time": 0.017719745635986328,
-      "server_processing_time": 0.017173,
-      "payload_size": 2615,
-      "timestamp": "2026-06-24T20:21:28.215845+00:00"
+      "total_response_time": 0.01696038246154785,
+      "server_processing_time": 0.016268,
+      "payload_size": 2620,
+      "timestamp": "2026-06-24T22:38:51.431518+00:00"
     },
     {
       "path": "/api/v1/analytics/revenue",
       "method": "GET",
       "status_code": 200,
-      "total_response_time": 0.0061435699462890625,
-      "server_processing_time": 0.005594,
+      "total_response_time": 0.00740504264831543,
+      "server_processing_time": 0.006774,
       "payload_size": 3201,
-      "timestamp": "2026-06-24T20:21:28.222014+00:00"
+      "timestamp": "2026-06-24T22:38:51.438946+00:00"
     },
     {
       "path": "/api/v1/analytics/engagement",
       "method": "GET",
       "status_code": 200,
-      "total_response_time": 0.005942583084106445,
-      "server_processing_time": 0.005397,
+      "total_response_time": 0.006696462631225586,
+      "server_processing_time": 0.006066,
       "payload_size": 7582,
-      "timestamp": "2026-06-24T20:21:28.227978+00:00"
+      "timestamp": "2026-06-24T22:38:51.445663+00:00"
     },
     {
       "path": "/api/v1/analytics/churn",
       "method": "GET",
       "status_code": 200,
-      "total_response_time": 0.020014286041259766,
-      "server_processing_time": 0.019407,
+      "total_response_time": 0.0209200382232666,
+      "server_processing_time": 0.020297,
       "payload_size": 1179,
-      "timestamp": "2026-06-24T20:21:28.248016+00:00"
+      "timestamp": "2026-06-24T22:38:51.466605+00:00"
     },
     {
       "path": "/api/v1/analytics/campaigns",
       "method": "GET",
       "status_code": 200,
-      "total_response_time": 0.013646841049194336,
-      "server_processing_time": 0.01299,
+      "total_response_time": 0.008618593215942383,
+      "server_processing_time": 0.007954,
       "payload_size": 2068,
-      "timestamp": "2026-06-24T20:21:28.261687+00:00"
+      "timestamp": "2026-06-24T22:38:51.475246+00:00"
     },
     {
       "path": "/api/v1/analytics/export",
       "method": "GET",
       "status_code": 200,
-      "total_response_time": 0.007977485656738281,
-      "server_processing_time": 0.007021,
+      "total_response_time": 0.005613803863525391,
+      "server_processing_time": 0.004496,
       "payload_size": 3587,
-      "timestamp": "2026-06-24T20:21:28.269691+00:00"
+      "timestamp": "2026-06-24T22:38:51.480882+00:00"
     },
     {
       "path": "/api/v1/segments",
       "method": "GET",
       "status_code": 200,
-      "total_response_time": 0.0076694488525390625,
-      "server_processing_time": 0.006989,
+      "total_response_time": 0.005346059799194336,
+      "server_processing_time": 0.004823,
       "payload_size": 2047,
-      "timestamp": "2026-06-24T20:21:28.277389+00:00"
+      "timestamp": "2026-06-24T22:38:51.486247+00:00"
     },
     {
       "path": "/api/v1/admin/audit-logs",
       "method": "GET",
       "status_code": 200,
-      "total_response_time": 0.003584146499633789,
-      "server_processing_time": 0.002949,
+      "total_response_time": 0.0028994083404541016,
+      "server_processing_time": 0.002305,
       "payload_size": 106,
-      "timestamp": "2026-06-24T20:21:28.281005+00:00"
+      "timestamp": "2026-06-24T22:38:51.489170+00:00"
     },
     {
       "path": "/api/v1/admin/system-health",
       "method": "GET",
       "status_code": 200,
-      "total_response_time": 0.003235340118408203,
-      "server_processing_time": 0.002633,
+      "total_response_time": 0.001936197280883789,
+      "server_processing_time": 0.001557,
       "payload_size": 358,
-      "timestamp": "2026-06-24T20:21:28.284263+00:00"
+      "timestamp": "2026-06-24T22:38:51.491121+00:00"
     },
     {
       "path": "/api/v1/admin/feature-flags",
       "method": "GET",
       "status_code": 200,
-      "total_response_time": 0.0038785934448242188,
-      "server_processing_time": 0.003167,
+      "total_response_time": 0.001714944839477539,
+      "server_processing_time": 0.001329,
       "payload_size": 479,
-      "timestamp": "2026-06-24T20:21:28.288166+00:00"
+      "timestamp": "2026-06-24T22:38:51.492847+00:00"
     },
     {
       "path": "/api/v1/admin/users",
       "method": "GET",
       "status_code": 200,
-      "total_response_time": 0.005351066589355469,
-      "server_processing_time": 0.004753,
+      "total_response_time": 0.005631685256958008,
+      "server_processing_time": 0.005089,
       "payload_size": 2,
-      "timestamp": "2026-06-24T20:21:28.293542+00:00"
+      "timestamp": "2026-06-24T22:38:51.498493+00:00"
     },
     {
       "path": "/api/v1/admin/roles",
       "method": "GET",
       "status_code": 200,
-      "total_response_time": 0.0026504993438720703,
-      "server_processing_time": 0.002071,
+      "total_response_time": 0.0026738643646240234,
+      "server_processing_time": 0.002033,
       "payload_size": 2,
-      "timestamp": "2026-06-24T20:21:28.296216+00:00"
+      "timestamp": "2026-06-24T22:38:51.501190+00:00"
     },
     {
       "path": "/api/v1/admin/api-keys",
       "method": "GET",
       "status_code": 200,
-      "total_response_time": 0.0028905868530273438,
-      "server_processing_time": 0.002424,
+      "total_response_time": 0.0020575523376464844,
+      "server_processing_time": 0.001593,
       "payload_size": 2,
-      "timestamp": "2026-06-24T20:21:28.299126+00:00"
+      "timestamp": "2026-06-24T22:38:51.503266+00:00"
     },
     {
       "path": "/api/v1/admin/webhooks",
       "method": "GET",
       "status_code": 200,
-      "total_response_time": 0.0023450851440429688,
-      "server_processing_time": 0.001878,
+      "total_response_time": 0.001856088638305664,
+      "server_processing_time": 0.001389,
       "payload_size": 2,
-      "timestamp": "2026-06-24T20:21:28.301490+00:00"
+      "timestamp": "2026-06-24T22:38:51.505135+00:00"
     },
     {
       "path": "/api/v1/customers?limit=10",
       "method": "GET",
       "status_code": 200,
-      "total_response_time": 0.009339570999145508,
-      "server_processing_time": 0.008761,
-      "payload_size": 8629,
-      "timestamp": "2026-06-24T20:21:28.314117+00:00"
+      "total_response_time": 0.008067131042480469,
+      "server_processing_time": 0.007556,
+      "payload_size": 8630,
+      "timestamp": "2026-06-24T22:38:51.515879+00:00"
     },
     {
       "path": "/api/v1/customers/11782a90-7782-4a0b-b3ef-2ef1825f57fc/profile",
       "method": "GET",
       "status_code": 404,
-      "total_response_time": 0.007216930389404297,
-      "server_processing_time": 0.006643,
+      "total_response_time": 0.012075185775756836,
+      "server_processing_time": 0.011438,
       "payload_size": 137,
-      "timestamp": "2026-06-24T20:21:28.321425+00:00"
+      "timestamp": "2026-06-24T22:38:51.528039+00:00"
     },
     {
       "path": "/api/v1/customers/11782a90-7782-4a0b-b3ef-2ef1825f57fc/preferences",
       "method": "GET",
       "status_code": 404,
-      "total_response_time": 0.005542755126953125,
-      "server_processing_time": 0.004787,
+      "total_response_time": 0.010253667831420898,
+      "server_processing_time": 0.009487,
       "payload_size": 145,
-      "timestamp": "2026-06-24T20:21:28.326992+00:00"
+      "timestamp": "2026-06-24T22:38:51.538320+00:00"
     },
     {
       "path": "/api/v1/customers/11782a90-7782-4a0b-b3ef-2ef1825f57fc/segments",
       "method": "GET",
       "status_code": 200,
-      "total_response_time": 0.0051708221435546875,
-      "server_processing_time": 0.004623,
+      "total_response_time": 0.12766265869140625,
+      "server_processing_time": 0.126932,
       "payload_size": 2,
-      "timestamp": "2026-06-24T20:21:28.332188+00:00"
+      "timestamp": "2026-06-24T22:38:51.666034+00:00"
     },
     {
       "path": "/api/v1/customers/11782a90-7782-4a0b-b3ef-2ef1825f57fc/events",
       "method": "GET",
       "status_code": 200,
-      "total_response_time": 0.008860111236572266,
-      "server_processing_time": 0.008196,
-      "payload_size": 1307,
-      "timestamp": "2026-06-24T20:21:28.341078+00:00"
+      "total_response_time": 0.015140056610107422,
+      "server_processing_time": 0.014494,
+      "payload_size": 1908,
+      "timestamp": "2026-06-24T22:38:51.681203+00:00"
     },
     {
       "path": "/api/v1/customers/bef6ae88-b15e-493e-a168-0d84df192ea8/profile",
       "method": "GET",
       "status_code": 404,
-      "total_response_time": 0.005783796310424805,
-      "server_processing_time": 0.005189,
+      "total_response_time": 0.004950523376464844,
+      "server_processing_time": 0.00425,
       "payload_size": 137,
-      "timestamp": "2026-06-24T20:21:28.346921+00:00"
+      "timestamp": "2026-06-24T22:38:51.686208+00:00"
     },
     {
       "path": "/api/v1/customers/bef6ae88-b15e-493e-a168-0d84df192ea8/preferences",
       "method": "GET",
       "status_code": 404,
-      "total_response_time": 0.004571199417114258,
-      "server_processing_time": 0.004015,
+      "total_response_time": 0.0054607391357421875,
+      "server_processing_time": 0.004784,
       "payload_size": 145,
-      "timestamp": "2026-06-24T20:21:28.351523+00:00"
+      "timestamp": "2026-06-24T22:38:51.691698+00:00"
     },
     {
       "path": "/api/v1/customers/bef6ae88-b15e-493e-a168-0d84df192ea8/segments",
       "method": "GET",
       "status_code": 200,
-      "total_response_time": 0.00460362434387207,
-      "server_processing_time": 0.004057,
+      "total_response_time": 0.0032825469970703125,
+      "server_processing_time": 0.002727,
       "payload_size": 2,
-      "timestamp": "2026-06-24T20:21:28.356156+00:00"
+      "timestamp": "2026-06-24T22:38:51.695008+00:00"
     },
     {
       "path": "/api/v1/customers/bef6ae88-b15e-493e-a168-0d84df192ea8/events",
       "method": "GET",
       "status_code": 200,
-      "total_response_time": 0.006999492645263672,
-      "server_processing_time": 0.006436,
+      "total_response_time": 0.004701137542724609,
+      "server_processing_time": 0.004281,
       "payload_size": 106,
-      "timestamp": "2026-06-24T20:21:28.363187+00:00"
+      "timestamp": "2026-06-24T22:38:51.699734+00:00"
     },
     {
       "path": "/api/v1/customers/3e3c0b2c-21fc-4208-b9aa-acdf791759f0/profile",
       "method": "GET",
       "status_code": 404,
-      "total_response_time": 0.006068229675292969,
-      "server_processing_time": 0.005529,
+      "total_response_time": 0.003970623016357422,
+      "server_processing_time": 0.003557,
       "payload_size": 137,
-      "timestamp": "2026-06-24T20:21:28.369300+00:00"
+      "timestamp": "2026-06-24T22:38:51.703736+00:00"
     },
     {
       "path": "/api/v1/customers/3e3c0b2c-21fc-4208-b9aa-acdf791759f0/preferences",
       "method": "GET",
       "status_code": 404,
-      "total_response_time": 0.004568576812744141,
-      "server_processing_time": 0.003984,
+      "total_response_time": 0.0037310123443603516,
+      "server_processing_time": 0.003253,
       "payload_size": 145,
-      "timestamp": "2026-06-24T20:21:28.373896+00:00"
+      "timestamp": "2026-06-24T22:38:51.707489+00:00"
     },
     {
       "path": "/api/v1/customers/3e3c0b2c-21fc-4208-b9aa-acdf791759f0/segments",
       "method": "GET",
       "status_code": 200,
-      "total_response_time": 0.005573272705078125,
-      "server_processing_time": 0.005013,
+      "total_response_time": 0.0041141510009765625,
+      "server_processing_time": 0.003612,
       "payload_size": 2,
-      "timestamp": "2026-06-24T20:21:28.379498+00:00"
+      "timestamp": "2026-06-24T22:38:51.711627+00:00"
     },
     {
       "path": "/api/v1/customers/3e3c0b2c-21fc-4208-b9aa-acdf791759f0/events",
       "method": "GET",
       "status_code": 200,
-      "total_response_time": 0.0067691802978515625,
-      "server_processing_time": 0.006215,
+      "total_response_time": 0.005465984344482422,
+      "server_processing_time": 0.004947,
       "payload_size": 712,
-      "timestamp": "2026-06-24T20:21:28.386303+00:00"
+      "timestamp": "2026-06-24T22:38:51.717121+00:00"
     },
     {
       "path": "/api/v1/customers/54749272-1a64-4e9b-b161-b50dd702281b/profile",
       "method": "GET",
       "status_code": 404,
-      "total_response_time": 0.0058057308197021484,
-      "server_processing_time": 0.005222,
+      "total_response_time": 0.004367351531982422,
+      "server_processing_time": 0.003878,
       "payload_size": 137,
-      "timestamp": "2026-06-24T20:21:28.392159+00:00"
+      "timestamp": "2026-06-24T22:38:51.721532+00:00"
     },
     {
       "path": "/api/v1/customers/54749272-1a64-4e9b-b161-b50dd702281b/preferences",
       "method": "GET",
       "status_code": 404,
-      "total_response_time": 0.004341602325439453,
-      "server_processing_time": 0.003808,
+      "total_response_time": 0.004702329635620117,
+      "server_processing_time": 0.004129,
       "payload_size": 145,
-      "timestamp": "2026-06-24T20:21:28.396531+00:00"
+      "timestamp": "2026-06-24T22:38:51.726261+00:00"
     },
     {
       "path": "/api/v1/customers/54749272-1a64-4e9b-b161-b50dd702281b/segments",
       "method": "GET",
       "status_code": 200,
-      "total_response_time": 0.006875753402709961,
-      "server_processing_time": 0.006289,
+      "total_response_time": 0.004026889801025391,
+      "server_processing_time": 0.003451,
       "payload_size": 2,
-      "timestamp": "2026-06-24T20:21:28.403434+00:00"
+      "timestamp": "2026-06-24T22:38:51.730312+00:00"
     },
     {
       "path": "/api/v1/customers/54749272-1a64-4e9b-b161-b50dd702281b/events",
       "method": "GET",
       "status_code": 200,
-      "total_response_time": 0.007578134536743164,
-      "server_processing_time": 0.007003,
+      "total_response_time": 0.0043792724609375,
+      "server_processing_time": 0.003948,
       "payload_size": 712,
-      "timestamp": "2026-06-24T20:21:28.411048+00:00"
+      "timestamp": "2026-06-24T22:38:51.734717+00:00"
     },
     {
       "path": "/api/v1/customers/42228b2d-a6a5-4fab-ac94-63e016d98912/profile",
       "method": "GET",
       "status_code": 404,
-      "total_response_time": 0.0063934326171875,
-      "server_processing_time": 0.005747,
+      "total_response_time": 0.004058122634887695,
+      "server_processing_time": 0.00365,
       "payload_size": 137,
-      "timestamp": "2026-06-24T20:21:28.417492+00:00"
+      "timestamp": "2026-06-24T22:38:51.738814+00:00"
     },
     {
       "path": "/api/v1/customers/42228b2d-a6a5-4fab-ac94-63e016d98912/preferences",
       "method": "GET",
       "status_code": 404,
-      "total_response_time": 0.004905223846435547,
-      "server_processing_time": 0.004347,
+      "total_response_time": 0.003084421157836914,
+      "server_processing_time": 0.002628,
       "payload_size": 145,
-      "timestamp": "2026-06-24T20:21:28.422427+00:00"
+      "timestamp": "2026-06-24T22:38:51.741921+00:00"
     },
     {
       "path": "/api/v1/customers/42228b2d-a6a5-4fab-ac94-63e016d98912/segments",
       "method": "GET",
       "status_code": 200,
-      "total_response_time": 0.00552678108215332,
-      "server_processing_time": 0.00494,
+      "total_response_time": 0.004125118255615234,
+      "server_processing_time": 0.003594,
       "payload_size": 240,
-      "timestamp": "2026-06-24T20:21:28.427987+00:00"
+      "timestamp": "2026-06-24T22:38:51.746069+00:00"
     },
     {
       "path": "/api/v1/customers/42228b2d-a6a5-4fab-ac94-63e016d98912/events",
       "method": "GET",
       "status_code": 200,
-      "total_response_time": 0.0078125,
-      "server_processing_time": 0.007197,
+      "total_response_time": 0.005972146987915039,
+      "server_processing_time": 0.005441,
       "payload_size": 12141,
-      "timestamp": "2026-06-24T20:21:28.435838+00:00"
+      "timestamp": "2026-06-24T22:38:51.752074+00:00"
     },
     {
       "path": "/api/v1/customers/79ff0fbf-86fc-4ad7-a30a-758610ef188a/profile",
       "method": "GET",
       "status_code": 404,
-      "total_response_time": 0.00641942024230957,
-      "server_processing_time": 0.005835,
+      "total_response_time": 0.003923177719116211,
+      "server_processing_time": 0.003427,
       "payload_size": 137,
-      "timestamp": "2026-06-24T20:21:28.442411+00:00"
+      "timestamp": "2026-06-24T22:38:51.756125+00:00"
     },
     {
       "path": "/api/v1/customers/79ff0fbf-86fc-4ad7-a30a-758610ef188a/preferences",
       "method": "GET",
       "status_code": 404,
-      "total_response_time": 0.004835367202758789,
-      "server_processing_time": 0.004234,
+      "total_response_time": 0.003208160400390625,
+      "server_processing_time": 0.002728,
       "payload_size": 145,
-      "timestamp": "2026-06-24T20:21:28.447275+00:00"
+      "timestamp": "2026-06-24T22:38:51.759356+00:00"
     },
     {
       "path": "/api/v1/customers/79ff0fbf-86fc-4ad7-a30a-758610ef188a/segments",
       "method": "GET",
       "status_code": 200,
-      "total_response_time": 0.00550389289855957,
-      "server_processing_time": 0.004908,
+      "total_response_time": 0.00394892692565918,
+      "server_processing_time": 0.003118,
       "payload_size": 479,
-      "timestamp": "2026-06-24T20:21:28.452809+00:00"
+      "timestamp": "2026-06-24T22:38:51.763347+00:00"
     },
     {
       "path": "/api/v1/customers/79ff0fbf-86fc-4ad7-a30a-758610ef188a/events",
       "method": "GET",
       "status_code": 200,
-      "total_response_time": 0.008511543273925781,
-      "server_processing_time": 0.007901,
+      "total_response_time": 0.005136728286743164,
+      "server_processing_time": 0.004595,
       "payload_size": 11520,
-      "timestamp": "2026-06-24T20:21:28.461357+00:00"
+      "timestamp": "2026-06-24T22:38:51.768516+00:00"
     },
     {
       "path": "/api/v1/customers/ea8d9bbe-6f6a-447c-8359-88e5740c59d7/profile",
       "method": "GET",
       "status_code": 404,
-      "total_response_time": 0.005694866180419922,
-      "server_processing_time": 0.005067,
+      "total_response_time": 0.004054069519042969,
+      "server_processing_time": 0.003602,
       "payload_size": 137,
-      "timestamp": "2026-06-24T20:21:28.467205+00:00"
+      "timestamp": "2026-06-24T22:38:51.772695+00:00"
     },
     {
       "path": "/api/v1/customers/ea8d9bbe-6f6a-447c-8359-88e5740c59d7/preferences",
       "method": "GET",
       "status_code": 404,
-      "total_response_time": 0.004988193511962891,
-      "server_processing_time": 0.00439,
+      "total_response_time": 0.0039055347442626953,
+      "server_processing_time": 0.003428,
       "payload_size": 145,
-      "timestamp": "2026-06-24T20:21:28.472223+00:00"
+      "timestamp": "2026-06-24T22:38:51.776625+00:00"
     },
     {
       "path": "/api/v1/customers/ea8d9bbe-6f6a-447c-8359-88e5740c59d7/segments",
       "method": "GET",
       "status_code": 200,
-      "total_response_time": 0.004784584045410156,
-      "server_processing_time": 0.004157,
+      "total_response_time": 0.0037431716918945312,
+      "server_processing_time": 0.003158,
       "payload_size": 2,
-      "timestamp": "2026-06-24T20:21:28.477035+00:00"
+      "timestamp": "2026-06-24T22:38:51.780394+00:00"
     },
     {
       "path": "/api/v1/customers/ea8d9bbe-6f6a-447c-8359-88e5740c59d7/events",
       "method": "GET",
       "status_code": 200,
-      "total_response_time": 0.007746219635009766,
-      "server_processing_time": 0.007134,
+      "total_response_time": 0.006728649139404297,
+      "server_processing_time": 0.005978,
       "payload_size": 11518,
-      "timestamp": "2026-06-24T20:21:28.484816+00:00"
+      "timestamp": "2026-06-24T22:38:51.787165+00:00"
     },
     {
       "path": "/api/v1/customers/10d7960b-5803-4fa4-a37c-90606ab704d8/profile",
       "method": "GET",
       "status_code": 404,
-      "total_response_time": 0.0065691471099853516,
-      "server_processing_time": 0.006013,
+      "total_response_time": 0.004803895950317383,
+      "server_processing_time": 0.004285,
       "payload_size": 137,
-      "timestamp": "2026-06-24T20:21:28.491521+00:00"
+      "timestamp": "2026-06-24T22:38:51.792107+00:00"
     },
     {
       "path": "/api/v1/customers/10d7960b-5803-4fa4-a37c-90606ab704d8/preferences",
       "method": "GET",
       "status_code": 404,
-      "total_response_time": 0.003897428512573242,
-      "server_processing_time": 0.003319,
+      "total_response_time": 0.003839254379272461,
+      "server_processing_time": 0.00319,
       "payload_size": 145,
-      "timestamp": "2026-06-24T20:21:28.495446+00:00"
+      "timestamp": "2026-06-24T22:38:51.795970+00:00"
     },
     {
       "path": "/api/v1/customers/10d7960b-5803-4fa4-a37c-90606ab704d8/segments",
       "method": "GET",
       "status_code": 200,
-      "total_response_time": 0.004037141799926758,
-      "server_processing_time": 0.003575,
+      "total_response_time": 0.0037271976470947266,
+      "server_processing_time": 0.003221,
       "payload_size": 479,
-      "timestamp": "2026-06-24T20:21:28.499506+00:00"
+      "timestamp": "2026-06-24T22:38:51.799718+00:00"
     },
     {
       "path": "/api/v1/customers/10d7960b-5803-4fa4-a37c-90606ab704d8/events",
       "method": "GET",
       "status_code": 200,
-      "total_response_time": 0.0077211856842041016,
-      "server_processing_time": 0.007115,
+      "total_response_time": 0.00562739372253418,
+      "server_processing_time": 0.005174,
       "payload_size": 12113,
-      "timestamp": "2026-06-24T20:21:28.507265+00:00"
+      "timestamp": "2026-06-24T22:38:51.805397+00:00"
     },
     {
       "path": "/api/v1/customers/bcd8b3e1-67e3-4f09-a16d-87b22601e329/profile",
       "method": "GET",
       "status_code": 404,
-      "total_response_time": 0.005609750747680664,
-      "server_processing_time": 0.005037,
+      "total_response_time": 0.004431247711181641,
+      "server_processing_time": 0.003966,
       "payload_size": 137,
-      "timestamp": "2026-06-24T20:21:28.513021+00:00"
+      "timestamp": "2026-06-24T22:38:51.809976+00:00"
     },
     {
       "path": "/api/v1/customers/bcd8b3e1-67e3-4f09-a16d-87b22601e329/preferences",
       "method": "GET",
       "status_code": 404,
-      "total_response_time": 0.004328012466430664,
-      "server_processing_time": 0.003747,
+      "total_response_time": 0.0039234161376953125,
+      "server_processing_time": 0.003349,
       "payload_size": 145,
-      "timestamp": "2026-06-24T20:21:28.517377+00:00"
+      "timestamp": "2026-06-24T22:38:51.813925+00:00"
     },
     {
       "path": "/api/v1/customers/bcd8b3e1-67e3-4f09-a16d-87b22601e329/segments",
       "method": "GET",
       "status_code": 200,
-      "total_response_time": 0.005723476409912109,
-      "server_processing_time": 0.005105,
+      "total_response_time": 0.003939390182495117,
+      "server_processing_time": 0.003345,
       "payload_size": 240,
-      "timestamp": "2026-06-24T20:21:28.523129+00:00"
+      "timestamp": "2026-06-24T22:38:51.817888+00:00"
     },
     {
       "path": "/api/v1/customers/bcd8b3e1-67e3-4f09-a16d-87b22601e329/events",
       "method": "GET",
       "status_code": 200,
-      "total_response_time": 0.008644342422485352,
-      "server_processing_time": 0.007935,
+      "total_response_time": 0.006661176681518555,
+      "server_processing_time": 0.006165,
       "payload_size": 12155,
-      "timestamp": "2026-06-24T20:21:28.531818+00:00"
+      "timestamp": "2026-06-24T22:38:51.824581+00:00"
     },
     {
       "path": "/api/v1/customers/e56182d2-f8c0-4ea3-ac47-25de8dacbe57/profile",
       "method": "GET",
       "status_code": 404,
-      "total_response_time": 0.0057985782623291016,
-      "server_processing_time": 0.005146,
+      "total_response_time": 0.00394892692565918,
+      "server_processing_time": 0.00344,
       "payload_size": 137,
-      "timestamp": "2026-06-24T20:21:28.537757+00:00"
+      "timestamp": "2026-06-24T22:38:51.828654+00:00"
     },
     {
       "path": "/api/v1/customers/e56182d2-f8c0-4ea3-ac47-25de8dacbe57/preferences",
       "method": "GET",
       "status_code": 404,
-      "total_response_time": 0.004749298095703125,
-      "server_processing_time": 0.004144,
+      "total_response_time": 0.0041141510009765625,
+      "server_processing_time": 0.003505,
       "payload_size": 145,
-      "timestamp": "2026-06-24T20:21:28.542536+00:00"
+      "timestamp": "2026-06-24T22:38:51.832791+00:00"
     },
     {
       "path": "/api/v1/customers/e56182d2-f8c0-4ea3-ac47-25de8dacbe57/segments",
       "method": "GET",
       "status_code": 200,
-      "total_response_time": 0.004492282867431641,
-      "server_processing_time": 0.003937,
+      "total_response_time": 0.0036385059356689453,
+      "server_processing_time": 0.00303,
       "payload_size": 2,
-      "timestamp": "2026-06-24T20:21:28.547057+00:00"
+      "timestamp": "2026-06-24T22:38:51.836458+00:00"
     },
     {
       "path": "/api/v1/customers/e56182d2-f8c0-4ea3-ac47-25de8dacbe57/events",
       "method": "GET",
       "status_code": 200,
-      "total_response_time": 0.00715947151184082,
-      "server_processing_time": 0.006555,
+      "total_response_time": 0.005602359771728516,
+      "server_processing_time": 0.005049,
       "payload_size": 12186,
-      "timestamp": "2026-06-24T20:21:28.554250+00:00"
+      "timestamp": "2026-06-24T22:38:51.842087+00:00"
     },
     {
       "path": "/api/v1/twins/11782a90-7782-4a0b-b3ef-2ef1825f57fc",
       "method": "GET",
       "status_code": 200,
-      "total_response_time": 0.007891178131103516,
-      "server_processing_time": 0.007228,
-      "payload_size": 572,
-      "timestamp": "2026-06-24T20:21:28.562470+00:00"
+      "total_response_time": 0.00455021858215332,
+      "server_processing_time": 0.004028,
+      "payload_size": 574,
+      "timestamp": "2026-06-24T22:38:51.846917+00:00"
     },
     {
       "path": "/api/v1/twins/bef6ae88-b15e-493e-a168-0d84df192ea8",
       "method": "GET",
       "status_code": 200,
-      "total_response_time": 0.008610248565673828,
-      "server_processing_time": 0.00772,
+      "total_response_time": 0.004634857177734375,
+      "server_processing_time": 0.004014,
       "payload_size": 568,
-      "timestamp": "2026-06-24T20:21:28.571126+00:00"
+      "timestamp": "2026-06-24T22:38:51.851591+00:00"
     },
     {
       "path": "/api/v1/twins/3e3c0b2c-21fc-4208-b9aa-acdf791759f0",
       "method": "GET",
       "status_code": 200,
-      "total_response_time": 0.007291316986083984,
-      "server_processing_time": 0.00663,
+      "total_response_time": 0.004088878631591797,
+      "server_processing_time": 0.003657,
       "payload_size": 568,
-      "timestamp": "2026-06-24T20:21:28.578476+00:00"
+      "timestamp": "2026-06-24T22:38:51.855716+00:00"
     },
     {
       "path": "/api/v1/twins/54749272-1a64-4e9b-b161-b50dd702281b",
       "method": "GET",
       "status_code": 200,
-      "total_response_time": 0.006156444549560547,
-      "server_processing_time": 0.005599,
+      "total_response_time": 0.003787994384765625,
+      "server_processing_time": 0.003365,
       "payload_size": 568,
-      "timestamp": "2026-06-24T20:21:28.584680+00:00"
+      "timestamp": "2026-06-24T22:38:51.859537+00:00"
     },
     {
       "path": "/api/v1/twins/42228b2d-a6a5-4fab-ac94-63e016d98912",
       "method": "GET",
       "status_code": 200,
-      "total_response_time": 0.00623774528503418,
-      "server_processing_time": 0.005618,
+      "total_response_time": 0.006140232086181641,
+      "server_processing_time": 0.005409,
       "payload_size": 2879,
-      "timestamp": "2026-06-24T20:21:28.590967+00:00"
+      "timestamp": "2026-06-24T22:38:51.865714+00:00"
     },
     {
       "path": "/api/v1/twins/11782a90-7782-4a0b-b3ef-2ef1825f57fc/predictions",
       "method": "GET",
       "status_code": 200,
-      "total_response_time": 0.006991863250732422,
-      "server_processing_time": 0.006374,
+      "total_response_time": 0.04567718505859375,
+      "server_processing_time": 0.045028,
       "payload_size": 1828,
-      "timestamp": "2026-06-24T20:21:28.598172+00:00"
+      "timestamp": "2026-06-24T22:38:51.911633+00:00"
     },
     {
       "path": "/api/v1/twins/11782a90-7782-4a0b-b3ef-2ef1825f57fc/predictions/churn",
       "method": "GET",
       "status_code": 200,
-      "total_response_time": 0.0064051151275634766,
-      "server_processing_time": 0.005886,
+      "total_response_time": 0.009707212448120117,
+      "server_processing_time": 0.009098,
       "payload_size": 910,
-      "timestamp": "2026-06-24T20:21:28.604623+00:00"
+      "timestamp": "2026-06-24T22:38:51.921385+00:00"
     },
     {
       "path": "/api/v1/twins/11782a90-7782-4a0b-b3ef-2ef1825f57fc/predictions/ltv",
       "method": "GET",
       "status_code": 404,
-      "total_response_time": 0.005896329879760742,
-      "server_processing_time": 0.005318,
+      "total_response_time": 0.008971452713012695,
+      "server_processing_time": 0.008288,
       "payload_size": 145,
-      "timestamp": "2026-06-24T20:21:28.610574+00:00"
+      "timestamp": "2026-06-24T22:38:51.930414+00:00"
     },
     {
       "path": "/api/v1/twins/bef6ae88-b15e-493e-a168-0d84df192ea8/predictions",
       "method": "GET",
       "status_code": 200,
-      "total_response_time": 0.006058454513549805,
-      "server_processing_time": 0.005476,
+      "total_response_time": 0.005789279937744141,
+      "server_processing_time": 0.005141,
       "payload_size": 1828,
-      "timestamp": "2026-06-24T20:21:28.616656+00:00"
+      "timestamp": "2026-06-24T22:38:51.936225+00:00"
     },
     {
       "path": "/api/v1/twins/bef6ae88-b15e-493e-a168-0d84df192ea8/predictions/churn",
       "method": "GET",
       "status_code": 200,
-      "total_response_time": 0.00628209114074707,
-      "server_processing_time": 0.005756,
+      "total_response_time": 0.006291627883911133,
+      "server_processing_time": 0.005633,
       "payload_size": 910,
-      "timestamp": "2026-06-24T20:21:28.622997+00:00"
+      "timestamp": "2026-06-24T22:38:51.942578+00:00"
     },
     {
       "path": "/api/v1/twins/bef6ae88-b15e-493e-a168-0d84df192ea8/predictions/ltv",
       "method": "GET",
       "status_code": 404,
-      "total_response_time": 0.006386995315551758,
-      "server_processing_time": 0.005774,
+      "total_response_time": 0.0075380802154541016,
+      "server_processing_time": 0.006498,
       "payload_size": 145,
-      "timestamp": "2026-06-24T20:21:28.629439+00:00"
+      "timestamp": "2026-06-24T22:38:51.950285+00:00"
     },
     {
       "path": "/api/v1/twins/3e3c0b2c-21fc-4208-b9aa-acdf791759f0/predictions",
       "method": "GET",
       "status_code": 200,
-      "total_response_time": 0.0052661895751953125,
-      "server_processing_time": 0.00475,
+      "total_response_time": 0.006987810134887695,
+      "server_processing_time": 0.006049,
       "payload_size": 2892,
-      "timestamp": "2026-06-24T20:21:28.634733+00:00"
+      "timestamp": "2026-06-24T22:38:51.957319+00:00"
     },
     {
       "path": "/api/v1/twins/3e3c0b2c-21fc-4208-b9aa-acdf791759f0/predictions/churn",
       "method": "GET",
       "status_code": 200,
-      "total_response_time": 0.0056078433990478516,
-      "server_processing_time": 0.005159,
+      "total_response_time": 0.007836580276489258,
+      "server_processing_time": 0.006826,
       "payload_size": 1010,
-      "timestamp": "2026-06-24T20:21:28.640393+00:00"
+      "timestamp": "2026-06-24T22:38:51.965274+00:00"
     },
     {
       "path": "/api/v1/twins/3e3c0b2c-21fc-4208-b9aa-acdf791759f0/predictions/ltv",
       "method": "GET",
       "status_code": 200,
-      "total_response_time": 0.004853010177612305,
-      "server_processing_time": 0.004282,
+      "total_response_time": 0.007933855056762695,
+      "server_processing_time": 0.006257,
       "payload_size": 945,
-      "timestamp": "2026-06-24T20:21:28.645301+00:00"
+      "timestamp": "2026-06-24T22:38:51.973373+00:00"
     },
     {
       "path": "/api/v1/twins/54749272-1a64-4e9b-b161-b50dd702281b/predictions",
       "method": "GET",
       "status_code": 200,
-      "total_response_time": 0.004209280014038086,
-      "server_processing_time": 0.003785,
+      "total_response_time": 0.006352663040161133,
+      "server_processing_time": 0.004765,
       "payload_size": 2892,
-      "timestamp": "2026-06-24T20:21:28.649553+00:00"
+      "timestamp": "2026-06-24T22:38:51.979864+00:00"
     },
     {
       "path": "/api/v1/twins/54749272-1a64-4e9b-b161-b50dd702281b/predictions/churn",
       "method": "GET",
       "status_code": 200,
-      "total_response_time": 0.004570960998535156,
-      "server_processing_time": 0.004171,
+      "total_response_time": 0.006138324737548828,
+      "server_processing_time": 0.004803,
       "payload_size": 1010,
-      "timestamp": "2026-06-24T20:21:28.654167+00:00"
+      "timestamp": "2026-06-24T22:38:51.986151+00:00"
     },
     {
       "path": "/api/v1/twins/54749272-1a64-4e9b-b161-b50dd702281b/predictions/ltv",
       "method": "GET",
       "status_code": 200,
-      "total_response_time": 0.004337310791015625,
-      "server_processing_time": 0.003881,
+      "total_response_time": 0.006720781326293945,
+      "server_processing_time": 0.005091,
       "payload_size": 945,
-      "timestamp": "2026-06-24T20:21:28.658546+00:00"
+      "timestamp": "2026-06-24T22:38:51.993020+00:00"
     },
     {
       "path": "/api/v1/twins/42228b2d-a6a5-4fab-ac94-63e016d98912/predictions",
       "method": "GET",
       "status_code": 200,
-      "total_response_time": 0.004448652267456055,
-      "server_processing_time": 0.004038,
+      "total_response_time": 0.00627446174621582,
+      "server_processing_time": 0.004737,
       "payload_size": 3276,
-      "timestamp": "2026-06-24T20:21:28.663036+00:00"
+      "timestamp": "2026-06-24T22:38:51.999425+00:00"
     },
     {
       "path": "/api/v1/twins/42228b2d-a6a5-4fab-ac94-63e016d98912/predictions/churn",
       "method": "GET",
       "status_code": 200,
-      "total_response_time": 0.005268573760986328,
-      "server_processing_time": 0.004804,
+      "total_response_time": 0.006580352783203125,
+      "server_processing_time": 0.005141,
       "payload_size": 1069,
-      "timestamp": "2026-06-24T20:21:28.668358+00:00"
+      "timestamp": "2026-06-24T22:38:52.006162+00:00"
     },
     {
       "path": "/api/v1/twins/42228b2d-a6a5-4fab-ac94-63e016d98912/predictions/ltv",
       "method": "GET",
       "status_code": 200,
-      "total_response_time": 0.0071375370025634766,
-      "server_processing_time": 0.006114,
+      "total_response_time": 0.0067293643951416016,
+      "server_processing_time": 0.005336,
       "payload_size": 1124,
-      "timestamp": "2026-06-24T20:21:28.675603+00:00"
+      "timestamp": "2026-06-24T22:38:52.013092+00:00"
     },
     {
       "path": "/api/v1/simulations",
       "method": "POST",
       "status_code": 200,
-      "total_response_time": 0.07847285270690918,
-      "server_processing_time": 0.07766,
+      "total_response_time": 0.08454775810241699,
+      "server_processing_time": 0.082643,
       "payload_size": 292,
-      "timestamp": "2026-06-24T20:21:28.754269+00:00"
+      "timestamp": "2026-06-24T22:38:52.098431+00:00"
     },
     {
-      "path": "/api/v1/simulations/d8653936-b3ee-4a83-b56b-9f501c200f89/status",
+      "path": "/api/v1/simulations/99860b96-d95f-4e8e-80c0-521526b86813/status",
       "method": "GET",
       "status_code": 200,
-      "total_response_time": 0.012131214141845703,
-      "server_processing_time": 0.011025,
+      "total_response_time": 0.0064258575439453125,
+      "server_processing_time": 0.005098,
       "payload_size": 115,
-      "timestamp": "2026-06-24T20:21:28.766462+00:00"
+      "timestamp": "2026-06-24T22:38:52.104908+00:00"
     },
     {
-      "path": "/api/v1/simulations/d8653936-b3ee-4a83-b56b-9f501c200f89/status",
+      "path": "/api/v1/simulations/99860b96-d95f-4e8e-80c0-521526b86813/status",
       "method": "GET",
       "status_code": 200,
-      "total_response_time": 0.062042236328125,
-      "server_processing_time": 0.061255,
+      "total_response_time": 0.0062181949615478516,
+      "server_processing_time": 0.005297,
       "payload_size": 115,
-      "timestamp": "2026-06-24T20:21:29.829104+00:00"
+      "timestamp": "2026-06-24T22:38:53.111452+00:00"
     },
     {
-      "path": "/api/v1/simulations/d8653936-b3ee-4a83-b56b-9f501c200f89/status",
+      "path": "/api/v1/simulations/99860b96-d95f-4e8e-80c0-521526b86813/status",
       "method": "GET",
       "status_code": 200,
-      "total_response_time": 0.1393873691558838,
-      "server_processing_time": 0.138654,
+      "total_response_time": 0.005448579788208008,
+      "server_processing_time": 0.004692,
       "payload_size": 115,
-      "timestamp": "2026-06-24T20:21:30.968823+00:00"
+      "timestamp": "2026-06-24T22:38:54.117549+00:00"
     },
     {
-      "path": "/api/v1/simulations/d8653936-b3ee-4a83-b56b-9f501c200f89/status",
+      "path": "/api/v1/simulations/99860b96-d95f-4e8e-80c0-521526b86813/status",
       "method": "GET",
       "status_code": 200,
-      "total_response_time": 0.19013476371765137,
-      "server_processing_time": 0.188702,
+      "total_response_time": 0.005425453186035156,
+      "server_processing_time": 0.00465,
       "payload_size": 115,
-      "timestamp": "2026-06-24T20:21:32.159461+00:00"
+      "timestamp": "2026-06-24T22:38:55.123092+00:00"
     },
     {
-      "path": "/api/v1/simulations/d8653936-b3ee-4a83-b56b-9f501c200f89/status",
+      "path": "/api/v1/simulations/99860b96-d95f-4e8e-80c0-521526b86813/status",
       "method": "GET",
       "status_code": 200,
-      "total_response_time": 0.17371416091918945,
-      "server_processing_time": 0.17247,
+      "total_response_time": 0.0050506591796875,
+      "server_processing_time": 0.004353,
       "payload_size": 115,
-      "timestamp": "2026-06-24T20:21:33.333673+00:00"
+      "timestamp": "2026-06-24T22:38:56.128248+00:00"
     },
     {
-      "path": "/api/v1/simulations/d8653936-b3ee-4a83-b56b-9f501c200f89/results",
+      "path": "/api/v1/simulations/99860b96-d95f-4e8e-80c0-521526b86813/results",
       "method": "GET",
       "status_code": 404,
-      "total_response_time": 0.14386844635009766,
-      "server_processing_time": 0.142681,
+      "total_response_time": 0.0060312747955322266,
+      "server_processing_time": 0.004979,
       "payload_size": 143,
-      "timestamp": "2026-06-24T20:21:34.478104+00:00"
+      "timestamp": "2026-06-24T22:38:57.134834+00:00"
     },
     {
       "path": "/api/v1/twins/11782a90-7782-4a0b-b3ef-2ef1825f57fc",
       "method": "GET",
       "status_code": 200,
-      "total_response_time": 0.06857848167419434,
-      "server_processing_time": 0.067936,
-      "payload_size": 572,
-      "timestamp": "2026-06-24T20:21:34.546797+00:00"
+      "total_response_time": 0.005598545074462891,
+      "server_processing_time": 0.004816,
+      "payload_size": 574,
+      "timestamp": "2026-06-24T22:38:57.140758+00:00"
     },
     {
       "path": "/api/v1/simulations",
       "method": "POST",
       "status_code": 200,
-      "total_response_time": 0.10179424285888672,
-      "server_processing_time": 0.090351,
+      "total_response_time": 0.0516815185546875,
+      "server_processing_time": 0.05096,
       "payload_size": 264,
-      "timestamp": "2026-06-24T20:21:34.648645+00:00"
+      "timestamp": "2026-06-24T22:38:57.192475+00:00"
     },
     {
       "path": "/api/v1/events",
       "method": "POST",
       "status_code": 200,
-      "total_response_time": 0.07999968528747559,
-      "server_processing_time": 0.079022,
+      "total_response_time": 0.05880904197692871,
+      "server_processing_time": 0.05817,
       "payload_size": 670,
-      "timestamp": "2026-06-24T20:21:34.728700+00:00"
+      "timestamp": "2026-06-24T22:38:57.251316+00:00"
     },
     {
       "path": "/api/v1/twins/11782a90-7782-4a0b-b3ef-2ef1825f57fc/rebuild",
       "method": "POST",
       "status_code": 200,
-      "total_response_time": 0.8453872203826904,
-      "server_processing_time": 0.844111,
+      "total_response_time": 0.05817246437072754,
+      "server_processing_time": 0.057548,
       "payload_size": 107,
-      "timestamp": "2026-06-24T20:21:35.574124+00:00"
+      "timestamp": "2026-06-24T22:38:57.309545+00:00"
     },
     {
       "path": "/api/v1/simulations",
       "method": "POST",
       "status_code": 200,
-      "total_response_time": 0.023303985595703125,
-      "server_processing_time": 0.020724,
+      "total_response_time": 0.07921409606933594,
+      "server_processing_time": 0.078242,
       "payload_size": 264,
-      "timestamp": "2026-06-24T20:21:36.598452+00:00"
+      "timestamp": "2026-06-24T22:38:58.389211+00:00"
     },
     {
       "path": "/api/v1/twins/42228b2d-a6a5-4fab-ac94-63e016d98912/predictions/churn",
       "method": "GET",
       "status_code": 200,
-      "total_response_time": 0.04237222671508789,
-      "server_processing_time": 0.04127,
+      "total_response_time": 0.0053746700286865234,
+      "server_processing_time": 0.004801,
       "payload_size": 1069,
-      "timestamp": "2026-06-24T20:21:36.641238+00:00"
+      "timestamp": "2026-06-24T22:38:58.394718+00:00"
     },
     {
       "path": "/api/v1/twins/54749272-1a64-4e9b-b161-b50dd702281b/predictions/churn",
       "method": "GET",
       "status_code": 200,
-      "total_response_time": 0.0970926284790039,
-      "server_processing_time": 0.096478,
+      "total_response_time": 0.005506277084350586,
+      "server_processing_time": 0.004823,
       "payload_size": 1010,
-      "timestamp": "2026-06-24T20:21:36.738345+00:00"
+      "timestamp": "2026-06-24T22:38:58.400236+00:00"
     },
     {
       "path": "/api/v1/customers/invalid-uuid-string",
       "method": "GET",
       "status_code": 404,
-      "total_response_time": 0.021921157836914062,
-      "server_processing_time": 0.021312,
+      "total_response_time": 0.002709627151489258,
+      "server_processing_time": 0.002104,
       "payload_size": 119,
-      "timestamp": "2026-06-24T20:21:36.760452+00:00"
+      "timestamp": "2026-06-24T22:38:58.403141+00:00"
     },
     {
       "path": "/api/v1/customers",
       "method": "POST",
       "status_code": 409,
-      "total_response_time": 0.08727097511291504,
-      "server_processing_time": 0.086496,
+      "total_response_time": 0.05646014213562012,
+      "server_processing_time": 0.055825,
       "payload_size": 52,
-      "timestamp": "2026-06-24T20:21:36.847747+00:00"
+      "timestamp": "2026-06-24T22:38:58.459623+00:00"
     },
     {
       "path": "/api/v1/simulations",
       "method": "POST",
       "status_code": 500,
-      "total_response_time": 0.1053459644317627,
-      "server_processing_time": 0.104772,
+      "total_response_time": 0.07648491859436035,
+      "server_processing_time": 0.075824,
       "payload_size": 97,
-      "timestamp": "2026-06-24T20:21:36.953126+00:00"
+      "timestamp": "2026-06-24T22:38:58.536141+00:00"
     }
   ]
 }

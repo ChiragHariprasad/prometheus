@@ -146,6 +146,8 @@ class TwinService:
             await self.session.flush()
             await self.session.refresh(twin)
 
+        await self._compute_embeddings(twin)
+
         if self.redis:
             await self.redis.delete(f"twin:{customer_id}", f"org:{organization_id}:twins")
         logger.info("Twin rebuilt", extra={"customer_id": str(customer_id), "version": twin.version})
@@ -1094,6 +1096,15 @@ class TwinService:
         )
         result = await self.session.execute(stmt)
         return result.scalar() or 0
+
+    async def _compute_embeddings(self, twin: CustomerTwin) -> None:
+        try:
+            from app.services.embedding_service import EmbeddingService
+            svc = EmbeddingService(self.session)
+            await svc.embed_twin(twin)
+            await svc.embed_interests(twin)
+        except Exception as e:
+            logger.warning("Twin embedding skipped", extra={"error": str(e), "customer_id": str(twin.customer_id)})
 
     def _to_twin_response(self, twin: CustomerTwin, customer: Customer) -> CustomerTwinResponse:
         behavior = twin.behavior_profile or {}

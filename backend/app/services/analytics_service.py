@@ -49,6 +49,9 @@ class AnalyticsService:
         avg_loyalty = await self._avg_twin_field(organization_id, CustomerTwin.loyalty_score)
 
         revenue_30d = await self._sum_event_value_since(organization_id, "purchase", thirty_days_ago)
+        campaign_revenue = await self._sum_campaign_result_revenue(organization_id)
+        simulation_revenue = await self._sum_simulation_expected_revenue(organization_id, thirty_days_ago)
+        total_revenue = revenue_30d + campaign_revenue + simulation_revenue
         churn_rate_30d = await self._compute_churn_rate(organization_id, thirty_days_ago)
 
         conversions_stmt = (
@@ -77,7 +80,7 @@ class AnalyticsService:
             events_24h=event_count_24h,
             active_campaigns=active_campaigns,
             avg_engagement=avg_engagement or 0.0,
-            total_revenue=round(revenue_30d, 2),
+            total_revenue=round(total_revenue, 2),
             revenue_growth=0.0,
             churn_rate=churn_rate_30d or 0.0,
         )
@@ -276,7 +279,9 @@ class AnalyticsService:
         result = await self.repo.session.execute(stmt)
         rows = result.all()
 
-        total_revenue = sum(r.revenue for r in rows)
+        event_revenue = sum(r.revenue for r in rows)
+        campaign_revenue = await self._sum_campaign_result_revenue(organization_id)
+        total_revenue = event_revenue + campaign_revenue
         total_transactions = sum(r.transactions for r in rows)
 
         return {
@@ -589,6 +594,29 @@ class AnalyticsService:
         )
         result = await self.repo.session.execute(stmt)
         return float(result.scalar() or 0)
+
+    async def _sum_campaign_result_revenue(self, organization_id: uuid.UUID) -> float:
+        stmt = select(func.coalesce(func.sum(CampaignResult.total_revenue), 0)).where(
+            CampaignResult.organization_id == organization_id,
+        )
+        result = await self.repo.session.execute(stmt)
+        return float(result.scalar() or 0)
+
+    async def _sum_simulation_expected_revenue(self, organization_id: uuid.UUID, since: datetime) -> float:
+        from app.models.simulation import SimulationResult
+        stmt = (
+            select(SimulationResult.expected_outcomes)
+            .where(
+                SimulationResult.organization_id == organization_id,
+                SimulationResult.created_at >= since,
+            )
+        )
+        result = await self.repo.session.execute(stmt)
+        total = 0.0
+        for row in result.all():
+            outcomes = row[0] or {}
+            total += float(outcomes.get("expected_revenue", 0) or 0)
+        return total
 
     async def _compute_churn_rate(self, organization_id: uuid.UUID, since: datetime) -> float | None:
         total = await self._count_customers(organization_id)

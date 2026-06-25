@@ -79,7 +79,6 @@ async def _bg_run_simulation(simulation_id: uuid.UUID):
 @router.post("", response_model=SimulationResponse)
 async def create_simulation(
     payload: SimulationCreate,
-    background_tasks: BackgroundTasks,
     session: AsyncSession = Depends(get_session),
     org_id: str = Depends(get_current_organization),
 ):
@@ -87,9 +86,6 @@ async def create_simulation(
     session.add(simulation)
     await session.flush()
     await session.refresh(simulation)
-
-    # Auto-run the simulation in background
-    background_tasks.add_task(_bg_run_simulation, simulation.id)
 
     return SimulationResponse.model_validate(simulation)
 

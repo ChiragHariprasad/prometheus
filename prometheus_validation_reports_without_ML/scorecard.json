@@ -1,5 +1,5 @@
 {
-  "timestamp": "2026-06-24T22:38:49.097078+00:00",
+  "timestamp": "2026-06-24T20:21:26.031992+00:00",
   "status": "PASS",
   "total_score": 94,
   "max_possible": 100,
@@ -20,7 +20,8 @@
     "[Performance -1] Load test avg latency > 1s at level 500"
   ],
   "warnings": [
-    "Simulation 99860b96-d95f-4e8e-80c0-521526b86813 did not complete in time.",
-    "CRITICAL LATENCY: GET /openapi.json took 2188.63ms (>2000ms)"
+    "Simulation d8653936-b3ee-4a83-b56b-9f501c200f89 did not complete in time.",
+    "CRITICAL LATENCY: GET /openapi.json took 2070.41ms (>2000ms)",
+    "WARNING LATENCY: POST /api/v1/twins/11782a90-7782-4a0b-b3ef-2ef1825f57fc/rebuild took 845.39ms (>500ms)"
   ]
 }
