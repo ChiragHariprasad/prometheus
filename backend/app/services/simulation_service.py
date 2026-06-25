@@ -110,10 +110,27 @@ class SimulationService:
         if not result_obj:
             raise NotFoundException("SimulationResult", f"for simulation {simulation_id}")
 
+        outcomes = result_obj.expected_outcomes or {}
+        campaign_impact = result_obj.campaign_impact or {}
+        projections = result_obj.customer_projections or {}
+
+        # The aggregation of expected revenue is stored in expected_outcomes
+        expected_rev = outcomes.get("expected_revenue", 0.0)
+        # Expected ROI is also stored there or in campaign_impact
+        expected_roi = outcomes.get("expected_roi", campaign_impact.get("expected_roi", 0.0))
+        # Expected churns is in campaign_impact
+        expected_churns = float(campaign_impact.get("expected_churns", outcomes.get("expected_churns", 0.0)))
+        # LTV impact is in customer_projections
+        ltv_impact = float(projections.get("ltv_impact", outcomes.get("ltv_impact", 0.0)))
+
         return SimulationResultResponse(
             id=result_obj.id,
             simulation_id=result_obj.simulation_id,
             run_id=result_obj.run_id,
+            expected_revenue=expected_rev,
+            expected_roi=expected_roi,
+            expected_churns=expected_churns,
+            ltv_impact=ltv_impact,
             aggregated_metrics=result_obj.aggregated_metrics or {},
             customer_projections=result_obj.customer_projections or {},
             segment_projections=result_obj.segment_projections or {},

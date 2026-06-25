@@ -153,6 +153,13 @@ class SimulationResultResponse(BaseModel):
     id: UUID
     simulation_id: UUID
     run_id: UUID | None = None
+    
+    # Root level KPIs for the frontend
+    expected_revenue: float = 0.0
+    expected_roi: float = 0.0
+    expected_churns: float = 0.0
+    ltv_impact: float = 0.0
+    
     aggregated_metrics: dict[str, Any] = {}
     customer_projections: dict[str, Any] = {}
     segment_projections: dict[str, Any] = {}
